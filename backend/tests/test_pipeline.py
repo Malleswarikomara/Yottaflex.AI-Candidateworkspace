@@ -233,17 +233,19 @@ val4,val5,val6
 """
     result = PipelineService.process_log_file(incompatible_csv, "schema_change.csv")
     assert result["reconciliation"]["is_reconciled"] is True
-    assert result["reconciliation"]["total_input_records"] == 1
-    assert result["reconciliation"]["rejected_records"] == 1
+    # Both data rows are accounted for and quarantined as SCHEMA_ERROR
+    assert result["reconciliation"]["total_input_records"] == 2
+    assert result["reconciliation"]["rejected_records"] == 2
     assert result["reconciliation"]["newly_inserted_records"] == 0
 
     # Verify reject type in database
     db = SessionLocal()
     try:
-        rej = db.query(RejectedLog).filter(RejectedLog.run_id == result["run_id"]).first()
-        assert rej is not None
-        assert rej.reject_type == "SCHEMA_ERROR"
-        assert "Incompatible schema" in rej.reason
+        rejections = db.query(RejectedLog).filter(RejectedLog.run_id == result["run_id"]).all()
+        assert len(rejections) == 2
+        for rej in rejections:
+            assert rej.reject_type == "SCHEMA_ERROR"
+            assert "Incompatible schema" in rej.reason
     finally:
         db.close()
 
@@ -384,3 +386,87 @@ BAD_EVT,2026-11-14T10:02:00Z,INFO,auth,Negative latency,-500
     assert res2["reconciliation"]["previously_skipped_records"] == 2
     assert res2["reconciliation"]["accounted_for"] == 3
     assert res2["reconciliation"]["is_reconciled"] is True
+
+
+def test_valid_zero_latency_preserved():
+    """Ensure that legitimate 0 and 0.0 response times are not dropped or converted to NULL."""
+    u_zero = f"ZERO_{uuid.uuid4().hex[:6]}"
+    csv_payload = f"""event_id,timestamp,severity,service,message,response_ms
+{u_zero},2026-11-14T10:00:00Z,INFO,cache,Cache instant hit,0
+"""
+    res = PipelineService.process_log_file(csv_payload, "zero_latency.csv")
+    assert res["status"] == "SUCCESS"
+    assert res["reconciliation"]["newly_inserted_records"] == 1
+
+    db = SessionLocal()
+    try:
+        log = db.query(ApplicationLog).filter(ApplicationLog.event_id == u_zero).first()
+        assert log is not None
+        assert log.response_ms == 0.0
+        assert log.to_dict()["response_ms"] == 0.0
+    finally:
+        db.close()
+
+
+def test_deterministic_event_id_includes_endpoint_and_status():
+    """Ensure events at identical timestamp/service/message but distinct endpoints/statuses don't collide."""
+    unique_tag = uuid.uuid4().hex[:6]
+    ts = "2026-11-14T12:00:00Z"
+    csv_payload = f"""timestamp,severity,service,message,endpoint,http_status
+{ts},INFO,gateway,Gateway request {unique_tag},/api/v1/users,200
+{ts},INFO,gateway,Gateway request {unique_tag},/api/v1/orders,200
+{ts},INFO,gateway,Gateway request {unique_tag},/api/v1/users,500
+"""
+    res = PipelineService.process_log_file(csv_payload, "endpoints.csv")
+    assert res["status"] == "SUCCESS"
+    # All 3 records should have unique generated event IDs and be inserted
+    assert res["reconciliation"]["newly_inserted_records"] == 3
+    assert res["reconciliation"]["rejected_records"] == 0
+
+
+def test_csv_raw_record_quoting_preserved():
+    """Ensure CSV lines with quoted commas retain exact raw source text."""
+    csv_content = """timestamp,severity,message,response_ms
+2026-11-14T10:00:00Z,INFO,"Payment processed, authorized by bank",-100
+"""
+    res = PipelineService.process_log_file(csv_content, "quoted.csv")
+    assert res["reconciliation"]["rejected_records"] == 1
+    db = SessionLocal()
+    try:
+        rej = db.query(RejectedLog).filter(RejectedLog.run_id == res["run_id"]).first()
+        assert rej is not None
+        # Must retain original quotes, not stripped/re-joined
+        assert '"Payment processed, authorized by bank"' in rej.raw_record
+    finally:
+        db.close()
+
+
+def test_epoch_zero_timestamp_normalized():
+    """Ensure epoch 0 is normalized to 1970 UTC without being treated as falsy/missing."""
+    raw = {"timestamp": 0, "severity": "INFO", "message": "Epoch zero test"}
+    cleaned = validate_and_normalize_record(raw, "epoch_zero.json", "RUN_TEST")
+    assert cleaned["timestamp"].year == 1970
+    assert cleaned["timestamp"].month == 1
+    assert cleaned["timestamp"].day == 1
+
+
+def test_timestamps_serialized_with_utc_z():
+    """Ensure database to_dict() returns timestamps with explicit UTC 'Z'."""
+    u_tz = f"TZ_{uuid.uuid4().hex[:6]}"
+    csv_payload = f"""event_id,timestamp,severity,service,message
+{u_tz},2026-11-14T10:00:00Z,INFO,auth,Timezone test
+"""
+    res = PipelineService.process_log_file(csv_payload, "tz_test.csv")
+    db = SessionLocal()
+    try:
+        log = db.query(ApplicationLog).filter(ApplicationLog.event_id == u_tz).first()
+        d = log.to_dict()
+        assert d["timestamp"].endswith("Z")
+        assert d["ingested_at"].endswith("Z")
+
+        run = db.query(PipelineRun).filter(PipelineRun.run_id == res["run_id"]).first()
+        rd = run.to_dict()
+        assert rd["start_time"].endswith("Z")
+        assert rd["created_at"].endswith("Z")
+    finally:
+        db.close()

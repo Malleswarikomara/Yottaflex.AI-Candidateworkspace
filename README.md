@@ -79,7 +79,7 @@ flowchart TD
 
 ## 3. Data Dictionary & Entity Relationships
 
-The relational model supports high-throughput batch ingestion, query filtering, and auditability. The complete PostgreSQL DDL is located in [`database/schema.sql`](file:///c:/CandidateWorkspace/database/schema.sql).
+The relational model supports high-throughput batch ingestion, query filtering, and auditability. The complete PostgreSQL DDL is located in [`database/schema.sql`](database/schema.sql).
 
 ### Table 1: `pipeline_runs`
 - **Grain:** One record per batch ingestion execution (upload or synthetic run).
@@ -131,7 +131,7 @@ The relational model supports high-throughput batch ingestion, query filtering, 
   | Column Name | Data Type | Nullable | Description |
   | :--- | :--- | :--- | :--- |
   | `reject_id` | INTEGER | NO | Sequential auto-increment ID |
-  | `run_id` | VARCHAR(64) | YES | Foreign Key referencing `pipeline_runs.run_id` |
+  | `run_id` | VARCHAR(64) | NO | Foreign Key referencing `pipeline_runs.run_id` |
   | `source_file` | VARCHAR(255) | NO | Originating source file |
   | `reject_type` | VARCHAR(50) | NO | Taxonomy: `MALFORMED`, `VALIDATION_ERROR`, `DUPLICATE`, `SCHEMA_ERROR` |
   | `raw_record` | TEXT | NO | Unparsed raw record string (exact unadulterated input) |
@@ -145,7 +145,7 @@ The relational model supports high-throughput batch ingestion, query filtering, 
   | Column Name | Data Type | Nullable | Description |
   | :--- | :--- | :--- | :--- |
   | `metric_id` | INTEGER | NO | Sequential metric ID |
-  | `run_id` | VARCHAR(64) | YES | Foreign Key referencing `pipeline_runs.run_id` |
+  | `run_id` | VARCHAR(64) | NO | Foreign Key referencing `pipeline_runs.run_id` |
   | `service` | VARCHAR(64) | NO | Service identifier |
   | `total_logs` | INTEGER | NO | Count of valid logs for service in batch |
   | `error_count` | INTEGER | NO | Count of `ERROR` logs |
@@ -247,55 +247,70 @@ The workspace includes native `.vscode/` configurations for zero-friction local 
 ## 6. Reproducible Sample Data & Benchmarking
 
 ### 1. Pre-generated Starter Files
-Pre-generated datasets are committed in [`data/sample/`](file:///c:/CandidateWorkspace/data/sample):
+Pre-generated datasets are committed in [`data/sample/`](data/sample):
 - `data/sample/sample_logs.csv` — 1,000 structured CSV records
 - `data/sample/sample_logs.json` — 1,000 structured JSON records
 - `data/sample/sample_logs.log` — 1,000 semi-structured syslog text lines
 - `data/sample/quick_starter.json` — 100 quick-review starter records
 
-### 2. Running the 100,000 Records Benchmark
-Execute the standalone performance benchmark script:
+### 2. Dual-Phase 100,000 Records Benchmark
+The ingestion engine executes in-memory batch parsing and schema validation with chunked bulk database inserts (`bulk_insert_mappings`, chunk size 900). Execute the dual-phase benchmark script (Fresh Ingestion vs. Idempotent Rerun):
 ```powershell
-python backend/benchmark.py
+python backend/benchmark_ab.py
 ```
+> [!NOTE]
+> **Benchmarking Storage Engine:** The local benchmarks below were executed using **SQLite 3 with Write-Ahead Logging (WAL) mode and foreign key enforcement** (`data/benchmark_clean.db`). In enterprise production deployments, **PostgreSQL 15+** serves as the target analytical relational store (DDL in [`database/schema.sql`](database/schema.sql)).
 
-#### Measured Benchmark Results (100,000 Records)
+#### Benchmark A: Fresh Ingestion (Clean Database, 100,000 Records)
 ```text
 ======================================================================
-APPLICATION LOG ANALYTICS - PERFORMANCE BENCHMARK: 100,000 RECORDS
+APPLICATION LOG ANALYTICS - BENCHMARK A: FRESH INGESTION (100,000 RECORDS)
 ======================================================================
+Database Engine:   SQLite 3 with WAL Mode (data/benchmark_clean.db)
+Duration:          17.67 seconds
+Throughput:        5,658 records/sec
+Status:            PARTIAL_SUCCESS
 
-[1/4] Generating 100,000 synthetic application log records (seed=42)...
-      Generation completed in 0.66s (152,608 records/sec)
-
-[2/4] Serializing records to CSV payload...
-      Payload size: 11.01 MB serialized in 0.56s
-
-[3/4] Ingesting and processing payload through core pipeline...
-      Pipeline completed in 8.26 seconds
-      Throughput: 12,113 records/sec
-      Status: PARTIAL_SUCCESS
-
-[4/4] Comprehensive Audit & Performance Metrics (17 Required KPI Fields):
+Reconciliation & Metric Breakdown:
   1.  Total input records:               100,000
-  2.  Newly inserted records:            982
-  3.  Rejected records:                  1,515
-  4.  Intra-batch duplicates:            258
-  5.  Previously stored records skipped: 97,503
+  2.  Newly inserted records:            98,485
+  3.  Quarantined rejected records:      1,515
+  4.  Intra-batch duplicates:            258 (included within quarantined rejects)
+  5.  Previously stored records skipped: 0
   6.  Valid records with latency:        88,745
-  7.  Null latency records:              9,740
-  8.  Total latency in milliseconds:     58,445,828.23 ms
-  9.  Average latency:                   658.58 ms
-  10. P50 latency:                       133.04 ms
-  11. P95 latency:                       2722.56 ms
-  12. P99 latency:                       4834.68 ms
-  13. ERROR count:                       7,984
-  14. CRITICAL count:                    2,004
-  15. HTTP failure count:                9,001
-  16. Severity error rate:               10.14%
-  17. HTTP failure rate:                 10.17%
+  7.  Average latency:                   658.58 ms
+  8.  P50 latency:                       133.04 ms
+  9.  P95 latency:                       2722.56 ms
+  10. P99 latency:                       4834.68 ms
+  11. Severity error rate:               10.14% (ERROR + CRITICAL)
+  12. HTTP failure rate:                 10.17% (HTTP status >= 500)
 ----------------------------------------------------------------------
-      Reconciliation Check:              Input (100,000) == Inserted (982) + Rejects (1,515) + PreviouslySkipped (97,503) -> PASSED (100% Accounted)
+Reconciliation Invariant:
+  Input (100,000) == Inserted (98,485) + Quarantined (1,515) + Skipped (0) -> PASSED (100% Accounted)
+======================================================================
+```
+
+#### Benchmark B: Idempotent Rerun (Same 100,000 Records Payload)
+```text
+======================================================================
+APPLICATION LOG ANALYTICS - BENCHMARK B: IDEMPOTENT RERUN (100,000 RECORDS)
+======================================================================
+Database Engine:   SQLite 3 with WAL Mode (data/benchmark_clean.db)
+Duration:          7.46 seconds
+Throughput:        13,396 records/sec
+Status:            PARTIAL_SUCCESS
+
+Reconciliation & Metric Breakdown:
+  1.  Total input records:               100,000
+  2.  Newly inserted records:            0
+  3.  Quarantined rejected records:      1,515
+  4.  Intra-batch duplicates:            258 (included within quarantined rejects)
+  5.  Previously stored records skipped: 98,485
+  6.  Severity error rate:               10.14%
+  7.  HTTP failure rate:                 10.17%
+----------------------------------------------------------------------
+Reconciliation Invariant:
+  Input (100,000) == Inserted (0) + Quarantined (1,515) + Skipped (98,485) -> PASSED (100% Accounted)
 ======================================================================
 ```
 
@@ -304,13 +319,13 @@ To inspect all recorded pipeline runs and print the reconciliation audit matrix:
 ```powershell
 python backend/reconciliation.py
 ```
-Generates [`reports/reconciliation_report.md`](file:///c:/CandidateWorkspace/reports/reconciliation_report.md).
+Generates [`reports/reconciliation_report.md`](reports/reconciliation_report.md).
 
 ---
 
 ## 7. Edge Cases & Negative Scenarios Tested
 
-All required negative scenarios are verified by 33 automated tests in `backend/tests/`:
+All required negative scenarios are verified by automated tests in `backend/tests/`:
 
 | Test Name | Edge Case Covered | System Behavior |
 | :--- | :--- | :--- |
@@ -323,14 +338,16 @@ All required negative scenarios are verified by 33 automated tests in `backend/t
 | `test_missing_severity_rejected` | Record missing severity | Quarantined; `Missing required field: severity` (`reject_type = VALIDATION_ERROR`) |
 | `test_missing_message_rejected` | Record with empty message | Quarantined; `Missing required field: message` (`reject_type = VALIDATION_ERROR`) |
 | `test_domain_edge_case_negative_latency` | Negative latency (e.g. `-50ms`) | Quarantined; `Negative response time: -50.0ms` (`reject_type = VALIDATION_ERROR`) |
-| `test_timestamp_normalizations` | ISO, space-delimited, epoch ms | All parsed into normalized UTC ISO-8601 datetimes |
+| `test_valid_zero_latency_preserved` | Valid zero latency (`0` and `0.0ms`) | Preserved as `0.0`, not erroneously converted to `NULL` |
+| `test_timestamp_normalizations` | ISO, space-delimited, epoch ms, epoch 0 | All parsed into normalized UTC ISO-8601 datetimes with `Z` |
 | `test_severity_case_and_alias_normalization` | `[warning]`, `err`, `fatal` | Canonicalized to `WARNING`, `ERROR`, `CRITICAL` |
-| `test_unexpected_schema_change` | Incompatible or missing columns | Safely rejected with `reject_type = SCHEMA_ERROR` |
+| `test_unexpected_schema_change` | Incompatible or missing columns | Every data row safely quarantined with `reject_type = SCHEMA_ERROR` |
 | `test_partial_failure_and_retry` | Retry after partial ingestion | Retry safely skips already inserted rows without double-insertion |
 | `test_late_arriving_logs` | Event timestamps from 30 days ago | Older event timestamps accepted and normalized |
 | `test_out_of_order_timestamps` | Unsorted events in batch stream | Timestamps processed and indexed correctly regardless of arrival order |
 | `test_invalid_reference_key` | Bad foreign key / invalid run_id | Handled safely by database constraint without corrupting pipeline state |
 | `test_null_optional_fields` | Null `response_ms`, `user_id`, etc. | Optional fields accept nulls without rejecting valid records |
+| `test_service_filtered_error_rate` | Error rate filtered by service | Service filter strictly applied to severity and failure counts |
 | `test_http_failure_rate` | INFO log with HTTP 503 code | Counted in HTTP failure rate without inflating severity error rate |
 | `test_rerun_reconciliation` | Re-ingestion conservation law | Verified: $\text{Input} = \text{Newly Inserted} + \text{Rejected} + \text{Previously Skipped}$ |
 
@@ -338,8 +355,8 @@ All required negative scenarios are verified by 33 automated tests in `backend/t
 
 ## 8. Reports & Artifacts Index
 
-- [Architecture Design & Trade-offs Note](file:///c:/CandidateWorkspace/reports/architecture_design.md)
-- [Performance Benchmark Report (100k Records)](file:///c:/CandidateWorkspace/reports/performance_benchmark.md)
-- [Reconciliation & Quality Audit Report](file:///c:/CandidateWorkspace/reports/reconciliation_report.md)
-- [PostgreSQL Schema DDL](file:///c:/CandidateWorkspace/database/schema.sql)
-- [Backend Pytest Suite](file:///c:/CandidateWorkspace/backend/tests/test_pipeline.py)
+- [Architecture Design & Trade-offs Note](reports/architecture_design.md)
+- [Performance Benchmark Report (100k Records)](reports/performance_benchmark.md)
+- [Reconciliation & Quality Audit Report](reports/reconciliation_report.md)
+- [PostgreSQL Schema DDL](database/schema.sql)
+- [Backend Pytest Suite](backend/tests/test_pipeline.py)

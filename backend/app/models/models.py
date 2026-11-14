@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import datetime, timezone
 from sqlalchemy import (
     Column,
@@ -17,6 +18,17 @@ from app.database.connection import Base
 
 def utc_now():
     return datetime.now(timezone.utc)
+
+
+def format_iso_utc(dt: Optional[datetime]) -> Optional[str]:
+    """Format datetime as UTC ISO-8601 string with explicit 'Z' suffix."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        dt = dt.astimezone(timezone.utc)
+    return dt.isoformat().replace("+00:00", "Z")
 
 
 class PipelineRun(Base):
@@ -53,8 +65,8 @@ class PipelineRun(Base):
             "source_file": self.source_file,
             "file_format": self.file_format,
             "status": self.status,
-            "start_time": self.start_time.isoformat() if self.start_time else None,
-            "end_time": self.end_time.isoformat() if self.end_time else None,
+            "start_time": format_iso_utc(self.start_time),
+            "end_time": format_iso_utc(self.end_time),
             "duration_seconds": self.duration_seconds,
             "total_input_records": self.total_input_records,
             "valid_records": self.valid_records,
@@ -67,7 +79,7 @@ class PipelineRun(Base):
             "is_reconciled": is_reconciled,
             "failure_reason": self.failure_reason or self.error_message,
             "error_message": self.error_message,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "created_at": format_iso_utc(self.created_at),
         }
 
 
@@ -100,7 +112,7 @@ class ApplicationLog(Base):
         return {
             "event_id": self.event_id,
             "run_id": self.run_id,
-            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
+            "timestamp": format_iso_utc(self.timestamp),
             "severity": self.severity,
             "service": self.service,
             "message": self.message,
@@ -110,7 +122,7 @@ class ApplicationLog(Base):
             "http_status": self.http_status,
             "is_failure": self.is_failure,
             "source_file": self.source_file,
-            "ingested_at": self.ingested_at.isoformat() if self.ingested_at else None,
+            "ingested_at": format_iso_utc(self.ingested_at),
         }
 
 
@@ -135,7 +147,7 @@ class RejectedLog(Base):
             "raw_record": self.raw_record,
             "reason": self.reason,
             "reject_type": self.reject_type,
-            "rejected_at": self.rejected_at.isoformat() if self.rejected_at else None,
+            "rejected_at": format_iso_utc(self.rejected_at),
         }
 
 
@@ -184,5 +196,5 @@ class LogMetric(Base):
             "p95_latency_ms": round(self.p95_latency_ms, 2) if self.p95_latency_ms is not None else None,
             "p99_latency_ms": round(self.p99_latency_ms, 2) if self.p99_latency_ms is not None else None,
             "max_latency_ms": round(self.max_latency_ms, 2) if self.max_latency_ms is not None else None,
-            "calculated_at": self.calculated_at.isoformat() if self.calculated_at else None,
+            "calculated_at": format_iso_utc(self.calculated_at),
         }

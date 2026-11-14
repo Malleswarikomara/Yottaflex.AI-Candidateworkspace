@@ -119,11 +119,15 @@ def get_log_stats(
     - Latency statistics (Average, Min, Max, P50, P95, P99)
     - Breakdown by service
     """
-    query = db.query(ApplicationLog)
+    filters = []
     if run_id and isinstance(run_id, str):
-        query = query.filter(ApplicationLog.run_id == run_id)
+        filters.append(ApplicationLog.run_id == run_id)
     if service and isinstance(service, str):
-        query = query.filter(ApplicationLog.service == service.lower())
+        filters.append(ApplicationLog.service == service.lower())
+
+    query = db.query(ApplicationLog)
+    if filters:
+        query = query.filter(*filters)
 
     total_logs = query.count()
     if total_logs == 0:
@@ -146,11 +150,9 @@ def get_log_stats(
             "services_breakdown": [],
         }
 
-    # Severity counts
-    sev_filter = (ApplicationLog.run_id == run_id) if (run_id and isinstance(run_id, str)) else True
+    # Severity counts - strictly respecting all active filters (run_id AND service)
     sev_counts = dict(
-        db.query(ApplicationLog.severity, func.count(ApplicationLog.event_id))
-        .filter(sev_filter)
+        query.with_entities(ApplicationLog.severity, func.count(ApplicationLog.event_id))
         .group_by(ApplicationLog.severity)
         .all()
     )
@@ -194,8 +196,8 @@ def get_log_stats(
     else:
         avg_lat = min_lat = max_lat = p50_lat = p95_lat = p99_lat = None
 
-    # Service breakdown
-    svc_groups = (
+    # Service breakdown - strictly respecting active filters
+    svc_query = (
         db.query(
             ApplicationLog.service,
             func.count(ApplicationLog.event_id).label("total"),
@@ -208,10 +210,10 @@ def get_log_stats(
             func.avg(ApplicationLog.response_ms).label("avg_resp"),
             func.max(ApplicationLog.response_ms).label("max_resp"),
         )
-        .filter(sev_filter)
-        .group_by(ApplicationLog.service)
-        .all()
     )
+    if filters:
+        svc_query = svc_query.filter(*filters)
+    svc_groups = svc_query.group_by(ApplicationLog.service).all()
 
     services_summary = []
     for s in svc_groups:

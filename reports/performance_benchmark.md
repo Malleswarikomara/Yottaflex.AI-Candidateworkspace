@@ -1,7 +1,7 @@
 # Performance Benchmark Report: Dual-Phase Evaluation (100,000 Records)
 
 **Execution Date:** 2026-11-14 09:21:20 UTC  
-**Architecture Tier:** Python 3.12 Backend / SQLite & PostgreSQL Storage Engine  
+**Architecture Tier:** Python 3.12 Backend / SQLite 3 with WAL Mode (data/benchmark_clean.db) [PostgreSQL 15+ production target]  
 **Dataset Generator:** Synthetic Log Generator (Fixed Random Seed: 42)  
 **Input Payload Size:** 11.01 MB (100,000 records in CSV format)  
 

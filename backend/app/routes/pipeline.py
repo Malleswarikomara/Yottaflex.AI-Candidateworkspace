@@ -61,12 +61,24 @@ def run_sample_file(
     sample_name: str = Query("sample_logs.csv", enum=["sample_logs.csv", "sample_logs.json", "sample_logs.log", "quick_starter.json"]),
     db: Session = Depends(get_db)
 ):
-    """Executes the ingestion pipeline on one of the pre-generated sample files."""
+    """Executes the ingestion pipeline on one of the pre-generated sample files. Auto-generates if missing."""
     base_dir = Path(__file__).resolve().parent.parent.parent.parent
-    sample_path = base_dir / "data" / "sample" / sample_name
+    sample_dir = base_dir / "data" / "sample"
+    sample_path = sample_dir / sample_name
 
     if not sample_path.exists():
-        raise HTTPException(status_code=404, detail=f"Sample file {sample_name} not found")
+        sample_dir.mkdir(parents=True, exist_ok=True)
+        gen = SyntheticLogGenerator(seed=42)
+        count = 100 if sample_name == "quick_starter.json" else 1000
+        records = gen.generate_dataset(count=count, anomaly_ratio=0.03)
+        if sample_name.endswith(".csv"):
+            sample_content = gen.to_csv(records)
+        elif sample_name.endswith(".log"):
+            sample_content = gen.to_text_log(records)
+        else:
+            sample_content = gen.to_json(records, lines=False)
+        with open(sample_path, "w", encoding="utf-8") as f:
+            f.write(sample_content)
 
     with open(sample_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -153,13 +165,16 @@ def get_pipeline_run_details(
     if not run:
         raise HTTPException(status_code=404, detail="Pipeline run not found")
 
+    accounted = run.newly_inserted_records + run.rejected_records + run.previously_skipped_records
     reconciliation = {
         "total_input_records": run.total_input_records,
         "valid_records": run.valid_records,
+        "newly_inserted_records": run.newly_inserted_records,
         "rejected_records": run.rejected_records,
-        "accounted_for": run.valid_records + run.rejected_records,
-        "is_reconciled": (run.valid_records + run.rejected_records) == run.total_input_records,
         "duplicate_records": run.duplicate_records,
+        "previously_skipped_records": run.previously_skipped_records,
+        "accounted_for": accounted,
+        "is_reconciled": (accounted == run.total_input_records),
     }
 
     return {

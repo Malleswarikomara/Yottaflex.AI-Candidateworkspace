@@ -92,7 +92,7 @@ class PipelineService:
                     rejected_records.append({
                         "run_id": run_id,
                         "source_file": filename,
-                        "raw_record": res.raw_record[:1000],
+                        "raw_record": res.raw_record,
                         "reason": res.parse_error or "Parse error",
                         "reject_type": getattr(res, "reject_type", "MALFORMED"),
                         "rejected_at": datetime.now(timezone.utc),
@@ -108,7 +108,7 @@ class PipelineService:
                         rejected_records.append({
                             "run_id": run_id,
                             "source_file": filename,
-                            "raw_record": res.raw_record[:1000],
+                            "raw_record": res.raw_record,
                             "reason": f"Duplicate event_id within batch: {event_id}",
                             "reject_type": "DUPLICATE",
                             "rejected_at": datetime.now(timezone.utc),
@@ -122,7 +122,7 @@ class PipelineService:
                     rejected_records.append({
                         "run_id": run_id,
                         "source_file": filename,
-                        "raw_record": res.raw_record[:1000],
+                        "raw_record": res.raw_record,
                         "reason": str(e),
                         "reject_type": reject_type,
                         "rejected_at": datetime.now(timezone.utc),

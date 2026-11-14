@@ -29,6 +29,18 @@ class CsvLogParser(BaseLogParser):
             return []
 
         results: List[ParsedRecordResult] = []
+        raw_lines = content.splitlines()
+
+        # Find header line (first non-empty line)
+        header_idx = -1
+        for idx, line in enumerate(raw_lines):
+            if line.strip():
+                header_idx = idx
+                break
+
+        if header_idx == -1:
+            return []
+
         stream = io.StringIO(content)
 
         try:
@@ -46,21 +58,42 @@ class CsvLogParser(BaseLogParser):
             present_canonical = set(mapped_headers)
             missing_cols = REQUIRED_COLUMNS - present_canonical
             if missing_cols:
-                # Schema error across the file: reject header row or reject records as schema error
-                return [
-                    ParsedRecordResult(
-                        raw_record=",".join(headers),
-                        parse_error=f"Incompatible schema: missing required column(s) {sorted(list(missing_cols))}",
-                        reject_type="SCHEMA_ERROR"
+                # Schema error: every non-empty data row is rejected with SCHEMA_ERROR
+                # preserving exact raw line without loss for complete 1-to-1 reconciliation
+                err_msg = f"Incompatible schema: missing required column(s) {sorted(list(missing_cols))}"
+                for line in raw_lines[header_idx + 1:]:
+                    if not line.strip():
+                        continue
+                    results.append(
+                        ParsedRecordResult(
+                            raw_record=line,
+                            parse_error=err_msg,
+                            reject_type="SCHEMA_ERROR"
+                        )
                     )
-                ]
+                # If there were no data lines at all (header only), record header as schema error
+                if not results:
+                    results.append(
+                        ParsedRecordResult(
+                            raw_record=raw_lines[header_idx],
+                            parse_error=err_msg,
+                            reject_type="SCHEMA_ERROR"
+                        )
+                    )
+                return results
 
             for row_idx, row in enumerate(reader, start=2):
                 # Skip empty lines
                 if not row or all(c.strip() == "" for c in row):
                     continue
 
-                raw_line = ",".join(row)
+                # Preserve exact raw line from raw_lines using reader.line_num
+                raw_line = None
+                if 1 <= reader.line_num <= len(raw_lines):
+                    raw_line = raw_lines[reader.line_num - 1]
+                if not raw_line or not raw_line.strip():
+                    raw_line = ",".join(row)
+
                 if len(row) != num_cols:
                     results.append(ParsedRecordResult(
                         raw_record=raw_line,

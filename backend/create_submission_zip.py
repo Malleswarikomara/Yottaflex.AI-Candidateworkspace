@@ -27,6 +27,7 @@ include_dirs = [
     "reports",
     "screenshots",
     ".vscode",
+    "data/sample",
 ]
 
 # Patterns/directories to exclude
@@ -35,9 +36,7 @@ exclude_patterns = [
     "__pycache__",
     ".pytest_cache",
     ".git",
-    "data/",
     ".env",
-    "dist/",
     ".vite",
     ".pyc",
     ".db",
@@ -69,8 +68,10 @@ with zipfile.ZipFile(output_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
                 file_rel = rel_root / file
                 file_str = str(file_rel).replace("\\", "/")
 
-                # Exclude unwanted extensions / paths
-                if any(file_str.endswith(ext) for ext in [".pyc", ".db", ".log", ".tmp"]):
+                # Exclude unwanted extensions / paths (allow .log under data/sample)
+                if any(file_str.endswith(ext) for ext in [".pyc", ".db", ".tmp"]):
+                    continue
+                if file_str.endswith(".log") and not file_str.startswith("data/sample"):
                     continue
                 if "node_modules" in file_str or "__pycache__" in file_str or ".env" == file:
                     continue

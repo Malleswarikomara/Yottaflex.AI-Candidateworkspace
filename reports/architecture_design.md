@@ -58,7 +58,7 @@ flowchart TD
 2. **Deterministic Extraction & Normalization:**
    - **Timestamp Normalization:** Converts multiple incoming formats (ISO-8601 with/without timezone, SQL space-delimited, Apache CLF, and Unix epoch seconds or milliseconds) into UTC-normalized timezone-aware `datetime` objects.
    - **Severity Normalization:** Maps varied aliases (`[WARNING]`, `warn`, `W`, `ERR`, `error`, `crit`, `FATAL`) into canonical uppercase categories: `INFO`, `WARNING`, `ERROR`, `CRITICAL`.
-   - **Deterministic ID Generation:** If an event lacks an explicit `event_id`, a cryptographic SHA-256 hash is computed over `(timestamp | service | message | user_id | response_ms)`.
+   - **Deterministic ID Generation:** If an event lacks an explicit `event_id`, a cryptographic SHA-256 hash is computed over `(timestamp | service | message | user_id | endpoint | http_status | response_ms)` and formatted as `EVT_<16-HEX>`.
 
 3. **Data Quality Quarantine & Taxonomy (`rejected_logs`):**
    - Negative latencies, unparseable timestamps, missing required fields, schema incompatibilities, and intra-batch duplicates are never silently discarded.

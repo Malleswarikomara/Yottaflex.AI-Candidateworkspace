@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
@@ -10,18 +11,23 @@ from app.routes.logs import router as logs_router
 from app.routes.rejected import router as rejected_router
 from app.routes.metrics import router as metrics_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database tables on startup
+    init_db()
+    yield
+
+
 app = FastAPI(
     title="Application Log Analytics & Monitoring Platform API",
     version="1.0.0",
     description="Production-grade Data Engineering pipeline and analytics API for structured and semi-structured log intelligence.",
+    lifespan=lifespan,
 )
 
-# Ensure database tables are initialized
+# Ensure database tables are initialized at import time as well
 init_db()
-
-@app.on_event("startup")
-def on_startup():
-    init_db()
 
 # Enable CORS for React frontend
 app.add_middleware(
