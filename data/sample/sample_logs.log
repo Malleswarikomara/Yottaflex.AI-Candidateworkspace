@@ -1,0 +1,1000 @@
+2026-11-14 10:33:04 INFO Payment tokenized via provider user_id=USR_109 service=auth response_ms=106.38 event_id=EVT_000320
+2026-11-14 10:31:17 INFO Email receipt dispatched user_id=USR_109 service=api-gateway response_ms=99.91 event_id=EVT_000050
+2026-11-14 10:48:41 INFO Email receipt dispatched user_id=USR_900 service=auth response_ms=142.08 event_id=EVT_000373
+2026-11-14 10:04:18 INFO Token refreshed for session user_id=USR_443 service=inventory response_ms=135.93 event_id=EVT_000711
+2026-11-14 10:26:42 INFO Health check probe passed user_id=USR_483 service=payment response_ms=129.13 event_id=EVT_000308
+2026-11-14 10:40:44 INFO Order placed with ID user_id=USR_387 service=api-gateway response_ms=154.85 event_id=EVT_000327
+2026-11-14 10:14:33 INFO Order placed with ID user_id=USR_326 service=auth response_ms=110.83 event_id=EVT_000474
+2026-11-14 10:14:02 INFO Health check probe passed user_id=USR_319 service=auth response_ms=96.1 event_id=EVT_000314
+2026-11-14 10:39:58 INFO User authenticated successfully user_id=USR_779 service=api-gateway response_ms=123.12 event_id=EVT_000841
+2026-11-14 10:17:02 INFO Payment tokenized via provider user_id=USR_261 service=auth response_ms=191.85 event_id=EVT_000822
+2026-11-14 10:58:48 INFO Health check probe passed user_id=USR_432 service=api-gateway response_ms=107.82 event_id=EVT_000415
+2026-11-14 10:22:24 INFO User authenticated successfully user_id=USR_629 service=auth event_id=EVT_000933
+2026-11-14 10:31:37 INFO User authenticated successfully user_id=USR_415 service=payment response_ms=85.88 event_id=EVT_000364
+2026-11-14 10:43:25 WARNING API response time degraded above SLA user_id=USR_873 service=payment response_ms=875.68 event_id=EVT_000666
+2026-11-14 10:07:06 INFO Inventory reserved for SKU user_id=USR_785 service=inventory response_ms=157.14 event_id=EVT_000873
+2026-11-14 10:51:21 INFO Health check probe passed user_id=USR_855 service=notification response_ms=61.42 event_id=EVT_000737
+2026-11-14 10:30:58 INFO Order placed with ID user_id=USR_529 service=payment response_ms=105.65 event_id=EVT_000160
+2026-11-14 10:58:57 INFO User authenticated successfully user_id=USR_153 service=payment event_id=EVT_000568
+2026-11-14 10:51:37 WARNING Rate limit quota nearing threshold user_id=USR_379 service=inventory response_ms=688.91 event_id=EVT_000784
+2026-11-14 10:16:28 WARNING Cache miss rate exceeded expected variance user_id=USR_364 service=inventory response_ms=712.37 event_id=EVT_000885
+2026-11-14 10:29:54 WARNING Rate limit quota nearing threshold user_id=USR_482 service=notification event_id=EVT_000038
+2026-11-14 10:01:18 INFO Email receipt dispatched user_id=USR_769 service=payment event_id=EVT_000708
+2026-11-14 10:31:35 INFO Health check probe passed user_id=USR_571 service=inventory response_ms=60.5 event_id=EVT_000969
+2026-11-14 10:07:06 ERROR Payment authorization declined by upstream processor user_id=USR_679 service=payment response_ms=2311.56 event_id=EVT_000382
+2026-11-14 10:54:00 INFO User authenticated successfully user_id=USR_554 service=payment response_ms=106.25 event_id=EVT_000821
+2026-11-14 10:30:57 INFO User authenticated successfully user_id=USR_218 service=auth response_ms=82.0 event_id=EVT_000348
+2026-11-14 10:41:14 ERROR Deadlock detected in inventory transaction lock user_id=USR_910 service=auth response_ms=3417.47 event_id=EVT_000451
+2026-11-14 10:40:32 INFO Inventory reserved for SKU user_id=USR_607 service=notification response_ms=90.91 event_id=EVT_000297
+2026-11-14 10:38:09 INFO Payment tokenized via provider user_id=USR_643 service=order-service response_ms=172.01 event_id=EVT_000071
+2026-11-14 10:48:15 INFO Inventory reserved for SKU user_id=USR_800 service=inventory event_id=EVT_000521
+2026-11-14 10:54:42 INFO Health check probe passed user_id=USR_354 service=auth response_ms=121.35 event_id=EVT_000993
+2026-11-14 10:28:14 INFO User authenticated successfully user_id=USR_398 service=order-service response_ms=146.27 event_id=EVT_000294
+2026-11-14 10:17:56 INFO Inventory reserved for SKU user_id=USR_661 service=api-gateway response_ms=155.92 event_id=EVT_000539
+2026-11-14 10:41:02 INFO Token refreshed for session user_id=USR_947 service=api-gateway event_id=EVT_000917
+2026-11-14 10:17:09 INFO Payment tokenized via provider user_id=USR_545 service=api-gateway response_ms=156.71 event_id=EVT_000719
+2026-11-14 10:27:22 INFO Email receipt dispatched user_id=USR_150 service=notification response_ms=106.45 event_id=EVT_000826
+2026-11-14 10:14:27 WARNING API response time degraded above SLA user_id=USR_271 service=order-service response_ms=859.05 event_id=EVT_000397
+2026-11-14 10:34:17 WARNING Rate limit quota nearing threshold user_id=USR_117 service=inventory response_ms=688.19 event_id=EVT_000280
+2026-11-14 10:02:16 INFO Payment tokenized via provider user_id=USR_162 service=auth event_id=EVT_000930
+2026-11-14 10:38:52 WARNING Rate limit quota nearing threshold user_id=USR_519 service=payment response_ms=749.03 event_id=EVT_000423
+2026-11-14 10:06:05 INFO Email receipt dispatched user_id=USR_452 service=order-service response_ms=162.02 event_id=EVT_000668
+2026-11-14 10:09:35 INFO Token refreshed for session user_id=USR_289 service=notification response_ms=78.82 event_id=EVT_000248
+2026-11-14 10:07:33 INFO Inventory reserved for SKU user_id=USR_260 service=order-service response_ms=118.8 event_id=EVT_000966
+2026-11-14 10:19:38 INFO Order placed with ID user_id=USR_152 service=order-service response_ms=78.58 event_id=EVT_000155
+2026-11-14 10:30:59 INFO Health check probe passed user_id=USR_475 service=api-gateway response_ms=121.15 event_id=EVT_000575
+2026-11-14 10:23:27 WARNING Rate limit quota nearing threshold user_id=USR_812 service=auth response_ms=895.6 event_id=EVT_000336
+2026-11-14 10:53:25 INFO Inventory reserved for SKU user_id=USR_367 service=api-gateway event_id=EVT_000683
+2026-11-14 10:50:54 INFO Order placed with ID user_id=USR_150 service=notification response_ms=143.44 event_id=EVT_000403
+2026-11-14 10:10:25 INFO Email receipt dispatched user_id=USR_434 service=inventory response_ms=175.71 event_id=EVT_000787
+2026-11-14 10:21:50 INFO User authenticated successfully user_id=USR_837 service=payment response_ms=124.18 event_id=EVT_000354
+2026-11-14 10:45:02 INFO Health check probe passed user_id=USR_298 service=payment event_id=EVT_000921
+2026-11-14 10:25:41 ERROR Payment authorization declined by upstream processor user_id=USR_357 service=auth response_ms=2526.04 event_id=EVT_000503
+2026-11-14 10:46:28 INFO Email receipt dispatched user_id=USR_941 service=order-service response_ms=83.93 event_id=EVT_000232
+2026-11-14 10:30:00 INFO Order placed with ID user_id=USR_398 service=auth response_ms=139.72 event_id=EVT_000623
+2026-11-14 10:49:10 INFO Payment tokenized via provider user_id=USR_756 service=inventory response_ms=147.9 event_id=EVT_000483
+2026-11-14 10:59:11 INFO Order placed with ID user_id=USR_902 service=auth event_id=EVT_000148
+2026-11-14 10:16:47 INFO Order placed with ID user_id=USR_379 service=notification response_ms=104.91 event_id=EVT_000914
+2026-11-14 10:00:13 INFO Health check probe passed user_id=USR_331 service=auth response_ms=151.6 event_id=EVT_000701
+2026-11-14 10:49:23 INFO Order placed with ID user_id=USR_840 service=inventory response_ms=133.67 event_id=EVT_000437
+2026-11-14 10:07:23 INFO Email receipt dispatched user_id=USR_967 service=order-service response_ms=91.29 event_id=EVT_000156
+2026-11-14 10:03:00 INFO Order placed with ID user_id=USR_916 service=payment response_ms=128.93 event_id=EVT_000935
+2026-11-14 10:49:25 INFO Payment tokenized via provider user_id=USR_595 service=inventory response_ms=128.2 event_id=EVT_000637
+2026-11-14 10:52:28 INFO User authenticated successfully user_id=USR_183 service=api-gateway response_ms=143.05 event_id=EVT_000854
+2026-11-14 10:39:46 WARNING Database pool connection threshold 85% reached user_id=USR_702 service=payment response_ms=1050.04 event_id=EVT_000400
+2026-11-14 10:22:56 INFO Payment tokenized via provider user_id=USR_498 service=order-service response_ms=114.1 event_id=EVT_000078
+2026-11-14 10:34:07 INFO Email receipt dispatched user_id=USR_261 service=auth response_ms=134.21 event_id=EVT_000570
+2026-11-14 10:20:07 INFO Inventory reserved for SKU user_id=USR_672 service=notification response_ms=100.37 event_id=EVT_000573
+2026-11-14 10:25:31 INFO User authenticated successfully user_id=USR_634 service=api-gateway response_ms=160.24 event_id=EVT_000454
+2026-11-14 10:53:41 INFO Email receipt dispatched user_id=USR_846 service=order-service event_id=EVT_000062
+2026-11-14 10:20:14 WARNING API response time degraded above SLA user_id=USR_144 service=order-service response_ms=749.61 event_id=EVT_000478
+2026-11-14 10:59:15 INFO Email receipt dispatched user_id=USR_730 service=order-service response_ms=124.14 event_id=EVT_000466
+2026-11-14 10:14:44 WARNING API response time degraded above SLA user_id=USR_700 service=inventory response_ms=748.25 event_id=EVT_000144
+2026-11-14 10:37:23 INFO Inventory reserved for SKU user_id=USR_932 service=inventory response_ms=162.21 event_id=EVT_000820
+2026-11-14 10:09:17 WARNING Retry attempt 2 for external supplier gateway user_id=USR_307 service=payment response_ms=781.08 event_id=EVT_000363
+2026-11-14 10:08:19 INFO Email receipt dispatched user_id=USR_394 service=notification response_ms=142.09 event_id=EVT_000237
+2026-11-14 10:41:17 INFO Order placed with ID user_id=USR_388 service=payment response_ms=78.29 event_id=EVT_000053
+2026-11-14 10:14:08 ERROR Authentication token signature validation failed user_id=USR_739 service=notification event_id=EVT_000983
+2026-11-14 10:42:37 WARNING Rate limit quota nearing threshold user_id=USR_657 service=notification response_ms=921.67 event_id=EVT_000882
+2026-11-14 10:02:13 INFO Inventory reserved for SKU user_id=USR_653 service=order-service response_ms=117.5 event_id=EVT_000537
+2026-11-14 10:14:01 INFO Health check probe passed user_id=USR_256 service=order-service response_ms=76.39 event_id=EVT_000432
+2026-11-14 10:13:35 INFO Payment tokenized via provider user_id=USR_134 service=payment response_ms=57.43 event_id=EVT_000566
+2026-11-14 10:20:01 INFO Payment tokenized via provider user_id=USR_137 service=notification response_ms=166.02 event_id=EVT_000198
+2026-11-14 10:54:55 INFO Token refreshed for session user_id=USR_504 service=notification response_ms=96.79 event_id=EVT_000859
+2026-11-14 10:38:47 INFO Email receipt dispatched user_id=USR_438 service=payment response_ms=169.97 event_id=EVT_000962
+2026-11-14 10:39:05 INFO Inventory reserved for SKU user_id=USR_430 service=inventory response_ms=56.64 event_id=EVT_000797
+2026-11-14 10:28:13 INFO User authenticated successfully user_id=USR_326 service=notification response_ms=127.15 event_id=EVT_000265
+2026-11-14 10:14:19 INFO Email receipt dispatched user_id=USR_637 service=inventory response_ms=66.95 event_id=EVT_000636
+2026-11-14 10:45:35 WARNING Cache miss rate exceeded expected variance user_id=USR_108 service=notification response_ms=932.29 event_id=EVT_000052
+2026-11-14 10:56:56 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_750 service=api-gateway response_ms=200 event_id=EVT_000017
+2026-11-14 10:06:53 INFO  user_id=USR_987 service=auth response_ms=150 event_id=EVT_000016
+2026-11-14 10:34:37 INFO Health check probe passed user_id=USR_142 service=auth response_ms=95.26 event_id=EVT_000874
+2026-11-14 10:50:22 INFO User authenticated successfully user_id=USR_201 service=payment response_ms=119.9 event_id=EVT_000786
+2026-11-14 10:21:39 INFO Inventory reserved for SKU user_id=USR_191 service=order-service event_id=EVT_000835
+2026-11-14 10:56:59 INFO User authenticated successfully user_id=USR_358 service=api-gateway response_ms=133.52 event_id=EVT_000081
+2026-11-14 10:30:11 INFO Health check probe passed user_id=USR_454 service=notification response_ms=118.65 event_id=EVT_000238
+2026-11-14 10:30:05 INFO Token refreshed for session user_id=USR_229 service=api-gateway response_ms=68.19 event_id=EVT_000748
+2026-11-14 10:41:48 WARNING API response time degraded above SLA user_id=USR_794 service=order-service response_ms=750.19 event_id=EVT_000610
+2026-11-14 10:33:34 ERROR Payment authorization declined by upstream processor user_id=USR_283 service=api-gateway response_ms=2256.47 event_id=EVT_000762
+2026-11-14 10:33:24 INFO Health check probe passed user_id=USR_983 service=api-gateway response_ms=104.29 event_id=EVT_000315
+2026-11-14 10:53:54 WARNING Retry attempt 2 for external supplier gateway user_id=USR_364 service=payment event_id=EVT_000808
+2026-11-14 10:44:06 INFO Token refreshed for session user_id=USR_616 service=notification response_ms=123.17 event_id=EVT_000176
+2026-11-14 10:24:03 ERROR Connection reset by peer on microservice client user_id=USR_553 service=inventory response_ms=3249.05 event_id=EVT_000585
+2026-11-14 10:43:15 WARNING API response time degraded above SLA user_id=USR_491 service=api-gateway response_ms=859.12 event_id=EVT_000530
+2026-11-14 10:00:51 INFO Payment tokenized via provider user_id=USR_948 service=api-gateway response_ms=137.96 event_id=EVT_000565
+2026-11-14 10:49:25 INFO Inventory reserved for SKU user_id=USR_271 service=auth response_ms=123.49 event_id=EVT_000982
+2026-11-14 10:09:44 WARNING Rate limit quota nearing threshold user_id=USR_131 service=notification response_ms=913.1 event_id=EVT_000204
+2026-11-14 10:28:59 INFO Email receipt dispatched user_id=USR_290 service=api-gateway response_ms=119.65 event_id=EVT_000674
+2026-11-14 10:21:07 INFO Health check probe passed user_id=USR_499 service=auth response_ms=90.26 event_id=EVT_000553
+2026-11-14 10:36:22 INFO Order placed with ID user_id=USR_455 service=inventory response_ms=76.75 event_id=EVT_000086
+2026-11-14 10:57:10 INFO Health check probe passed user_id=USR_405 service=api-gateway response_ms=119.37 event_id=EVT_000117
+2026-11-14 10:33:43 INFO Email receipt dispatched user_id=USR_909 service=payment response_ms=126.98 event_id=EVT_000210
+2026-11-14 10:04:50 INFO User authenticated successfully user_id=USR_708 service=order-service response_ms=125.55 event_id=EVT_000343
+2026-11-14 10:01:49 INFO Health check probe passed user_id=USR_979 service=notification response_ms=95.91 event_id=EVT_000860
+2026-11-14 10:57:10 INFO User authenticated successfully user_id=USR_527 service=auth response_ms=162.43 event_id=EVT_000243
+2026-11-14 10:02:17 WARNING Retry attempt 2 for external supplier gateway user_id=USR_299 service=inventory response_ms=805.3 event_id=EVT_000524
+2026-11-14 10:04:06 INFO Payment tokenized via provider user_id=USR_440 service=order-service response_ms=98.35 event_id=EVT_000696
+2026-11-14 10:53:24 WARNING Cache miss rate exceeded expected variance user_id=USR_985 service=inventory response_ms=874.12 event_id=EVT_000646
+2026-11-14 10:34:24 WARNING Rate limit quota nearing threshold user_id=USR_429 service=inventory response_ms=892.95 event_id=EVT_000459
+2026-11-14 10:11:19 INFO Payment tokenized via provider user_id=USR_538 service=inventory event_id=EVT_000326
+2026-11-14 10:56:49 INFO Email receipt dispatched user_id=USR_290 service=payment response_ms=117.27 event_id=EVT_000760
+2026-11-14 10:36:27 WARNING Duplicate key injection test user_id=USR_275 service=inventory response_ms=300 event_id=EVT_DUPLICATE_KEY
+2026-11-14 10:18:45 INFO Order placed with ID user_id=USR_133 service=payment response_ms=88.53 event_id=EVT_000322
+2026-11-14 10:17:22 WARNING API response time degraded above SLA user_id=USR_505 service=notification response_ms=821.11 event_id=EVT_000256
+2026-11-14 10:14:09 INFO Inventory reserved for SKU user_id=USR_821 service=api-gateway response_ms=105.54 event_id=EVT_000236
+2026-11-14 10:35:46 INFO Payment tokenized via provider user_id=USR_160 service=inventory event_id=EVT_000277
+2026-11-14 10:59:37 INFO User authenticated successfully user_id=USR_282 service=auth response_ms=119.16 event_id=EVT_000578
+2026-11-14 10:41:24 INFO Payment tokenized via provider user_id=USR_408 service=api-gateway response_ms=155.5 event_id=EVT_000484
+2026-11-14 10:43:30 INFO Order placed with ID user_id=USR_229 service=payment response_ms=105.24 event_id=EVT_000934
+2026-11-14 10:01:34 ERROR Connection reset by peer on microservice client user_id=USR_121 service=inventory response_ms=3899.17 event_id=EVT_000825
+2026-11-14 10:53:08 INFO Inventory reserved for SKU user_id=USR_647 service=auth response_ms=121.23 event_id=EVT_000678
+2026-11-14 10:30:01 INFO Inventory reserved for SKU user_id=USR_254 service=notification response_ms=153.2 event_id=EVT_000172
+2026-11-14 10:09:01 INFO Email receipt dispatched user_id=USR_585 service=notification response_ms=139.95 event_id=EVT_000411
+2026-11-14 10:42:38 WARNING API response time degraded above SLA user_id=USR_889 service=payment response_ms=859.52 event_id=EVT_000183
+2026-11-14 10:00:27 INFO Order placed with ID user_id=USR_190 service=inventory response_ms=110.1 event_id=EVT_000759
+2026-11-14 10:23:58 INFO Token refreshed for session user_id=USR_521 service=api-gateway response_ms=83.09 event_id=EVT_000794
+2026-11-14 10:20:28 INFO Email receipt dispatched user_id=USR_923 service=api-gateway response_ms=103.6 event_id=EVT_000801
+2026-11-14 10:16:20 INFO Payment tokenized via provider user_id=USR_506 service=notification response_ms=99.08 event_id=EVT_000272
+2026-11-14 10:43:37 ERROR Deadlock detected in inventory transaction lock user_id=USR_416 service=inventory response_ms=2547.06 event_id=EVT_000816
+2026-11-14 10:30:46 INFO Inventory reserved for SKU user_id=USR_385 service=payment response_ms=130.83 event_id=EVT_000089
+2026-11-14 10:43:37 WARNING Rate limit quota nearing threshold user_id=USR_529 service=auth response_ms=799.91 event_id=EVT_000192
+2026-11-14 10:48:12 INFO Order placed with ID user_id=USR_216 service=auth response_ms=126.87 event_id=EVT_000627
+2026-11-14 10:11:05 INFO Email receipt dispatched user_id=USR_406 service=order-service response_ms=148.2 event_id=EVT_000286
+2026-11-14 10:20:48 INFO Token refreshed for session user_id=USR_989 service=notification response_ms=83.32 event_id=EVT_000795
+2026-11-14 10:26:34 INFO Token refreshed for session user_id=USR_112 service=notification event_id=EVT_000984
+2026-11-14 10:19:28 INFO Order placed with ID user_id=USR_272 service=auth response_ms=136.33 event_id=EVT_000904
+2026-11-14 10:40:23 ERROR Connection reset by peer on microservice client user_id=USR_327 service=order-service event_id=EVT_000728
+2026-11-14 10:15:41 INFO Health check probe passed user_id=USR_865 service=notification response_ms=122.01 event_id=EVT_000520
+2026-11-14 10:09:42 INFO Order placed with ID user_id=USR_601 service=notification event_id=EVT_000329
+2026-11-14 10:12:33 INFO Payment tokenized via provider user_id=USR_325 service=api-gateway response_ms=120.45 event_id=EVT_000473
+2026-11-14 10:13:48 INFO Email receipt dispatched user_id=USR_116 service=payment response_ms=174.69 event_id=EVT_000511
+2026-11-14 10:20:20 INFO User authenticated successfully user_id=USR_559 service=notification response_ms=151.95 event_id=EVT_000886
+2026-11-14 10:06:21 INFO Token refreshed for session user_id=USR_386 service=payment response_ms=162.58 event_id=EVT_000360
+2026-11-14 10:20:55 INFO Health check probe passed user_id=USR_402 service=api-gateway response_ms=107.74 event_id=EVT_000202
+2026-11-14 10:34:15 WARNING Rate limit quota nearing threshold user_id=USR_520 service=notification response_ms=688.42 event_id=EVT_000233
+2026-11-14 10:04:02 ERROR Database query timeout after 5000ms user_id=USR_761 service=api-gateway response_ms=2704.18 event_id=EVT_000242
+2026-11-14 10:08:43 INFO Payment tokenized via provider user_id=USR_932 service=notification event_id=EVT_000180
+2026-11-14 10:51:58 INFO Token refreshed for session user_id=USR_468 service=api-gateway response_ms=82.67 event_id=EVT_000292
+2026-11-14 10:28:37 INFO Payment tokenized via provider user_id=USR_240 service=api-gateway response_ms=123.6 event_id=EVT_000372
+2026-11-14 10:19:04 WARNING API response time degraded above SLA user_id=USR_669 service=payment response_ms=652.92 event_id=EVT_000913
+2026-11-14 10:52:07 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_320 service=api-gateway response_ms=200 event_id=EVT_000009
+2026-11-14 10:27:00 INFO Email receipt dispatched user_id=USR_542 service=notification response_ms=155.82 event_id=EVT_000313
+2026-11-14 10:46:23 INFO Inventory reserved for SKU user_id=USR_237 service=api-gateway response_ms=117.02 event_id=EVT_000493
+2026-11-14 10:27:59 INFO Email receipt dispatched user_id=USR_564 service=notification response_ms=126.82 event_id=EVT_000631
+2026-11-14 10:17:10 ERROR Database query timeout after 5000ms user_id=USR_777 service=notification event_id=EVT_000551
+MISSING_ S INFO Malformed record missing timestamp user_id=USR_370 service=api-gateway response_ms=120 event_id=EVT_000011
+2026-11-14 10:45:51 INFO Order placed with ID user_id=USR_215 service=inventory response_ms=108.51 event_id=EVT_000598
+2026-11-14 10:56:46 INFO Inventory reserved for SKU user_id=USR_108 service=auth response_ms=116.44 event_id=EVT_000691
+2026-11-14 10:08:06 CRITICAL Database cluster primary node unreachable user_id=USR_423 service=order-service response_ms=3340.02 event_id=EVT_000450
+2026-11-14 10:01:27 INFO Order placed with ID user_id=USR_297 service=order-service event_id=EVT_000572
+2026-11-14 10:30:57 INFO User authenticated successfully user_id=USR_404 service=notification response_ms=89.89 event_id=EVT_000219
+2026-11-14 10:31:36 INFO User authenticated successfully user_id=USR_710 service=auth response_ms=140.12 event_id=EVT_000664
+2026-11-14 10:30:02 INFO Token refreshed for session user_id=USR_917 service=notification response_ms=118.17 event_id=EVT_000838
+2026-11-14 10:33:22 WARNING Retry attempt 2 for external supplier gateway user_id=USR_820 service=inventory response_ms=884.37 event_id=EVT_000916
+2026-11-14 10:52:25 INFO User authenticated successfully user_id=USR_250 service=inventory response_ms=94.48 event_id=EVT_000785
+2026-11-14 10:49:46 INFO Health check probe passed user_id=USR_984 service=order-service response_ms=112.41 event_id=EVT_000042
+2026-11-14 10:49:24 WARNING Retry attempt 2 for external supplier gateway user_id=USR_358 service=order-service response_ms=944.09 event_id=EVT_000178
+2026-11-14 10:44:33 WARNING Database pool connection threshold 85% reached user_id=USR_865 service=auth response_ms=893.67 event_id=EVT_000592
+2026-11-14 10:55:17 INFO Token refreshed for session user_id=USR_992 service=api-gateway response_ms=82.07 event_id=EVT_000856
+2026-11-14 10:30:08 WARNING Rate limit quota nearing threshold user_id=USR_825 service=notification response_ms=866.44 event_id=EVT_000875
+2026-11-14 10:26:30 INFO Email receipt dispatched user_id=USR_514 service=api-gateway response_ms=145.02 event_id=EVT_000417
+2026-11-14 10:00:16 INFO User authenticated successfully user_id=USR_218 service=notification event_id=EVT_000650
+2026-11-14 10:01:37 INFO Order placed with ID user_id=USR_257 service=notification event_id=EVT_000481
+2026-11-14 10:17:22 WARNING Cache miss rate exceeded expected variance user_id=USR_388 service=payment response_ms=685.8 event_id=EVT_000641
+2026-11-14 10:10:05 INFO Token refreshed for session user_id=USR_122 service=api-gateway response_ms=114.02 event_id=EVT_000379
+2026-11-14 10:11:14 INFO Health check probe passed user_id=USR_411 service=inventory event_id=EVT_000214
+2026-11-14 10:32:13 INFO Inventory reserved for SKU user_id=USR_170 service=inventory response_ms=100.95 event_id=EVT_000257
+2026-11-14 10:20:56 INFO Payment tokenized via provider user_id=USR_359 service=inventory response_ms=160.03 event_id=EVT_000519
+2026-11-14 10:00:37 WARNING Cache miss rate exceeded expected variance user_id=USR_406 service=order-service response_ms=922.82 event_id=EVT_000558
+2026-11-14 10:54:01 INFO User authenticated successfully user_id=USR_813 service=api-gateway response_ms=78.37 event_id=EVT_000564
+2026-11-14 10:58:45 WARNING Rate limit quota nearing threshold user_id=USR_907 service=notification response_ms=796.56 event_id=EVT_000659
+2026-11-14 10:04:24 INFO Health check probe passed user_id=USR_122 service=api-gateway response_ms=116.66 event_id=EVT_000368
+2026-11-14 10:02:33 INFO Email receipt dispatched user_id=USR_997 service=notification response_ms=193.94 event_id=EVT_000244
+2026-11-14 10:04:29 INFO Health check probe passed user_id=USR_188 service=payment response_ms=143.75 event_id=EVT_000211
+2026-11-14 10:53:31 WARNING Database pool connection threshold 85% reached user_id=USR_573 service=inventory response_ms=923.07 event_id=EVT_000644
+2026-11-14 10:49:12 INFO Email receipt dispatched user_id=USR_796 service=inventory response_ms=175.8 event_id=EVT_000032
+2026-11-14 10:56:34 INFO Health check probe passed user_id=USR_650 service=auth response_ms=160.07 event_id=EVT_000480
+2026-11-14 10:40:05 INFO Order placed with ID user_id=USR_117 service=order-service response_ms=158.36 event_id=EVT_000344
+2026-11-14 10:34:08 INFO User authenticated successfully user_id=USR_511 service=inventory response_ms=91.99 event_id=EVT_000227
+2026-11-14 10:45:55 INFO Order placed with ID user_id=USR_477 service=auth response_ms=144.51 event_id=EVT_000136
+2026-11-14 10:30:18 INFO User authenticated successfully user_id=USR_415 service=order-service response_ms=82.69 event_id=EVT_000980
+2026-11-14 10:13:39 INFO Inventory reserved for SKU user_id=USR_344 service=payment event_id=EVT_000981
+2026-11-14 10:22:32 INFO Inventory reserved for SKU user_id=USR_308 service=payment response_ms=134.28 event_id=EVT_000269
+2026-11-14 10:01:13 INFO Health check probe passed user_id=USR_295 service=api-gateway response_ms=135.54 event_id=EVT_000426
+2026-99-99 99:99:99 ERROR Malformed record with garbage timestamp user_id=USR_758 service=order-service response_ms=500 event_id=EVT_000026
+2026-11-14 10:44:00 INFO Order placed with ID user_id=USR_572 service=auth response_ms=131.79 event_id=EVT_000489
+2026-11-14 10:21:22 INFO Token refreshed for session user_id=USR_629 service=inventory response_ms=135.99 event_id=EVT_000837
+2026-11-14 10:38:16 INFO Token refreshed for session user_id=USR_168 service=inventory response_ms=92.02 event_id=EVT_000736
+2026-11-14 10:28:33 INFO Email receipt dispatched user_id=USR_497 service=payment response_ms=112.65 event_id=EVT_000318
+2026-11-14 10:38:56 CRITICAL Fatal out of memory condition in worker pool user_id=USR_794 service=payment response_ms=6583.28 event_id=EVT_000185
+2026-11-14 10:34:31 INFO User authenticated successfully user_id=USR_323 service=payment response_ms=138.2 event_id=EVT_000278
+2026-11-14 10:22:21 ERROR Deadlock detected in inventory transaction lock user_id=USR_933 service=payment response_ms=2120.23 event_id=EVT_000222
+2026-11-14 10:22:50 INFO Health check probe passed user_id=USR_650 service=auth response_ms=134.14 event_id=EVT_000883
+2026-11-14 10:35:16 ERROR Database query timeout after 5000ms user_id=USR_110 service=api-gateway response_ms=2051.48 event_id=EVT_000091
+2026-11-14 10:24:58 INFO Token refreshed for session user_id=USR_415 service=auth event_id=EVT_000557
+2026-11-14 10:43:31 INFO Email receipt dispatched user_id=USR_843 service=notification response_ms=138.42 event_id=EVT_000685
+2026-11-14 10:54:14 INFO Health check probe passed user_id=USR_689 service=inventory response_ms=132.84 event_id=EVT_000734
+2026-11-14 10:12:18 INFO Payment tokenized via provider user_id=USR_129 service=notification event_id=EVT_000158
+2026-11-14 10:47:06 INFO Email receipt dispatched user_id=USR_956 service=inventory response_ms=108.87 event_id=EVT_000656
+2026-11-14 10:49:11 INFO Inventory reserved for SKU user_id=USR_646 service=notification response_ms=96.5 event_id=EVT_000543
+2026-11-14 10:15:33 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_777 service=auth response_ms=200 event_id=EVT_000015
+2026-11-14 10:46:47 INFO Payment tokenized via provider user_id=USR_691 service=auth response_ms=161.08 event_id=EVT_000645
+2026-11-14 10:04:12 WARNING API response time degraded above SLA user_id=USR_112 service=payment response_ms=711.07 event_id=EVT_000367
+2026-11-14 10:27:21 INFO Health check probe passed user_id=USR_773 service=payment response_ms=127.07 event_id=EVT_000159
+2026-11-14 10:11:48 INFO User authenticated successfully user_id=USR_341 service=inventory response_ms=162.76 event_id=EVT_000663
+2026-11-14 10:54:01 INFO Inventory reserved for SKU user_id=USR_649 service=payment response_ms=181.04 event_id=EVT_000571
+2026-11-14 10:21:38 INFO Inventory reserved for SKU user_id=USR_228 service=inventory response_ms=116.36 event_id=EVT_000212
+2026-11-14 10:50:25 INFO Payment tokenized via provider user_id=USR_919 service=payment response_ms=76.38 event_id=EVT_000542
+2026-11-14 10:09:58 INFO Health check probe passed user_id=USR_159 service=payment response_ms=97.58 event_id=EVT_000764
+2026-11-14 10:33:16 INFO Email receipt dispatched user_id=USR_137 service=inventory response_ms=132.06 event_id=EVT_000864
+2026-11-14 10:51:08 INFO Health check probe passed user_id=USR_671 service=notification response_ms=63.82 event_id=EVT_000583
+2026-11-14 10:18:03 INFO Token refreshed for session user_id=USR_316 service=payment response_ms=90.12 event_id=EVT_000101
+2026-11-14 10:01:04 INFO User authenticated successfully user_id=USR_431 service=payment response_ms=86.83 event_id=EVT_000146
+2026-11-14 10:26:02 INFO User authenticated successfully user_id=USR_880 service=order-service response_ms=125.78 event_id=EVT_000998
+2026-11-14 10:21:45 ERROR Deadlock detected in inventory transaction lock user_id=USR_128 service=api-gateway response_ms=2847.78 event_id=EVT_000189
+2026-11-14 10:28:24 WARNING Cache miss rate exceeded expected variance user_id=USR_185 service=order-service response_ms=626.47 event_id=EVT_000855
+2026-11-14 10:37:39 INFO Email receipt dispatched user_id=USR_552 service=payment response_ms=134.19 event_id=EVT_000055
+2026-11-14 10:15:20 WARNING API response time degraded above SLA user_id=USR_417 service=payment response_ms=757.42 event_id=EVT_000068
+2026-11-14 10:32:33 INFO Order placed with ID user_id=USR_489 service=auth response_ms=103.01 event_id=EVT_000076
+2026-11-14 10:29:37 ERROR Database query timeout after 5000ms user_id=USR_192 service=payment event_id=EVT_000124
+2026-11-14 10:50:09 INFO Email receipt dispatched user_id=USR_865 service=order-service response_ms=160.01 event_id=EVT_000077
+2026-11-14 10:17:49 WARNING Rate limit quota nearing threshold user_id=USR_398 service=payment response_ms=995.18 event_id=EVT_000362
+2026-11-14 10:49:03 INFO Payment tokenized via provider user_id=USR_114 service=inventory response_ms=159.57 event_id=EVT_000827
+2026-11-14 10:32:35 INFO User authenticated successfully user_id=USR_539 service=order-service response_ms=126.46 event_id=EVT_000425
+2026-11-14 10:00:23 INFO User authenticated successfully user_id=USR_773 service=api-gateway response_ms=86.43 event_id=EVT_000844
+2026-11-14 10:23:52 INFO Payment tokenized via provider user_id=USR_273 service=auth event_id=EVT_000599
+2026-11-14 10:30:36 INFO Token refreshed for session user_id=USR_481 service=api-gateway event_id=EVT_000749
+2026-11-14 10:12:25 WARNING API response time degraded above SLA user_id=USR_701 service=inventory response_ms=605.8 event_id=EVT_000213
+2026-11-14 10:33:19 INFO Inventory reserved for SKU user_id=USR_594 service=notification response_ms=116.74 event_id=EVT_000444
+2026-11-14 10:54:03 INFO User authenticated successfully user_id=USR_667 service=order-service response_ms=106.4 event_id=EVT_000174
+2026-11-14 10:58:15 INFO Token refreshed for session user_id=USR_292 service=api-gateway response_ms=90.18 event_id=EVT_000561
+2026-11-14 10:12:05 INFO Token refreshed for session user_id=USR_899 service=order-service response_ms=133.61 event_id=EVT_000458
+2026-11-14 10:14:08 INFO Token refreshed for session user_id=USR_137 service=inventory response_ms=116.78 event_id=EVT_000950
+2026-11-14 10:52:34 ERROR Authentication token signature validation failed user_id=USR_539 service=api-gateway event_id=EVT_000959
+2026-11-14 10:06:51 WARNING Cache miss rate exceeded expected variance user_id=USR_389 service=inventory response_ms=714.54 event_id=EVT_000096
+2026-11-14 10:02:43 INFO Order placed with ID user_id=USR_349 service=inventory response_ms=90.04 event_id=EVT_000476
+2026-11-14 10:20:56 INFO Order placed with ID user_id=USR_487 service=inventory response_ms=186.74 event_id=EVT_000381
+2026-11-14 10:47:16 INFO Email receipt dispatched user_id=USR_714 service=notification response_ms=125.12 event_id=EVT_000939
+2026-11-14 10:34:00 INFO Order placed with ID user_id=USR_886 service=auth response_ms=135.35 event_id=EVT_000842
+2026-11-14 10:23:44 INFO Payment tokenized via provider user_id=USR_693 service=notification response_ms=120.12 event_id=EVT_000774
+2026-11-14 10:26:32 INFO Email receipt dispatched user_id=USR_600 service=inventory response_ms=134.75 event_id=EVT_000705
+2026-11-14 10:32:10 WARNING API response time degraded above SLA user_id=USR_721 service=payment response_ms=677.44 event_id=EVT_000509
+2026-11-14 10:26:31 WARNING Cache miss rate exceeded expected variance user_id=USR_266 service=auth response_ms=673.12 event_id=EVT_000847
+2026-11-14 10:46:51 INFO Payment tokenized via provider user_id=USR_327 service=notification response_ms=98.95 event_id=EVT_000418
+2026-11-14 10:19:34 INFO Token refreshed for session user_id=USR_127 service=notification response_ms=121.94 event_id=EVT_000681
+2026-11-14 10:05:47 INFO Email receipt dispatched user_id=USR_865 service=api-gateway response_ms=69.37 event_id=EVT_000361
+2026-11-14 10:56:34 INFO Token refreshed for session user_id=USR_750 service=order-service response_ms=107.53 event_id=EVT_000087
+2026-11-14 10:31:40 INFO Order placed with ID user_id=USR_271 service=auth response_ms=96.4 event_id=EVT_000686
+2026-11-14 10:14:59 WARNING Duplicate key injection test user_id=USR_670 service=notification response_ms=300 event_id=EVT_DUPLICATE_KEY
+2026-11-14 10:47:09 WARNING Database pool connection threshold 85% reached user_id=USR_535 service=payment response_ms=803.69 event_id=EVT_000772
+2026-11-14 10:56:16 INFO Email receipt dispatched user_id=USR_633 service=api-gateway response_ms=78.1 event_id=EVT_000413
+2026-11-14 10:07:34 INFO Inventory reserved for SKU user_id=USR_152 service=notification response_ms=129.66 event_id=EVT_000735
+2026-11-14 10:55:00 INFO Inventory reserved for SKU user_id=USR_267 service=order-service response_ms=140.08 event_id=EVT_000757
+2026-11-14 10:30:04 INFO User authenticated successfully user_id=USR_590 service=api-gateway response_ms=119.0 event_id=EVT_000098
+2026-11-14 10:38:13 CRITICAL Fatal out of memory condition in worker pool user_id=USR_597 service=api-gateway response_ms=4761.73 event_id=EVT_000807
+2026-11-14 10:48:41 INFO User authenticated successfully user_id=USR_276 service=auth response_ms=143.96 event_id=EVT_000208
+2026-11-14 10:26:19 INFO Inventory reserved for SKU user_id=USR_955 service=order-service response_ms=163.95 event_id=EVT_000441
+2026-11-14 10:06:32 INFO Email receipt dispatched user_id=USR_343 service=api-gateway event_id=EVT_000389
+2026-11-14 10:56:23 CRITICAL Circuit breaker opened: all downstream calls rejected user_id=USR_288 service=payment response_ms=3190.58 event_id=EVT_000942
+2026-11-14 10:08:57 INFO User authenticated successfully user_id=USR_717 service=api-gateway response_ms=155.07 event_id=EVT_000848
+2026-11-14 10:41:41 INFO User authenticated successfully user_id=USR_408 service=order-service response_ms=106.78 event_id=EVT_000931
+2026-11-14 10:12:00 WARNING Retry attempt 2 for external supplier gateway user_id=USR_324 service=auth response_ms=779.39 event_id=EVT_000070
+2026-11-14 10:31:00 WARNING Database pool connection threshold 85% reached user_id=USR_207 service=api-gateway response_ms=786.92 event_id=EVT_000940
+2026-11-14 10:54:01 INFO Order placed with ID user_id=USR_627 service=api-gateway response_ms=138.08 event_id=EVT_000406
+2026-11-14 10:07:05 INFO Token refreshed for session user_id=USR_414 service=notification response_ms=13.68 event_id=EVT_000359
+2026-11-14 10:08:45 INFO Health check probe passed user_id=USR_994 service=payment response_ms=146.06 event_id=EVT_000960
+2026-11-14 10:17:52 INFO Inventory reserved for SKU user_id=USR_397 service=payment response_ms=153.26 event_id=EVT_000830
+2026-11-14 10:03:49 ERROR Deadlock detected in inventory transaction lock user_id=USR_623 service=inventory response_ms=2128.76 event_id=EVT_000755
+2026-11-14 10:19:03 INFO Token refreshed for session user_id=USR_538 service=order-service response_ms=174.72 event_id=EVT_000471
+2026-11-14 10:05:47 WARNING Rate limit quota nearing threshold user_id=USR_598 service=notification event_id=EVT_000704
+2026-11-14 10:53:10 INFO User authenticated successfully user_id=USR_259 service=inventory response_ms=146.88 event_id=EVT_000534
+2026-11-14 10:38:53 INFO Email receipt dispatched user_id=USR_222 service=payment response_ms=138.63 event_id=EVT_000048
+2026-11-14 10:52:10 ERROR Deadlock detected in inventory transaction lock user_id=USR_287 service=api-gateway event_id=EVT_000536
+2026-11-14 10:23:13 WARNING Database pool connection threshold 85% reached user_id=USR_364 service=payment response_ms=956.9 event_id=EVT_000872
+2026-11-14 10:16:35 WARNING Rate limit quota nearing threshold user_id=USR_584 service=inventory response_ms=711.78 event_id=EVT_000041
+2026-11-14 10:31:58 INFO Order placed with ID user_id=USR_772 service=inventory response_ms=138.83 event_id=EVT_000868
+2026-11-14 10:46:26 INFO User authenticated successfully user_id=USR_615 service=api-gateway response_ms=85.68 event_id=EVT_000738
+2026-11-14 10:08:07 INFO Order placed with ID user_id=USR_540 service=auth event_id=EVT_000789
+2026-11-14 10:38:28 INFO Health check probe passed user_id=USR_713 service=inventory response_ms=185.66 event_id=EVT_000508
+2026-11-14 10:19:18 INFO Email receipt dispatched user_id=USR_841 service=api-gateway response_ms=146.52 event_id=EVT_000477
+2026-11-14 10:25:23 INFO Payment tokenized via provider user_id=USR_270 service=notification response_ms=105.12 event_id=EVT_000350
+2026-11-14 10:52:04 INFO Inventory reserved for SKU user_id=USR_665 service=api-gateway response_ms=78.17 event_id=EVT_000118
+2026-11-14 10:20:28 INFO Payment tokenized via provider user_id=USR_252 service=order-service response_ms=122.57 event_id=EVT_000267
+2026-11-14 10:21:20 WARNING Cache miss rate exceeded expected variance user_id=USR_247 service=api-gateway response_ms=724.0 event_id=EVT_000220
+2026-11-14 10:18:50 INFO User authenticated successfully user_id=USR_507 service=api-gateway response_ms=93.33 event_id=EVT_000142
+2026-11-14 10:11:02 INFO Payment tokenized via provider user_id=USR_412 service=order-service response_ms=128.7 event_id=EVT_000731
+2026-11-14 10:25:33 CRITICAL Fatal out of memory condition in worker pool user_id=USR_530 service=notification response_ms=3434.84 event_id=EVT_000258
+2026-11-14 10:48:20 INFO Health check probe passed user_id=USR_959 service=payment response_ms=138.07 event_id=EVT_000747
+2026-11-14 10:02:34 INFO Payment tokenized via provider user_id=USR_639 service=inventory response_ms=135.08 event_id=EVT_000182
+2026-11-14 10:05:59 INFO Inventory reserved for SKU user_id=USR_439 service=inventory response_ms=87.27 event_id=EVT_000633
+2026-11-14 10:30:58 INFO Order placed with ID user_id=USR_819 service=api-gateway response_ms=70.24 event_id=EVT_000094
+2026-11-14 10:33:03 INFO Token refreshed for session user_id=USR_724 service=notification response_ms=103.79 event_id=EVT_000235
+2026-11-14 10:55:05 INFO Order placed with ID user_id=USR_186 service=inventory response_ms=114.71 event_id=EVT_000902
+2026-11-14 10:58:25 INFO User authenticated successfully user_id=USR_508 service=api-gateway response_ms=151.9 event_id=EVT_000975
+2026-11-14 10:37:47 INFO Token refreshed for session user_id=USR_854 service=api-gateway response_ms=67.69 event_id=EVT_000461
+2026-11-14 10:08:02 INFO Inventory reserved for SKU user_id=USR_635 service=auth response_ms=145.47 event_id=EVT_000516
+2026-11-14 10:39:54 INFO  user_id=USR_864 service=inventory response_ms=150 event_id=EVT_000028
+2026-11-14 10:32:11 INFO Email receipt dispatched user_id=USR_339 service=auth response_ms=97.3 event_id=EVT_000137
+2026-11-14 10:15:25 INFO User authenticated successfully user_id=USR_923 service=inventory response_ms=146.56 event_id=EVT_000799
+2026-11-14 10:54:54 INFO User authenticated successfully user_id=USR_328 service=auth response_ms=117.5 event_id=EVT_000355
+2026-11-14 10:44:34 ERROR Database query timeout after 5000ms user_id=USR_396 service=order-service response_ms=2188.51 event_id=EVT_000911
+2026-11-14 10:13:05 INFO Inventory reserved for SKU user_id=USR_230 service=api-gateway response_ms=128.5 event_id=EVT_000065
+2026-11-14 10:17:45 INFO Token refreshed for session user_id=USR_151 service=order-service response_ms=116.48 event_id=EVT_000080
+2026-11-14 10:27:27 INFO Email receipt dispatched user_id=USR_145 service=payment response_ms=73.99 event_id=EVT_000263
+2026-11-14 10:01:48 INFO Invalid negative latency record user_id=USR_716 service=payment response_ms=-350 event_id=EVT_000005
+2026-11-14 10:11:59 INFO Payment tokenized via provider user_id=USR_525 service=api-gateway response_ms=191.14 event_id=EVT_000133
+2026-11-14 10:12:19 INFO Payment tokenized via provider user_id=USR_547 service=auth event_id=EVT_000903
+2026-11-14 10:03:19 INFO Email receipt dispatched user_id=USR_464 service=order-service response_ms=127.75 event_id=EVT_000765
+2026-11-14 10:35:47 INFO Token refreshed for session user_id=USR_656 service=order-service response_ms=153.96 event_id=EVT_000245
+2026-11-14 10:17:46 INFO Token refreshed for session user_id=USR_893 service=auth response_ms=162.13 event_id=EVT_000207
+2026-11-14 10:36:39 INFO User authenticated successfully user_id=USR_931 service=api-gateway response_ms=93.26 event_id=EVT_000305
+2026-11-14 10:48:08 WARNING API response time degraded above SLA user_id=USR_805 service=payment response_ms=602.23 event_id=EVT_000612
+2026-11-14 10:39:58 INFO Payment tokenized via provider user_id=USR_366 service=api-gateway response_ms=136.48 event_id=EVT_000421
+2026-11-14 10:24:38 INFO Email receipt dispatched user_id=USR_366 service=notification event_id=EVT_000545
+2026-11-14 10:29:43 INFO Payment tokenized via provider user_id=USR_964 service=notification response_ms=94.03 event_id=EVT_000805
+2026-11-14 10:17:29 WARNING Database pool connection threshold 85% reached user_id=USR_338 service=inventory response_ms=842.09 event_id=EVT_000589
+2026-11-14 10:21:03 INFO Inventory reserved for SKU user_id=USR_783 service=order-service response_ms=178.34 event_id=EVT_000163
+2026-11-14 10:18:13 WARNING API response time degraded above SLA user_id=USR_304 service=notification response_ms=891.93 event_id=EVT_000465
+2026-11-14 10:14:30 WARNING Duplicate key injection test user_id=USR_422 service=inventory response_ms=300 event_id=EVT_DUPLICATE_KEY
+2026-11-14 10:36:58 INFO Payment tokenized via provider user_id=USR_338 service=order-service response_ms=84.78 event_id=EVT_000358
+2026-11-14 10:49:30 INFO Inventory reserved for SKU user_id=USR_203 service=inventory response_ms=86.27 event_id=EVT_000582
+2026-11-14 10:00:50 WARNING Retry attempt 2 for external supplier gateway user_id=USR_994 service=inventory response_ms=903.23 event_id=EVT_000399
+2026-11-14 10:01:20 INFO User authenticated successfully user_id=USR_956 service=auth response_ms=113.09 event_id=EVT_000431
+2026-11-14 10:17:06 WARNING Database pool connection threshold 85% reached user_id=USR_653 service=payment response_ms=842.54 event_id=EVT_000145
+2026-11-14 10:01:47 INFO Email receipt dispatched user_id=USR_205 service=inventory response_ms=67.9 event_id=EVT_000293
+2026-11-14 10:45:12 INFO Email receipt dispatched user_id=USR_815 service=api-gateway response_ms=131.74 event_id=EVT_000179
+2026-11-14 10:14:27 ERROR Database query timeout after 5000ms user_id=USR_115 service=api-gateway response_ms=3534.39 event_id=EVT_000271
+2026-11-14 10:48:53 INFO Order placed with ID user_id=USR_785 service=api-gateway response_ms=103.66 event_id=EVT_000049
+2026-11-14 10:41:56 INFO Email receipt dispatched user_id=USR_232 service=inventory response_ms=143.48 event_id=EVT_000638
+2026-11-14 10:54:27 INFO Health check probe passed user_id=USR_548 service=notification response_ms=166.43 event_id=EVT_000302
+2026-11-14 10:37:00 INFO Health check probe passed user_id=USR_559 service=inventory response_ms=79.44 event_id=EVT_000611
+2026-11-14 10:02:41 WARNING API response time degraded above SLA user_id=USR_717 service=notification response_ms=990.09 event_id=EVT_000270
+2026-11-14 10:37:28 ERROR Database query timeout after 5000ms user_id=USR_478 service=api-gateway response_ms=3667.75 event_id=EVT_000669
+2026-11-14 10:14:58 INFO Payment tokenized via provider user_id=USR_882 service=notification response_ms=31.37 event_id=EVT_000375
+2026-11-14 10:17:03 INFO Health check probe passed user_id=USR_504 service=inventory response_ms=163.79 event_id=EVT_000559
+2026-11-14 10:38:59 ERROR Connection reset by peer on microservice client user_id=USR_614 service=notification response_ms=2981.24 event_id=EVT_000396
+2026-11-14 10:15:20 CRITICAL Database cluster primary node unreachable user_id=USR_195 service=inventory response_ms=4425.06 event_id=EVT_000114
+2026-11-14 10:13:23 CRITICAL Fatal out of memory condition in worker pool user_id=USR_107 service=inventory response_ms=3576.41 event_id=EVT_000920
+2026-11-14 10:25:33 INFO Inventory reserved for SKU user_id=USR_412 service=auth response_ms=145.26 event_id=EVT_000894
+2026-11-14 10:47:52 INFO Invalid negative latency record user_id=USR_765 service=payment response_ms=-350 event_id=EVT_000006
+2026-11-14 10:35:53 INFO Email receipt dispatched user_id=USR_601 service=order-service response_ms=100.18 event_id=EVT_000579
+2026-11-14 10:09:19 WARNING Cache miss rate exceeded expected variance user_id=USR_864 service=inventory response_ms=605.9 event_id=EVT_000116
+2026-11-14 10:22:35 INFO Inventory reserved for SKU user_id=USR_517 service=auth response_ms=95.29 event_id=EVT_000075
+2026-11-14 10:42:17 INFO Email receipt dispatched user_id=USR_124 service=payment response_ms=168.98 event_id=EVT_000692
+2026-11-14 10:48:41 WARNING Retry attempt 2 for external supplier gateway user_id=USR_746 service=inventory response_ms=1009.46 event_id=EVT_000880
+2026-11-14 10:00:01 ERROR Database query timeout after 5000ms user_id=USR_770 service=api-gateway response_ms=2250.06 event_id=EVT_000525
+2026-11-14 10:33:13 INFO Order placed with ID user_id=USR_835 service=inventory response_ms=132.92 event_id=EVT_000046
+2026-11-14 10:47:06 INFO Token refreshed for session user_id=USR_155 service=api-gateway event_id=EVT_000624
+2026-11-14 10:23:51 INFO Payment tokenized via provider user_id=USR_894 service=inventory response_ms=128.78 event_id=EVT_000169
+2026-11-14 10:59:25 INFO Payment tokenized via provider user_id=USR_208 service=payment response_ms=138.29 event_id=EVT_000034
+2026-11-14 10:48:26 ERROR Payment authorization declined by upstream processor user_id=USR_828 service=api-gateway response_ms=3115.39 event_id=EVT_000209
+2026-11-14 10:13:16 INFO Inventory reserved for SKU user_id=USR_720 service=api-gateway response_ms=125.22 event_id=EVT_000527
+2026-11-14 10:13:52 INFO Payment tokenized via provider user_id=USR_830 service=auth response_ms=141.98 event_id=EVT_000828
+2026-11-14 10:27:44 ERROR Payment authorization declined by upstream processor user_id=USR_995 service=api-gateway response_ms=3074.17 event_id=EVT_000057
+2026-11-14 10:52:07 INFO User authenticated successfully user_id=USR_787 service=inventory response_ms=133.6 event_id=EVT_000802
+2026-11-14 10:12:06 CRITICAL Database cluster primary node unreachable user_id=USR_559 service=payment response_ms=3850.04 event_id=EVT_000470
+2026-11-14 10:30:58 INFO Health check probe passed user_id=USR_497 service=inventory response_ms=141.99 event_id=EVT_000139
+2026-11-14 10:42:04 WARNING Database pool connection threshold 85% reached user_id=USR_121 service=auth response_ms=612.32 event_id=EVT_000989
+2026-11-14 10:59:47 INFO User authenticated successfully user_id=USR_756 service=inventory response_ms=121.94 event_id=EVT_000621
+2026-11-14 10:42:57 INFO Token refreshed for session user_id=USR_162 service=inventory response_ms=130.91 event_id=EVT_000680
+2026-11-14 10:13:07 WARNING Duplicate key injection test user_id=USR_691 service=inventory response_ms=300 event_id=EVT_DUPLICATE_KEY
+2026-11-14 10:48:34 WARNING Rate limit quota nearing threshold user_id=USR_962 service=api-gateway response_ms=953.07 event_id=EVT_000970
+2026-11-14 10:06:08 ERROR Connection reset by peer on microservice client user_id=USR_123 service=api-gateway response_ms=2442.02 event_id=EVT_000223
+2026-11-14 10:51:32 INFO Order placed with ID user_id=USR_320 service=order-service response_ms=114.97 event_id=EVT_000162
+2026-11-14 10:01:50 ERROR Connection reset by peer on microservice client user_id=USR_646 service=payment response_ms=2568.13 event_id=EVT_000079
+2026-11-14 10:59:13 WARNING Retry attempt 2 for external supplier gateway user_id=USR_381 service=notification response_ms=613.58 event_id=EVT_000574
+2026-11-14 10:56:59 INFO Inventory reserved for SKU user_id=USR_285 service=notification response_ms=111.96 event_id=EVT_000777
+2026-11-14 10:53:23 INFO Inventory reserved for SKU user_id=USR_272 service=api-gateway event_id=EVT_000910
+2026-11-14 10:12:22 INFO Payment tokenized via provider user_id=USR_548 service=inventory response_ms=112.51 event_id=EVT_000443
+2026-11-14 10:29:09 WARNING API response time degraded above SLA user_id=USR_781 service=order-service response_ms=967.23 event_id=EVT_000584
+2026-11-14 10:06:27 INFO Token refreshed for session user_id=USR_883 service=notification response_ms=137.64 event_id=EVT_000766
+2026-11-14 10:18:39 WARNING Rate limit quota nearing threshold user_id=USR_749 service=api-gateway response_ms=796.25 event_id=EVT_000289
+2026-11-14 10:35:49 INFO Inventory reserved for SKU user_id=USR_762 service=inventory response_ms=85.26 event_id=EVT_000851
+2026-11-14 10:40:19 INFO Payment tokenized via provider user_id=USR_315 service=order-service response_ms=113.94 event_id=EVT_000506
+2026-11-14 10:10:17 INFO Token refreshed for session user_id=USR_192 service=auth response_ms=108.18 event_id=EVT_000563
+2026-11-14 10:31:17 INFO Health check probe passed user_id=USR_848 service=notification response_ms=112.21 event_id=EVT_000331
+2026-11-14 10:52:01 INFO Email receipt dispatched user_id=USR_233 service=order-service response_ms=94.31 event_id=EVT_000596
+2026-11-14 10:23:47 WARNING Database pool connection threshold 85% reached user_id=USR_369 service=auth response_ms=892.95 event_id=EVT_000325
+2026-11-14 10:20:32 WARNING API response time degraded above SLA user_id=USR_188 service=inventory response_ms=793.16 event_id=EVT_000861
+2026-11-14 10:40:26 INFO Health check probe passed user_id=USR_342 service=payment response_ms=172.78 event_id=EVT_000376
+2026-11-14 10:33:29 INFO Health check probe passed user_id=USR_791 service=auth response_ms=123.82 event_id=EVT_000791
+2026-11-14 10:59:33 INFO Token refreshed for session user_id=USR_640 service=payment response_ms=154.04 event_id=EVT_000037
+2026-11-14 10:27:01 WARNING Database pool connection threshold 85% reached user_id=USR_222 service=api-gateway response_ms=957.53 event_id=EVT_000569
+2026-11-14 10:25:55 INFO Token refreshed for session user_id=USR_335 service=payment response_ms=119.9 event_id=EVT_000275
+2026-11-14 10:44:53 INFO User authenticated successfully user_id=USR_700 service=auth response_ms=45.25 event_id=EVT_000937
+2026-11-14 10:37:34 INFO Inventory reserved for SKU user_id=USR_328 service=auth event_id=EVT_000449
+2026-11-14 10:20:30 WARNING Retry attempt 2 for external supplier gateway user_id=USR_800 service=payment response_ms=756.9 event_id=EVT_000852
+2026-11-14 10:43:40 INFO Order placed with ID user_id=USR_636 service=inventory response_ms=160.6 event_id=EVT_000556
+2026-11-14 10:26:16 WARNING Cache miss rate exceeded expected variance user_id=USR_172 service=auth response_ms=811.31 event_id=EVT_000733
+2026-11-14 10:06:09 INFO User authenticated successfully user_id=USR_608 service=inventory response_ms=140.48 event_id=EVT_000811
+2026-11-14 10:36:23 INFO Order placed with ID user_id=USR_570 service=api-gateway response_ms=188.39 event_id=EVT_000234
+2026-11-14 10:46:21 INFO Order placed with ID user_id=USR_257 service=auth response_ms=92.2 event_id=EVT_000205
+2026-11-14 10:28:26 ERROR Connection reset by peer on microservice client user_id=USR_400 service=notification response_ms=3344.67 event_id=EVT_000742
+2026-11-14 10:23:27 WARNING Database pool connection threshold 85% reached user_id=USR_907 service=inventory event_id=EVT_000333
+2026-11-14 10:39:43 INFO Order placed with ID user_id=USR_890 service=notification response_ms=90.87 event_id=EVT_000196
+2026-11-14 10:56:17 ERROR Deadlock detected in inventory transaction lock user_id=USR_363 service=api-gateway response_ms=2883.78 event_id=EVT_000134
+2026-11-14 10:10:43 ERROR Deadlock detected in inventory transaction lock user_id=USR_685 service=order-service response_ms=2223.93 event_id=EVT_000951
+2026-11-14 10:47:50 WARNING Cache miss rate exceeded expected variance user_id=USR_529 service=order-service response_ms=926.57 event_id=EVT_000540
+2026-11-14 10:15:02 INFO Health check probe passed user_id=USR_702 service=inventory response_ms=128.75 event_id=EVT_000039
+2026-11-14 10:57:50 INFO User authenticated successfully user_id=USR_998 service=inventory response_ms=121.2 event_id=EVT_000464
+2026-11-14 10:03:26 INFO User authenticated successfully user_id=USR_791 service=auth response_ms=84.97 event_id=EVT_000655
+2026-11-14 10:33:57 INFO Inventory reserved for SKU user_id=USR_923 service=order-service response_ms=76.19 event_id=EVT_000953
+2026-11-14 10:26:29 INFO Inventory reserved for SKU user_id=USR_517 service=payment response_ms=116.49 event_id=EVT_000482
+2026-11-14 10:55:57 INFO User authenticated successfully user_id=USR_201 service=inventory response_ms=125.22 event_id=EVT_000775
+2026-11-14 10:16:21 INFO Payment tokenized via provider user_id=USR_740 service=auth response_ms=133.28 event_id=EVT_000560
+2026-11-14 10:44:57 INFO Inventory reserved for SKU user_id=USR_358 service=api-gateway response_ms=136.07 event_id=EVT_000303
+2026-11-14 10:43:42 INFO Email receipt dispatched user_id=USR_997 service=auth event_id=EVT_000430
+2026-11-14 10:29:37 INFO Order placed with ID user_id=USR_965 service=auth event_id=EVT_000283
+2026-11-14 10:50:21 INFO Token refreshed for session user_id=USR_342 service=payment response_ms=111.78 event_id=EVT_000722
+2026-11-14 10:49:02 INFO Inventory reserved for SKU user_id=USR_299 service=notification response_ms=113.94 event_id=EVT_000069
+2026-11-14 10:00:04 INFO Email receipt dispatched user_id=USR_944 service=order-service response_ms=117.93 event_id=EVT_000111
+2026-11-14 10:24:22 INFO Token refreshed for session user_id=USR_367 service=auth response_ms=110.66 event_id=EVT_000871
+2026-11-14 10:03:55 ERROR Payment authorization declined by upstream processor user_id=USR_711 service=api-gateway response_ms=2757.39 event_id=EVT_000523
+2026-11-14 10:19:41 WARNING API response time degraded above SLA user_id=USR_932 service=order-service response_ms=933.5 event_id=EVT_000992
+2026-11-14 10:04:41 ERROR Connection reset by peer on microservice client user_id=USR_820 service=auth response_ms=1196.95 event_id=EVT_000526
+MISSING_ S INFO Malformed record missing timestamp user_id=USR_799 service=api-gateway response_ms=120 event_id=EVT_000019
+2026-11-14 10:40:04 INFO Inventory reserved for SKU user_id=USR_865 service=order-service event_id=EVT_000550
+2026-11-14 10:50:31 INFO Token refreshed for session user_id=USR_314 service=auth response_ms=129.57 event_id=EVT_000602
+2026-11-14 10:08:04 INFO Inventory reserved for SKU user_id=USR_936 service=inventory response_ms=177.25 event_id=EVT_000505
+2026-11-14 10:54:00 INFO Order placed with ID user_id=USR_422 service=api-gateway response_ms=129.9 event_id=EVT_000340
+2026-11-14 10:19:27 INFO Payment tokenized via provider user_id=USR_478 service=auth response_ms=123.19 event_id=EVT_000051
+2026-11-14 10:36:07 INFO Token refreshed for session user_id=USR_983 service=notification response_ms=117.63 event_id=EVT_000892
+2026-11-14 10:18:59 INFO Email receipt dispatched user_id=USR_552 service=inventory response_ms=102.24 event_id=EVT_000108
+2026-11-14 10:14:45 INFO User authenticated successfully user_id=USR_645 service=auth response_ms=145.59 event_id=EVT_000979
+2026-11-14 10:30:27 INFO Token refreshed for session user_id=USR_887 service=api-gateway response_ms=79.48 event_id=EVT_000629
+2026-11-14 10:01:32 WARNING Database pool connection threshold 85% reached user_id=USR_217 service=auth response_ms=854.55 event_id=EVT_000311
+2026-11-14 10:04:08 INFO Inventory reserved for SKU user_id=USR_831 service=order-service response_ms=128.8 event_id=EVT_000865
+2026-11-14 10:16:23 INFO Order placed with ID user_id=USR_567 service=payment response_ms=94.48 event_id=EVT_000945
+2026-11-14 10:17:21 WARNING Database pool connection threshold 85% reached user_id=USR_518 service=api-gateway response_ms=796.03 event_id=EVT_000813
+2026-11-14 10:30:45 INFO Health check probe passed user_id=USR_597 service=payment response_ms=95.95 event_id=EVT_000491
+2026-11-14 10:25:30 INFO Email receipt dispatched user_id=USR_720 service=order-service response_ms=162.16 event_id=EVT_000252
+2026-11-14 10:24:35 WARNING API response time degraded above SLA user_id=USR_852 service=notification response_ms=843.7 event_id=EVT_000869
+2026-11-14 10:13:46 INFO Inventory reserved for SKU user_id=USR_968 service=payment response_ms=152.74 event_id=EVT_000876
+2026-11-14 10:23:51 INFO Payment tokenized via provider user_id=USR_226 service=notification response_ms=52.68 event_id=EVT_000840
+2026-11-14 10:58:59 INFO Token refreshed for session user_id=USR_676 service=order-service response_ms=135.45 event_id=EVT_000274
+2026-11-14 10:53:53 INFO Payment tokenized via provider user_id=USR_235 service=api-gateway response_ms=96.05 event_id=EVT_000745
+2026-11-14 10:34:02 INFO User authenticated successfully user_id=USR_975 service=order-service response_ms=130.97 event_id=EVT_000630
+2026-11-14 10:40:37 INFO User authenticated successfully user_id=USR_870 service=order-service response_ms=99.86 event_id=EVT_000594
+2026-11-14 10:15:19 INFO Inventory reserved for SKU user_id=USR_838 service=inventory response_ms=122.44 event_id=EVT_000925
+2026-11-14 10:16:36 WARNING Rate limit quota nearing threshold user_id=USR_888 service=inventory response_ms=1251.6 event_id=EVT_000529
+2026-11-14 10:38:20 INFO Health check probe passed user_id=USR_700 service=inventory response_ms=89.92 event_id=EVT_000154
+2026-11-14 10:32:00 INFO Order placed with ID user_id=USR_110 service=order-service response_ms=160.53 event_id=EVT_000831
+2026-11-14 10:50:37 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_125 service=notification response_ms=200 event_id=EVT_000001
+2026-11-14 10:21:23 INFO Order placed with ID user_id=USR_205 service=notification response_ms=135.03 event_id=EVT_000337
+2026-11-14 10:23:01 WARNING Rate limit quota nearing threshold user_id=USR_536 service=auth response_ms=822.66 event_id=EVT_000710
+2026-11-14 10:52:23 INFO User authenticated successfully user_id=USR_408 service=payment response_ms=172.4 event_id=EVT_000985
+2026-11-14 10:01:04 INFO Email receipt dispatched user_id=USR_599 service=order-service response_ms=115.36 event_id=EVT_000279
+2026-11-14 10:33:13 INFO Payment tokenized via provider user_id=USR_843 service=notification response_ms=158.15 event_id=EVT_000858
+2026-11-14 10:05:30 INFO Token refreshed for session user_id=USR_598 service=payment response_ms=126.73 event_id=EVT_000713
+2026-11-14 10:49:41 ERROR Database query timeout after 5000ms user_id=USR_230 service=order-service response_ms=2364.44 event_id=EVT_000260
+2026-11-14 10:20:41 INFO Inventory reserved for SKU user_id=USR_354 service=payment response_ms=155.95 event_id=EVT_000996
+2026-11-14 10:58:48 WARNING Database pool connection threshold 85% reached user_id=USR_927 service=auth response_ms=633.06 event_id=EVT_000044
+2026-11-14 10:53:09 INFO Order placed with ID user_id=USR_881 service=notification response_ms=110.84 event_id=EVT_000961
+2026-11-14 10:15:46 ERROR Connection reset by peer on microservice client user_id=USR_495 service=api-gateway event_id=EVT_000606
+2026-11-14 10:00:11 INFO User authenticated successfully user_id=USR_340 service=order-service event_id=EVT_000436
+2026-11-14 10:42:50 INFO Order placed with ID user_id=USR_199 service=payment response_ms=111.99 event_id=EVT_000132
+2026-11-14 10:35:11 INFO Payment tokenized via provider user_id=USR_103 service=order-service response_ms=119.15 event_id=EVT_000700
+2026-11-14 10:00:08 CRITICAL Circuit breaker opened: all downstream calls rejected user_id=USR_488 service=auth response_ms=3285.76 event_id=EVT_000045
+2026-11-14 10:08:41 INFO Email receipt dispatched user_id=USR_166 service=payment response_ms=136.23 event_id=EVT_000922
+2026-11-14 10:20:40 INFO Health check probe passed user_id=USR_798 service=api-gateway response_ms=72.75 event_id=EVT_000702
+2026-11-14 10:29:29 INFO Email receipt dispatched user_id=USR_140 service=auth response_ms=105.86 event_id=EVT_000106
+2026-11-14 10:11:34 INFO Token refreshed for session user_id=USR_633 service=payment response_ms=93.4 event_id=EVT_000295
+2026-11-14 10:10:46 INFO Health check probe passed user_id=USR_991 service=auth event_id=EVT_000972
+2026-11-14 10:32:54 WARNING Rate limit quota nearing threshold user_id=USR_921 service=order-service response_ms=603.12 event_id=EVT_000514
+2026-11-14 10:52:20 INFO Payment tokenized via provider user_id=USR_931 service=notification response_ms=117.47 event_id=EVT_000818
+2026-11-14 10:10:37 INFO Email receipt dispatched user_id=USR_153 service=inventory response_ms=114.92 event_id=EVT_000161
+2026-11-14 10:22:16 INFO Health check probe passed user_id=USR_905 service=notification response_ms=184.09 event_id=EVT_000744
+2026-11-14 10:29:03 INFO Inventory reserved for SKU user_id=USR_718 service=order-service response_ms=121.08 event_id=EVT_000673
+2026-11-14 10:44:55 INFO Payment tokenized via provider user_id=USR_677 service=api-gateway response_ms=138.08 event_id=EVT_000285
+2026-11-14 10:05:56 INFO Invalid negative latency record user_id=USR_658 service=notification response_ms=-350 event_id=EVT_000003
+2026-11-14 10:04:20 INFO Token refreshed for session user_id=USR_500 service=order-service response_ms=118.07 event_id=EVT_000963
+2026-11-14 10:31:10 INFO Token refreshed for session user_id=USR_666 service=api-gateway response_ms=70.23 event_id=EVT_000356
+2026-11-14 10:19:23 INFO Health check probe passed user_id=USR_161 service=api-gateway response_ms=126.41 event_id=EVT_000604
+2026-11-14 10:32:02 INFO Token refreshed for session user_id=USR_296 service=api-gateway response_ms=120.95 event_id=EVT_000867
+2026-11-14 10:36:16 INFO Payment tokenized via provider user_id=USR_199 service=notification response_ms=77.16 event_id=EVT_000688
+2026-11-14 10:04:37 INFO Health check probe passed user_id=USR_425 service=inventory response_ms=91.22 event_id=EVT_000613
+2026-11-14 10:28:10 INFO Health check probe passed user_id=USR_241 service=order-service response_ms=124.03 event_id=EVT_000460
+2026-11-14 10:38:27 INFO Health check probe passed user_id=USR_643 service=payment response_ms=93.36 event_id=EVT_000338
+2026-11-14 10:19:19 INFO Health check probe passed user_id=USR_727 service=inventory response_ms=109.86 event_id=EVT_000577
+2026-11-14 10:52:12 INFO Order placed with ID user_id=USR_121 service=inventory response_ms=136.57 event_id=EVT_000107
+2026-11-14 10:55:59 WARNING Database pool connection threshold 85% reached user_id=USR_670 service=inventory response_ms=754.54 event_id=EVT_000632
+2026-11-14 10:22:03 INFO Health check probe passed user_id=USR_419 service=order-service response_ms=121.44 event_id=EVT_000567
+2026-11-14 10:23:32 INFO Inventory reserved for SKU user_id=USR_391 service=api-gateway response_ms=141.1 event_id=EVT_000756
+2026-11-14 10:27:07 WARNING Rate limit quota nearing threshold user_id=USR_796 service=inventory response_ms=830.31 event_id=EVT_000518
+2026-11-14 10:30:08 INFO Health check probe passed user_id=USR_141 service=auth response_ms=125.78 event_id=EVT_000839
+2026-11-14 10:22:54 INFO Token refreshed for session user_id=USR_796 service=inventory response_ms=90.88 event_id=EVT_000420
+2026-11-14 10:58:20 INFO Health check probe passed user_id=USR_514 service=payment response_ms=122.85 event_id=EVT_000366
+2026-11-14 10:48:34 INFO Inventory reserved for SKU user_id=USR_250 service=order-service response_ms=158.18 event_id=EVT_000889
+2026-11-14 10:16:32 INFO Order placed with ID user_id=USR_900 service=order-service response_ms=146.83 event_id=EVT_000300
+2026-11-14 10:15:35 INFO Token refreshed for session user_id=USR_119 service=payment response_ms=120.27 event_id=EVT_000429
+2026-11-14 10:59:34 INFO Token refreshed for session user_id=USR_395 service=order-service response_ms=98.27 event_id=EVT_000672
+2026-11-14 10:11:36 INFO Email receipt dispatched user_id=USR_726 service=payment response_ms=155.97 event_id=EVT_000726
+2026-11-14 10:12:11 INFO Order placed with ID user_id=USR_667 service=api-gateway response_ms=86.02 event_id=EVT_000532
+2026-11-14 10:55:33 INFO Inventory reserved for SKU user_id=USR_313 service=auth response_ms=145.91 event_id=EVT_000662
+2026-11-14 10:25:54 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_573 service=payment response_ms=200 event_id=EVT_000021
+2026-11-14 10:45:05 INFO Token refreshed for session user_id=USR_513 service=auth response_ms=153.05 event_id=EVT_000416
+2026-11-14 10:09:28 WARNING Rate limit quota nearing threshold user_id=USR_951 service=order-service event_id=EVT_000190
+2026-11-14 10:06:19 INFO Token refreshed for session user_id=USR_490 service=inventory response_ms=61.62 event_id=EVT_000846
+2026-11-14 10:21:51 INFO Health check probe passed user_id=USR_569 service=order-service response_ms=124.82 event_id=EVT_000750
+2026-11-14 10:40:32 INFO User authenticated successfully user_id=USR_805 service=order-service response_ms=72.84 event_id=EVT_000102
+2026-11-14 10:16:11 INFO Order placed with ID user_id=USR_209 service=order-service response_ms=131.22 event_id=EVT_000129
+2026-11-14 10:03:01 INFO Health check probe passed user_id=USR_727 service=payment response_ms=135.21 event_id=EVT_000306
+2026-11-14 10:09:13 ERROR Connection reset by peer on microservice client user_id=USR_555 service=api-gateway response_ms=1673.91 event_id=EVT_000555
+2026-11-14 10:37:39 INFO Email receipt dispatched user_id=USR_137 service=inventory response_ms=113.61 event_id=EVT_000496
+2026-11-14 10:22:28 INFO Health check probe passed user_id=USR_268 service=payment response_ms=126.63 event_id=EVT_000927
+2026-11-14 10:13:37 WARNING API response time degraded above SLA user_id=USR_936 service=order-service response_ms=792.06 event_id=EVT_000186
+2026-11-14 10:03:43 INFO Health check probe passed user_id=USR_146 service=payment event_id=EVT_000097
+2026-11-14 10:18:44 INFO Email receipt dispatched user_id=USR_965 service=notification response_ms=169.92 event_id=EVT_000956
+2026-11-14 10:11:30 INFO Token refreshed for session user_id=USR_538 service=api-gateway response_ms=171.08 event_id=EVT_000492
+2026-99-99 99:99:99 ERROR Malformed record with garbage timestamp user_id=USR_374 service=api-gateway response_ms=500 event_id=EVT_000024
+2026-11-14 10:19:07 INFO Order placed with ID user_id=USR_668 service=order-service event_id=EVT_000609
+2026-11-14 10:33:41 INFO Payment tokenized via provider user_id=USR_322 service=notification response_ms=140.35 event_id=EVT_000973
+2026-11-14 10:45:57 INFO Payment tokenized via provider user_id=USR_432 service=api-gateway response_ms=111.42 event_id=EVT_000547
+2026-11-14 10:25:35 INFO Token refreshed for session user_id=USR_467 service=auth response_ms=123.7 event_id=EVT_000125
+2026-11-14 10:06:57 INFO Order placed with ID user_id=USR_348 service=notification response_ms=165.12 event_id=EVT_000085
+2026-11-14 10:00:43 INFO Inventory reserved for SKU user_id=USR_738 service=inventory response_ms=129.29 event_id=EVT_000932
+2026-11-14 10:36:56 INFO User authenticated successfully user_id=USR_993 service=notification response_ms=76.75 event_id=EVT_000123
+2026-11-14 10:08:31 INFO  user_id=USR_649 service=notification response_ms=150 event_id=EVT_000012
+2026-11-14 10:42:58 WARNING API response time degraded above SLA user_id=USR_154 service=api-gateway response_ms=925.56 event_id=EVT_000947
+2026-11-14 10:51:41 INFO Health check probe passed user_id=USR_210 service=notification response_ms=162.24 event_id=EVT_000456
+2026-11-14 10:27:40 INFO Email receipt dispatched user_id=USR_195 service=notification response_ms=116.6 event_id=EVT_000282
+2026-11-14 10:34:02 INFO Token refreshed for session user_id=USR_483 service=auth response_ms=102.14 event_id=EVT_000990
+2026-11-14 10:56:13 WARNING Database pool connection threshold 85% reached user_id=USR_674 service=inventory response_ms=648.4 event_id=EVT_000475
+2026-11-14 10:15:54 INFO Email receipt dispatched user_id=USR_310 service=order-service response_ms=121.15 event_id=EVT_000965
+2026-11-14 10:46:53 INFO Inventory reserved for SKU user_id=USR_362 service=notification event_id=EVT_000806
+2026-11-14 10:52:52 INFO Email receipt dispatched user_id=USR_518 service=api-gateway response_ms=107.3 event_id=EVT_000177
+2026-11-14 10:39:56 WARNING Cache miss rate exceeded expected variance user_id=USR_317 service=api-gateway response_ms=823.21 event_id=EVT_000912
+2026-11-14 10:29:29 INFO Health check probe passed user_id=USR_850 service=payment response_ms=82.23 event_id=EVT_000971
+2026-11-14 10:11:51 INFO Payment tokenized via provider user_id=USR_129 service=inventory response_ms=111.03 event_id=EVT_000407
+2026-11-14 10:39:43 INFO User authenticated successfully user_id=USR_349 service=payment response_ms=160.73 event_id=EVT_000712
+2026-11-14 10:58:08 INFO Health check probe passed user_id=USR_182 service=order-service response_ms=149.83 event_id=EVT_000122
+2026-11-14 10:36:12 ERROR Connection reset by peer on microservice client user_id=USR_897 service=payment response_ms=2992.99 event_id=EVT_000035
+2026-11-14 10:43:36 ERROR Deadlock detected in inventory transaction lock user_id=USR_220 service=api-gateway response_ms=2325.02 event_id=EVT_000251
+2026-11-14 10:40:32 INFO Order placed with ID user_id=USR_762 service=api-gateway response_ms=138.31 event_id=EVT_000414
+2026-11-14 10:46:53 ERROR Database query timeout after 5000ms user_id=USR_256 service=api-gateway response_ms=2225.46 event_id=EVT_000153
+2026-11-14 10:46:16 INFO Health check probe passed user_id=USR_989 service=auth response_ms=129.07 event_id=EVT_000445
+2026-11-14 10:04:30 INFO Inventory reserved for SKU user_id=USR_758 service=notification event_id=EVT_000347
+2026-11-14 10:20:52 INFO Inventory reserved for SKU user_id=USR_574 service=api-gateway response_ms=126.16 event_id=EVT_000999
+2026-11-14 10:44:41 ERROR Database query timeout after 5000ms user_id=USR_991 service=payment response_ms=1480.27 event_id=EVT_000121
+2026-11-14 10:24:15 INFO Token refreshed for session user_id=USR_460 service=api-gateway response_ms=107.7 event_id=EVT_000608
+2026-11-14 10:46:47 WARNING Rate limit quota nearing threshold user_id=USR_211 service=auth event_id=EVT_000665
+2026-11-14 10:46:14 WARNING Cache miss rate exceeded expected variance user_id=USR_405 service=notification event_id=EVT_000486
+2026-11-14 10:27:35 INFO Payment tokenized via provider user_id=USR_964 service=payment response_ms=112.26 event_id=EVT_000783
+2026-11-14 10:38:25 ERROR Database query timeout after 5000ms user_id=USR_930 service=payment response_ms=3191.41 event_id=EVT_000099
+2026-11-14 10:12:14 INFO Order placed with ID user_id=USR_125 service=payment response_ms=144.7 event_id=EVT_000058
+2026-11-14 10:32:23 INFO Token refreshed for session user_id=USR_964 service=payment response_ms=129.15 event_id=EVT_000718
+2026-11-14 10:44:07 ERROR Connection reset by peer on microservice client user_id=USR_236 service=auth response_ms=2254.87 event_id=EVT_000915
+2026-11-14 10:53:09 INFO Health check probe passed user_id=USR_284 service=inventory response_ms=123.94 event_id=EVT_000625
+2026-11-14 10:16:41 ERROR Connection reset by peer on microservice client user_id=USR_751 service=inventory response_ms=3117.5 event_id=EVT_000946
+2026-11-14 10:47:00 INFO Inventory reserved for SKU user_id=USR_579 service=order-service response_ms=165.61 event_id=EVT_000105
+2026-11-14 10:20:06 WARNING Retry attempt 2 for external supplier gateway user_id=USR_184 service=auth response_ms=813.02 event_id=EVT_000954
+2026-11-14 10:19:49 ERROR Database query timeout after 5000ms user_id=USR_825 service=inventory response_ms=1765.6 event_id=EVT_000639
+2026-11-14 10:05:38 INFO User authenticated successfully user_id=USR_920 service=inventory response_ms=96.71 event_id=EVT_000201
+2026-11-14 10:40:47 WARNING Rate limit quota nearing threshold user_id=USR_606 service=auth response_ms=704.44 event_id=EVT_000224
+2026-11-14 10:23:54 INFO Health check probe passed user_id=USR_339 service=inventory response_ms=171.4 event_id=EVT_000887
+2026-11-14 10:37:34 INFO Inventory reserved for SKU user_id=USR_963 service=auth response_ms=58.41 event_id=EVT_000635
+2026-11-14 10:12:36 INFO Email receipt dispatched user_id=USR_234 service=payment response_ms=135.26 event_id=EVT_000615
+2026-11-14 10:42:46 INFO User authenticated successfully user_id=USR_851 service=payment response_ms=156.16 event_id=EVT_000495
+2026-11-14 10:07:47 INFO Health check probe passed user_id=USR_563 service=api-gateway response_ms=98.26 event_id=EVT_000453
+2026-11-14 10:30:16 INFO Token refreshed for session user_id=USR_322 service=notification response_ms=140.98 event_id=EVT_000141
+2026-11-14 10:23:10 INFO Payment tokenized via provider user_id=USR_863 service=order-service response_ms=85.11 event_id=EVT_000168
+2026-11-14 10:44:12 INFO Email receipt dispatched user_id=USR_826 service=notification response_ms=126.05 event_id=EVT_000469
+2026-11-14 10:38:13 INFO Inventory reserved for SKU user_id=USR_438 service=inventory response_ms=96.8 event_id=EVT_000312
+2026-11-14 10:02:51 INFO Payment tokenized via provider user_id=USR_230 service=payment response_ms=96.98 event_id=EVT_000056
+2026-11-14 10:14:27 INFO Order placed with ID user_id=USR_944 service=payment response_ms=145.52 event_id=EVT_000332
+2026-11-14 10:15:24 WARNING Rate limit quota nearing threshold user_id=USR_872 service=auth response_ms=634.99 event_id=EVT_000135
+2026-11-14 10:07:38 INFO Email receipt dispatched user_id=USR_341 service=notification response_ms=166.61 event_id=EVT_000810
+2026-11-14 10:06:42 ERROR Payment authorization declined by upstream processor user_id=USR_801 service=order-service response_ms=2163.81 event_id=EVT_000404
+2026-11-14 10:08:15 INFO Token refreshed for session user_id=USR_947 service=api-gateway response_ms=151.35 event_id=EVT_000906
+2026-11-14 10:48:00 INFO Payment tokenized via provider user_id=USR_995 service=order-service response_ms=171.24 event_id=EVT_000732
+2026-11-14 10:10:33 ERROR Database query timeout after 5000ms user_id=USR_300 service=notification response_ms=2956.11 event_id=EVT_001000
+2026-11-14 10:25:56 INFO Email receipt dispatched user_id=USR_776 service=notification event_id=EVT_000290
+2026-11-14 10:55:34 INFO Order placed with ID user_id=USR_334 service=inventory response_ms=155.2 event_id=EVT_000541
+2026-11-14 10:21:49 WARNING Database pool connection threshold 85% reached user_id=USR_443 service=payment response_ms=678.95 event_id=EVT_000074
+2026-11-14 10:32:29 INFO User authenticated successfully user_id=USR_184 service=payment response_ms=123.36 event_id=EVT_000595
+2026-11-14 10:28:03 INFO Health check probe passed user_id=USR_998 service=inventory event_id=EVT_000401
+2026-11-14 10:18:50 INFO Token refreshed for session user_id=USR_268 service=auth response_ms=118.49 event_id=EVT_000741
+2026-11-14 10:54:41 INFO Inventory reserved for SKU user_id=USR_680 service=api-gateway response_ms=46.9 event_id=EVT_000800
+2026-11-14 10:41:20 INFO Inventory reserved for SKU user_id=USR_737 service=inventory response_ms=139.01 event_id=EVT_000433
+2026-11-14 10:11:22 INFO Order placed with ID user_id=USR_447 service=inventory response_ms=99.98 event_id=EVT_000798
+2026-11-14 10:54:25 INFO Token refreshed for session user_id=USR_585 service=notification response_ms=117.45 event_id=EVT_000643
+2026-11-14 10:10:47 WARNING Rate limit quota nearing threshold user_id=USR_280 service=auth response_ms=804.13 event_id=EVT_000720
+MISSING_ S INFO Malformed record missing timestamp user_id=USR_334 service=api-gateway response_ms=120 event_id=EVT_000023
+2026-11-14 10:50:59 INFO Token refreshed for session user_id=USR_609 service=auth response_ms=99.19 event_id=EVT_000164
+2026-11-14 10:06:43 INFO Email receipt dispatched user_id=USR_110 service=order-service response_ms=148.74 event_id=EVT_000307
+2026-11-14 10:42:12 INFO Health check probe passed user_id=USR_247 service=api-gateway response_ms=111.63 event_id=EVT_000402
+2026-11-14 10:18:02 INFO User authenticated successfully user_id=USR_164 service=order-service response_ms=138.0 event_id=EVT_000500
+2026-11-14 10:19:27 WARNING Rate limit quota nearing threshold user_id=USR_725 service=payment response_ms=710.03 event_id=EVT_000184
+2026-11-14 10:03:28 INFO Inventory reserved for SKU user_id=USR_966 service=order-service response_ms=110.14 event_id=EVT_000054
+2026-11-14 10:15:32 INFO Email receipt dispatched user_id=USR_691 service=notification response_ms=117.89 event_id=EVT_000231
+2026-11-14 10:11:41 INFO Health check probe passed user_id=USR_257 service=inventory response_ms=151.23 event_id=EVT_000216
+2026-11-14 10:55:52 INFO Health check probe passed user_id=USR_885 service=order-service response_ms=127.54 event_id=EVT_000157
+2026-11-14 10:51:03 INFO Health check probe passed user_id=USR_293 service=inventory response_ms=166.33 event_id=EVT_000342
+2026-11-14 10:38:26 INFO User authenticated successfully user_id=USR_374 service=order-service response_ms=189.84 event_id=EVT_000849
+2026-11-14 10:57:44 INFO User authenticated successfully user_id=USR_918 service=order-service response_ms=96.08 event_id=EVT_000386
+2026-11-14 10:32:42 INFO Inventory reserved for SKU user_id=USR_305 service=inventory response_ms=154.05 event_id=EVT_000299
+2026-11-14 10:42:58 INFO Email receipt dispatched user_id=USR_237 service=inventory response_ms=98.2 event_id=EVT_000507
+2026-11-14 10:16:55 INFO User authenticated successfully user_id=USR_560 service=auth response_ms=102.47 event_id=EVT_000221
+2026-11-14 10:05:45 INFO Token refreshed for session user_id=USR_303 service=api-gateway response_ms=111.2 event_id=EVT_000824
+2026-11-14 10:34:54 INFO Email receipt dispatched user_id=USR_666 service=notification response_ms=111.38 event_id=EVT_000588
+2026-11-14 10:25:28 ERROR Authentication token signature validation failed user_id=USR_180 service=api-gateway response_ms=1606.91 event_id=EVT_000281
+2026-11-14 10:47:29 INFO Order placed with ID user_id=USR_213 service=inventory response_ms=93.35 event_id=EVT_000694
+2026-11-14 10:07:57 INFO Health check probe passed user_id=USR_504 service=auth response_ms=116.18 event_id=EVT_000857
+2026-11-14 10:45:52 INFO User authenticated successfully user_id=USR_186 service=inventory response_ms=104.76 event_id=EVT_000317
+2026-11-14 10:34:32 INFO Inventory reserved for SKU user_id=USR_554 service=payment response_ms=104.07 event_id=EVT_000648
+2026-11-14 10:21:45 WARNING Rate limit quota nearing threshold user_id=USR_883 service=notification response_ms=970.36 event_id=EVT_000614
+2026-11-14 10:56:08 INFO Inventory reserved for SKU user_id=USR_388 service=auth response_ms=69.32 event_id=EVT_000957
+2026-11-14 10:39:57 INFO Order placed with ID user_id=USR_748 service=api-gateway response_ms=104.78 event_id=EVT_000150
+2026-11-14 10:48:35 WARNING API response time degraded above SLA user_id=USR_489 service=api-gateway event_id=EVT_000291
+2026-11-14 10:56:05 INFO Inventory reserved for SKU user_id=USR_709 service=auth response_ms=142.16 event_id=EVT_000684
+2026-11-14 10:16:19 INFO Payment tokenized via provider user_id=USR_318 service=order-service response_ms=154.84 event_id=EVT_000941
+2026-11-14 10:13:16 INFO Payment tokenized via provider user_id=USR_550 service=payment response_ms=98.37 event_id=EVT_000943
+2026-11-14 10:40:56 INFO Payment tokenized via provider user_id=USR_729 service=payment event_id=EVT_000512
+2026-11-14 10:38:21 INFO Email receipt dispatched user_id=USR_683 service=order-service response_ms=102.27 event_id=EVT_000225
+2026-11-14 10:36:28 INFO Payment tokenized via provider user_id=USR_510 service=order-service response_ms=141.62 event_id=EVT_000304
+2026-11-14 10:46:50 INFO Health check probe passed user_id=USR_536 service=order-service event_id=EVT_000149
+2026-11-14 10:14:55 CRITICAL Database cluster primary node unreachable user_id=USR_659 service=notification response_ms=5668.96 event_id=EVT_000324
+2026-11-14 10:45:11 INFO Payment tokenized via provider user_id=USR_963 service=notification response_ms=125.83 event_id=EVT_000472
+2026-11-14 10:01:47 WARNING Retry attempt 2 for external supplier gateway user_id=USR_155 service=order-service response_ms=874.38 event_id=EVT_000552
+2026-11-14 10:55:59 INFO Token refreshed for session user_id=USR_997 service=notification response_ms=140.69 event_id=EVT_000819
+2026-11-14 10:12:49 INFO Payment tokenized via provider user_id=USR_191 service=inventory response_ms=110.73 event_id=EVT_000405
+2026-11-14 10:55:32 WARNING Database pool connection threshold 85% reached user_id=USR_510 service=api-gateway response_ms=783.04 event_id=EVT_000110
+2026-11-14 10:35:11 INFO Email receipt dispatched user_id=USR_720 service=order-service response_ms=104.61 event_id=EVT_000228
+2026-11-14 10:06:59 INFO Order placed with ID user_id=USR_626 service=inventory response_ms=123.49 event_id=EVT_000653
+2026-11-14 10:45:34 INFO User authenticated successfully user_id=USR_408 service=auth event_id=EVT_000773
+2026-11-14 10:42:45 ERROR Deadlock detected in inventory transaction lock user_id=USR_916 service=auth response_ms=2005.61 event_id=EVT_000928
+2026-11-14 10:41:23 INFO Payment tokenized via provider user_id=USR_150 service=notification response_ms=149.14 event_id=EVT_000130
+2026-11-14 10:12:16 INFO Email receipt dispatched user_id=USR_376 service=api-gateway response_ms=131.01 event_id=EVT_000374
+2026-11-14 10:06:30 INFO Payment tokenized via provider user_id=USR_934 service=inventory response_ms=75.36 event_id=EVT_000328
+2026-11-14 10:19:11 INFO Health check probe passed user_id=USR_876 service=notification response_ms=111.96 event_id=EVT_000918
+2026-11-14 10:55:06 INFO Inventory reserved for SKU user_id=USR_844 service=api-gateway response_ms=126.48 event_id=EVT_000398
+2026-11-14 10:17:18 INFO Order placed with ID user_id=USR_482 service=notification response_ms=142.66 event_id=EVT_000195
+2026-11-14 10:21:37 INFO Health check probe passed user_id=USR_421 service=api-gateway response_ms=86.32 event_id=EVT_000549
+2026-11-14 10:45:04 INFO Payment tokenized via provider user_id=USR_497 service=auth response_ms=153.21 event_id=EVT_000605
+2026-11-14 10:45:17 WARNING Cache miss rate exceeded expected variance user_id=USR_421 service=api-gateway response_ms=805.5 event_id=EVT_000064
+2026-11-14 10:37:52 INFO Order placed with ID user_id=USR_277 service=notification response_ms=92.99 event_id=EVT_000319
+2026-11-14 10:15:34 INFO Inventory reserved for SKU user_id=USR_906 service=inventory response_ms=112.46 event_id=EVT_000878
+2026-11-14 10:39:20 INFO Payment tokenized via provider user_id=USR_927 service=auth response_ms=77.2 event_id=EVT_000591
+2026-11-14 10:20:06 WARNING Retry attempt 2 for external supplier gateway user_id=USR_189 service=auth response_ms=794.39 event_id=EVT_000390
+2026-11-14 10:28:22 INFO Inventory reserved for SKU user_id=USR_603 service=order-service event_id=EVT_000321
+2026-11-14 10:31:46 INFO Token refreshed for session user_id=USR_972 service=payment response_ms=137.17 event_id=EVT_000725
+2026-11-14 10:21:05 INFO User authenticated successfully user_id=USR_655 service=payment response_ms=92.52 event_id=EVT_000377
+2026-11-14 10:12:29 WARNING Rate limit quota nearing threshold user_id=USR_320 service=api-gateway response_ms=792.98 event_id=EVT_000895
+2026-11-14 10:10:40 INFO User authenticated successfully user_id=USR_304 service=payment response_ms=119.58 event_id=EVT_000870
+2026-11-14 10:14:11 INFO Payment tokenized via provider user_id=USR_247 service=inventory response_ms=121.96 event_id=EVT_000758
+2026-11-14 10:38:16 ERROR Database query timeout after 5000ms user_id=USR_568 service=payment response_ms=2106.34 event_id=EVT_000607
+2026-11-14 10:09:22 INFO Token refreshed for session user_id=USR_824 service=auth response_ms=119.72 event_id=EVT_000349
+2026-11-14 10:31:17 ERROR Connection reset by peer on microservice client user_id=USR_635 service=notification event_id=EVT_000707
+2026-11-14 10:34:44 INFO Inventory reserved for SKU user_id=USR_398 service=order-service response_ms=90.61 event_id=EVT_000115
+2026-11-14 10:09:53 INFO Email receipt dispatched user_id=USR_546 service=order-service response_ms=116.22 event_id=EVT_000723
+2026-11-14 10:54:53 WARNING Rate limit quota nearing threshold user_id=USR_489 service=api-gateway response_ms=569.53 event_id=EVT_000298
+2026-11-14 10:58:55 INFO Health check probe passed user_id=USR_316 service=inventory response_ms=64.66 event_id=EVT_000845
+2026-11-14 10:01:58 INFO Payment tokenized via provider user_id=USR_257 service=auth response_ms=140.55 event_id=EVT_000843
+2026-11-14 10:34:37 WARNING Retry attempt 2 for external supplier gateway user_id=USR_444 service=api-gateway response_ms=794.02 event_id=EVT_000229
+2026-11-14 10:09:22 INFO Health check probe passed user_id=USR_378 service=inventory response_ms=125.9 event_id=EVT_000239
+2026-11-14 10:33:50 WARNING Database pool connection threshold 85% reached user_id=USR_972 service=inventory response_ms=895.24 event_id=EVT_000448
+2026-11-14 10:42:20 INFO Health check probe passed user_id=USR_894 service=inventory response_ms=140.27 event_id=EVT_000576
+2026-11-14 10:31:46 INFO Token refreshed for session user_id=USR_884 service=notification response_ms=100.44 event_id=EVT_000658
+2026-11-14 10:29:28 INFO Inventory reserved for SKU user_id=USR_340 service=api-gateway response_ms=142.36 event_id=EVT_000670
+2026-11-14 10:57:36 INFO Payment tokenized via provider user_id=USR_584 service=api-gateway response_ms=109.67 event_id=EVT_000391
+2026-11-14 10:50:15 INFO User authenticated successfully user_id=USR_533 service=order-service response_ms=108.76 event_id=EVT_000832
+2026-11-14 10:26:43 INFO Email receipt dispatched user_id=USR_157 service=payment event_id=EVT_000792
+2026-11-14 10:16:09 ERROR Connection reset by peer on microservice client user_id=USR_913 service=api-gateway response_ms=3021.71 event_id=EVT_000929
+2026-11-14 10:32:18 WARNING API response time degraded above SLA user_id=USR_623 service=notification event_id=EVT_000067
+2026-11-14 10:46:55 INFO User authenticated successfully user_id=USR_336 service=inventory response_ms=138.5 event_id=EVT_000616
+2026-11-14 10:32:56 INFO Payment tokenized via provider user_id=USR_911 service=notification response_ms=138.18 event_id=EVT_000590
+2026-11-14 10:07:28 ERROR Connection reset by peer on microservice client user_id=USR_789 service=api-gateway response_ms=3533.09 event_id=EVT_000230
+2026-11-14 10:53:10 ERROR Database query timeout after 5000ms user_id=USR_391 service=notification response_ms=3548.29 event_id=EVT_000341
+2026-11-14 10:39:42 INFO Email receipt dispatched user_id=USR_779 service=payment response_ms=122.77 event_id=EVT_000093
+2026-11-14 10:02:01 INFO Payment tokenized via provider user_id=USR_470 service=inventory response_ms=159.25 event_id=EVT_000879
+2026-11-14 10:15:02 INFO User authenticated successfully user_id=USR_961 service=order-service response_ms=97.19 event_id=EVT_000753
+2026-11-14 10:55:08 ERROR Authentication token signature validation failed user_id=USR_755 service=payment event_id=EVT_000548
+2026-11-14 10:44:42 INFO Inventory reserved for SKU user_id=USR_524 service=notification response_ms=217.66 event_id=EVT_000140
+2026-11-14 10:12:10 INFO User authenticated successfully user_id=USR_502 service=payment response_ms=79.36 event_id=EVT_000697
+2026-11-14 10:17:25 INFO Payment tokenized via provider user_id=USR_570 service=notification response_ms=117.49 event_id=EVT_000127
+2026-11-14 10:48:10 INFO Order placed with ID user_id=USR_799 service=payment response_ms=111.81 event_id=EVT_000687
+2026-11-14 10:48:27 INFO Payment tokenized via provider user_id=USR_581 service=inventory response_ms=122.39 event_id=EVT_000739
+2026-11-14 10:33:59 INFO Order placed with ID user_id=USR_777 service=payment response_ms=131.46 event_id=EVT_000788
+2026-11-14 10:39:25 INFO Health check probe passed user_id=USR_426 service=notification response_ms=141.47 event_id=EVT_000264
+2026-11-14 10:42:32 INFO User authenticated successfully user_id=USR_945 service=inventory response_ms=124.69 event_id=EVT_000226
+2026-11-14 10:15:50 WARNING Cache miss rate exceeded expected variance user_id=USR_547 service=auth response_ms=870.09 event_id=EVT_000288
+2026-11-14 10:57:08 INFO User authenticated successfully user_id=USR_331 service=order-service event_id=EVT_000393
+2026-11-14 10:44:44 INFO User authenticated successfully user_id=USR_539 service=notification response_ms=95.57 event_id=EVT_000335
+2026-11-14 10:27:06 WARNING Database pool connection threshold 85% reached user_id=USR_173 service=notification response_ms=769.62 event_id=EVT_000165
+MISSING_ S INFO Malformed record missing timestamp user_id=USR_193 service=inventory response_ms=120 event_id=EVT_000030
+2026-11-14 10:35:42 INFO Email receipt dispatched user_id=USR_631 service=notification response_ms=58.42 event_id=EVT_000446
+2026-11-14 10:22:45 INFO User authenticated successfully user_id=USR_518 service=order-service response_ms=147.47 event_id=EVT_000109
+2026-11-14 10:36:18 INFO User authenticated successfully user_id=USR_774 service=auth response_ms=105.42 event_id=EVT_000901
+2026-11-14 10:09:41 INFO Email receipt dispatched user_id=USR_181 service=order-service event_id=EVT_000676
+2026-11-14 10:07:58 INFO Health check probe passed user_id=USR_584 service=notification event_id=EVT_000866
+2026-11-14 10:51:05 INFO Inventory reserved for SKU user_id=USR_925 service=notification response_ms=103.75 event_id=EVT_000812
+2026-11-14 10:20:56 INFO Health check probe passed user_id=USR_576 service=notification response_ms=121.24 event_id=EVT_000250
+2026-11-14 10:58:26 INFO Inventory reserved for SKU user_id=USR_725 service=payment event_id=EVT_000247
+2026-11-14 10:45:17 INFO Order placed with ID user_id=USR_135 service=payment response_ms=155.18 event_id=EVT_000554
+2026-11-14 10:57:14 INFO User authenticated successfully user_id=USR_274 service=api-gateway response_ms=101.03 event_id=EVT_000977
+2026-11-14 10:44:04 INFO Payment tokenized via provider user_id=USR_279 service=inventory response_ms=54.94 event_id=EVT_000494
+2026-11-14 10:48:08 ERROR Authentication token signature validation failed user_id=USR_584 service=api-gateway response_ms=2151.33 event_id=EVT_000119
+2026-11-14 10:40:13 ERROR Payment authorization declined by upstream processor user_id=USR_774 service=order-service response_ms=3044.21 event_id=EVT_000457
+2026-11-14 10:56:27 INFO Email receipt dispatched user_id=USR_108 service=api-gateway response_ms=126.66 event_id=EVT_000881
+2026-11-14 10:42:47 INFO Health check probe passed user_id=USR_107 service=inventory response_ms=128.47 event_id=EVT_000479
+2026-11-14 10:33:35 INFO User authenticated successfully user_id=USR_737 service=api-gateway response_ms=107.18 event_id=EVT_000562
+2026-11-14 10:40:11 WARNING Retry attempt 2 for external supplier gateway user_id=USR_788 service=payment response_ms=664.91 event_id=EVT_000690
+2026-11-14 10:20:10 INFO User authenticated successfully user_id=USR_207 service=auth response_ms=93.2 event_id=EVT_000309
+2026-11-14 10:33:17 INFO Payment tokenized via provider user_id=USR_286 service=order-service response_ms=102.74 event_id=EVT_000090
+2026-11-14 10:34:52 INFO Health check probe passed user_id=USR_775 service=payment response_ms=125.34 event_id=EVT_000510
+2026-11-14 10:43:27 INFO Order placed with ID user_id=USR_324 service=inventory response_ms=152.78 event_id=EVT_000131
+2026-11-14 10:30:58 INFO Health check probe passed user_id=USR_261 service=api-gateway response_ms=146.26 event_id=EVT_000033
+2026-11-14 10:29:05 INFO Order placed with ID user_id=USR_258 service=api-gateway response_ms=93.52 event_id=EVT_000517
+2026-11-14 10:49:33 INFO Token refreshed for session user_id=USR_945 service=notification response_ms=124.13 event_id=EVT_000586
+2026-11-14 10:42:47 INFO Token refreshed for session user_id=USR_844 service=order-service response_ms=111.8 event_id=EVT_000804
+2026-11-14 10:27:29 INFO Email receipt dispatched user_id=USR_638 service=api-gateway response_ms=131.93 event_id=EVT_000890
+2026-11-14 10:16:25 INFO Payment tokenized via provider user_id=USR_607 service=auth event_id=EVT_000730
+2026-11-14 10:54:34 INFO Inventory reserved for SKU user_id=USR_227 service=api-gateway response_ms=119.61 event_id=EVT_000200
+2026-11-14 10:51:43 INFO Email receipt dispatched user_id=USR_690 service=inventory response_ms=124.49 event_id=EVT_000900
+2026-11-14 10:29:00 INFO Inventory reserved for SKU user_id=USR_622 service=inventory response_ms=139.18 event_id=EVT_000853
+2026-11-14 10:11:42 INFO Email receipt dispatched user_id=USR_195 service=notification response_ms=125.47 event_id=EVT_000964
+2026-11-14 10:12:14 INFO Health check probe passed user_id=USR_476 service=order-service response_ms=119.52 event_id=EVT_000781
+2026-11-14 10:15:05 WARNING Retry attempt 2 for external supplier gateway user_id=USR_615 service=payment response_ms=973.14 event_id=EVT_000769
+2026-11-14 10:29:46 WARNING Rate limit quota nearing threshold user_id=USR_679 service=inventory response_ms=677.81 event_id=EVT_000763
+2026-11-14 10:34:59 INFO Token refreshed for session user_id=USR_971 service=order-service response_ms=100.78 event_id=EVT_000488
+2026-11-14 10:51:45 WARNING Database pool connection threshold 85% reached user_id=USR_971 service=auth response_ms=1069.07 event_id=EVT_000439
+2026-11-14 10:03:02 INFO User authenticated successfully user_id=USR_618 service=api-gateway response_ms=142.03 event_id=EVT_000974
+2026-11-14 10:21:17 INFO Inventory reserved for SKU user_id=USR_126 service=auth event_id=EVT_000084
+2026-11-14 10:38:36 WARNING API response time degraded above SLA user_id=USR_443 service=auth response_ms=698.36 event_id=EVT_000628
+2026-11-14 10:14:37 WARNING API response time degraded above SLA user_id=USR_898 service=payment response_ms=862.56 event_id=EVT_000410
+2026-11-14 10:21:48 INFO Payment tokenized via provider user_id=USR_911 service=notification response_ms=136.37 event_id=EVT_000823
+2026-11-14 10:36:43 INFO Health check probe passed user_id=USR_631 service=auth response_ms=81.29 event_id=EVT_000622
+2026-11-14 10:15:53 INFO Inventory reserved for SKU user_id=USR_753 service=inventory response_ms=103.45 event_id=EVT_000240
+2026-11-14 10:07:18 INFO Token refreshed for session user_id=USR_519 service=notification response_ms=109.85 event_id=EVT_000455
+2026-11-14 10:45:34 WARNING Cache miss rate exceeded expected variance user_id=USR_808 service=api-gateway response_ms=515.22 event_id=EVT_000695
+2026-11-14 10:25:23 INFO Health check probe passed user_id=USR_184 service=api-gateway response_ms=91.48 event_id=EVT_000334
+2026-11-14 10:34:19 ERROR Connection reset by peer on microservice client user_id=USR_588 service=auth event_id=EVT_000047
+2026-11-14 10:31:28 INFO Email receipt dispatched user_id=USR_143 service=api-gateway response_ms=107.52 event_id=EVT_000369
+2026-11-14 10:52:31 WARNING Retry attempt 2 for external supplier gateway user_id=USR_246 service=api-gateway response_ms=852.43 event_id=EVT_000649
+2026-11-14 10:14:18 WARNING Duplicate key injection test user_id=USR_463 service=payment response_ms=300 event_id=EVT_DUPLICATE_KEY
+2026-11-14 10:51:11 INFO Order placed with ID user_id=USR_627 service=auth response_ms=115.45 event_id=EVT_000330
+2026-11-14 10:11:41 INFO Email receipt dispatched user_id=USR_350 service=api-gateway event_id=EVT_000654
+2026-11-14 10:56:14 INFO Inventory reserved for SKU user_id=USR_776 service=order-service response_ms=87.01 event_id=EVT_000803
+2026-11-14 10:41:58 INFO Email receipt dispatched user_id=USR_101 service=api-gateway event_id=EVT_000193
+2026-11-14 10:32:15 INFO Health check probe passed user_id=USR_351 service=inventory response_ms=154.08 event_id=EVT_000677
+2026-11-14 10:10:48 INFO Payment tokenized via provider user_id=USR_882 service=payment response_ms=136.54 event_id=EVT_000424
+2026-11-14 10:34:20 INFO User authenticated successfully user_id=USR_174 service=auth response_ms=132.6 event_id=EVT_000528
+2026-11-14 10:37:22 ERROR Deadlock detected in inventory transaction lock user_id=USR_650 service=inventory response_ms=1345.78 event_id=EVT_000487
+2026-11-14 10:27:46 INFO Payment tokenized via provider user_id=USR_681 service=payment response_ms=128.77 event_id=EVT_000909
+2026-11-14 10:13:51 INFO User authenticated successfully user_id=USR_763 service=order-service response_ms=103.03 event_id=EVT_000703
+2026-11-14 10:31:05 INFO Order placed with ID user_id=USR_281 service=inventory response_ms=103.64 event_id=EVT_000634
+2026-11-14 10:39:47 INFO Health check probe passed user_id=USR_591 service=api-gateway response_ms=153.2 event_id=EVT_000463
+2026-11-14 10:34:18 INFO Inventory reserved for SKU user_id=USR_307 service=api-gateway response_ms=93.05 event_id=EVT_000968
+2026-11-14 10:35:02 INFO Email receipt dispatched user_id=USR_235 service=auth response_ms=77.66 event_id=EVT_000255
+2026-11-14 10:14:58 INFO Health check probe passed user_id=USR_619 service=api-gateway response_ms=131.33 event_id=EVT_000717
+2026-11-14 10:50:29 INFO Health check probe passed user_id=USR_873 service=api-gateway response_ms=143.11 event_id=EVT_000287
+2026-11-14 10:11:09 INFO Payment tokenized via provider user_id=USR_807 service=order-service event_id=EVT_000544
+2026-11-14 10:41:36 WARNING Retry attempt 2 for external supplier gateway user_id=USR_180 service=payment response_ms=893.81 event_id=EVT_000126
+2026-11-14 10:13:20 ERROR Payment authorization declined by upstream processor user_id=USR_452 service=auth response_ms=2945.94 event_id=EVT_000938
+2026-11-14 10:50:51 INFO Invalid negative latency record user_id=USR_352 service=api-gateway response_ms=-350 event_id=EVT_000027
+2026-11-14 10:22:46 INFO Token refreshed for session user_id=USR_905 service=auth response_ms=138.58 event_id=EVT_000143
+2026-11-14 10:12:54 INFO Payment tokenized via provider user_id=USR_398 service=notification response_ms=121.52 event_id=EVT_000743
+2026-11-14 10:43:52 INFO Inventory reserved for SKU user_id=USR_826 service=api-gateway response_ms=153.45 event_id=EVT_000412
+2026-11-14 10:34:55 INFO Email receipt dispatched user_id=USR_195 service=api-gateway event_id=EVT_000884
+2026-11-14 10:13:51 INFO Payment tokenized via provider user_id=USR_357 service=auth response_ms=153.31 event_id=EVT_000468
+2026-99-99 99:99:99 ERROR Malformed record with garbage timestamp user_id=USR_130 service=order-service response_ms=500 event_id=EVT_000004
+2026-11-14 10:15:56 ERROR Connection reset by peer on microservice client user_id=USR_803 service=order-service response_ms=2330.81 event_id=EVT_000103
+2026-11-14 10:42:03 INFO Payment tokenized via provider user_id=USR_521 service=notification response_ms=98.87 event_id=EVT_000339
+2026-11-14 10:06:13 INFO Order placed with ID user_id=USR_251 service=payment response_ms=114.39 event_id=EVT_000365
+2026-11-14 10:10:52 WARNING Database pool connection threshold 85% reached user_id=USR_373 service=notification response_ms=768.56 event_id=EVT_000059
+2026-11-14 10:40:17 WARNING API response time degraded above SLA user_id=USR_564 service=auth response_ms=671.18 event_id=EVT_000626
+2026-11-14 10:12:58 INFO Email receipt dispatched user_id=USR_310 service=auth response_ms=162.32 event_id=EVT_000388
+2026-11-14 10:23:52 INFO Payment tokenized via provider user_id=USR_664 service=order-service response_ms=133.59 event_id=EVT_000409
+2026-11-14 10:16:49 ERROR Payment authorization declined by upstream processor user_id=USR_799 service=order-service event_id=EVT_000814
+2026-11-14 10:11:47 INFO Token refreshed for session user_id=USR_536 service=order-service response_ms=99.1 event_id=EVT_000370
+2026-11-14 10:49:54 INFO Order placed with ID user_id=USR_266 service=auth response_ms=108.11 event_id=EVT_000246
+2026-11-14 10:07:43 INFO Order placed with ID user_id=USR_623 service=order-service event_id=EVT_000323
+2026-11-14 10:17:24 WARNING Retry attempt 2 for external supplier gateway user_id=USR_261 service=payment event_id=EVT_000352
+2026-11-14 10:43:42 INFO User authenticated successfully user_id=USR_768 service=order-service response_ms=131.55 event_id=EVT_000699
+2026-11-14 10:29:49 WARNING Rate limit quota nearing threshold user_id=USR_849 service=payment response_ms=846.49 event_id=EVT_000380
+2026-11-14 10:28:21 INFO Inventory reserved for SKU user_id=USR_885 service=notification response_ms=73.63 event_id=EVT_000345
+2026-11-14 10:59:58 INFO Order placed with ID user_id=USR_374 service=order-service response_ms=139.84 event_id=EVT_000440
+2026-11-14 10:29:59 WARNING Rate limit quota nearing threshold user_id=USR_281 service=payment response_ms=1162.86 event_id=EVT_000619
+2026-11-14 10:05:23 INFO Token refreshed for session user_id=USR_417 service=api-gateway response_ms=98.44 event_id=EVT_000346
+2026-11-14 10:49:31 INFO Token refreshed for session user_id=USR_104 service=payment response_ms=115.69 event_id=EVT_000776
+2026-11-14 10:36:25 INFO Health check probe passed user_id=USR_260 service=auth response_ms=92.3 event_id=EVT_000485
+2026-11-14 10:57:53 ERROR Connection reset by peer on microservice client user_id=USR_344 service=auth response_ms=3280.75 event_id=EVT_000498
+2026-11-14 10:41:04 WARNING Database pool connection threshold 85% reached user_id=USR_221 service=inventory response_ms=572.18 event_id=EVT_000893
+2026-11-14 10:27:48 INFO Payment tokenized via provider user_id=USR_667 service=order-service response_ms=94.11 event_id=EVT_000780
+2026-11-14 10:34:03 INFO Token refreshed for session user_id=USR_294 service=notification response_ms=101.07 event_id=EVT_000533
+2026-11-14 10:52:11 ERROR Deadlock detected in inventory transaction lock user_id=USR_518 service=payment response_ms=3096.05 event_id=EVT_000618
+2026-11-14 10:23:58 INFO User authenticated successfully user_id=USR_487 service=order-service response_ms=136.62 event_id=EVT_000385
+2026-11-14 10:50:28 INFO User authenticated successfully user_id=USR_961 service=inventory response_ms=166.47 event_id=EVT_000815
+2026-11-14 10:32:55 INFO Order placed with ID user_id=USR_968 service=inventory response_ms=93.07 event_id=EVT_000535
+2026-11-14 10:03:06 ERROR Connection reset by peer on microservice client user_id=USR_183 service=auth response_ms=2193.05 event_id=EVT_000217
+2026-11-14 10:25:25 INFO Inventory reserved for SKU user_id=USR_372 service=payment response_ms=98.59 event_id=EVT_000877
+2026-11-14 10:36:36 INFO Inventory reserved for SKU user_id=USR_294 service=payment response_ms=89.69 event_id=EVT_000043
+2026-11-14 10:20:20 WARNING Rate limit quota nearing threshold user_id=USR_716 service=auth response_ms=1110.97 event_id=EVT_000809
+2026-11-14 10:35:47 INFO User authenticated successfully user_id=USR_853 service=inventory response_ms=98.89 event_id=EVT_000597
+2026-11-14 10:11:25 INFO Payment tokenized via provider user_id=USR_166 service=notification response_ms=106.55 event_id=EVT_000948
+2026-11-14 10:28:51 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_814 service=auth response_ms=200 event_id=EVT_000008
+2026-11-14 10:05:38 INFO Token refreshed for session user_id=USR_169 service=order-service response_ms=139.55 event_id=EVT_000976
+2026-11-14 10:35:00 WARNING Rate limit quota nearing threshold user_id=USR_468 service=api-gateway response_ms=751.01 event_id=EVT_000273
+2026-11-14 10:55:03 INFO Health check probe passed user_id=USR_632 service=order-service response_ms=92.58 event_id=EVT_000063
+2026-11-14 10:06:36 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_489 service=auth response_ms=200 event_id=EVT_000010
+2026-11-14 10:04:04 INFO Order placed with ID user_id=USR_173 service=api-gateway response_ms=147.83 event_id=EVT_000104
+2026-11-14 10:33:42 INFO Order placed with ID user_id=USR_435 service=auth response_ms=111.6 event_id=EVT_000779
+2026-11-14 10:54:46 INFO Health check probe passed user_id=USR_373 service=api-gateway response_ms=128.04 event_id=EVT_000689
+2026-11-14 10:58:30 INFO Inventory reserved for SKU user_id=USR_850 service=payment response_ms=120.06 event_id=EVT_000497
+2026-11-14 10:53:39 INFO Inventory reserved for SKU user_id=USR_701 service=payment response_ms=141.26 event_id=EVT_000958
+2026-11-14 10:10:46 INFO Inventory reserved for SKU user_id=USR_663 service=payment response_ms=118.55 event_id=EVT_000241
+2026-11-14 10:25:31 INFO Health check probe passed user_id=USR_801 service=payment event_id=EVT_000600
+2026-11-14 10:10:55 WARNING Rate limit quota nearing threshold user_id=USR_742 service=auth response_ms=840.32 event_id=EVT_000031
+2026-11-14 10:42:50 INFO Inventory reserved for SKU user_id=USR_690 service=api-gateway response_ms=120.59 event_id=EVT_000351
+2026-11-14 10:14:20 INFO Email receipt dispatched user_id=USR_393 service=auth response_ms=128.1 event_id=EVT_000066
+2026-11-14 10:14:25 ERROR Connection reset by peer on microservice client user_id=USR_335 service=inventory response_ms=2473.55 event_id=EVT_000284
+2026-11-14 10:11:58 INFO Health check probe passed user_id=USR_440 service=notification response_ms=56.89 event_id=EVT_000987
+2026-11-14 10:41:53 WARNING Database pool connection threshold 85% reached user_id=USR_708 service=auth response_ms=748.98 event_id=EVT_000387
+2026-11-14 10:36:44 WARNING Rate limit quota nearing threshold user_id=USR_927 service=api-gateway response_ms=738.36 event_id=EVT_000088
+2026-11-14 10:37:14 INFO Payment tokenized via provider user_id=USR_706 service=inventory response_ms=174.86 event_id=EVT_000301
+2026-11-14 10:53:19 ERROR Database query timeout after 5000ms user_id=USR_170 service=payment response_ms=2090.5 event_id=EVT_000082
+2026-11-14 10:38:29 WARNING Rate limit quota nearing threshold user_id=USR_872 service=order-service response_ms=1195.17 event_id=EVT_000171
+2026-11-14 10:49:09 WARNING API response time degraded above SLA user_id=USR_954 service=order-service response_ms=936.11 event_id=EVT_000896
+2026-11-14 10:59:08 INFO User authenticated successfully user_id=USR_252 service=notification response_ms=165.99 event_id=EVT_000897
+2026-11-14 10:28:15 INFO Order placed with ID user_id=USR_524 service=payment event_id=EVT_000640
+2026-11-14 10:49:27 INFO User authenticated successfully user_id=USR_505 service=api-gateway response_ms=141.2 event_id=EVT_000642
+2026-11-14 10:03:42 WARNING Rate limit quota nearing threshold user_id=USR_945 service=api-gateway response_ms=614.1 event_id=EVT_000452
+2026-11-14 10:50:27 WARNING API response time degraded above SLA user_id=USR_554 service=notification response_ms=639.8 event_id=EVT_000991
+2026-11-14 10:29:09 INFO User authenticated successfully user_id=USR_795 service=payment response_ms=161.17 event_id=EVT_000266
+2026-11-14 10:53:11 INFO Health check probe passed user_id=USR_950 service=notification response_ms=118.65 event_id=EVT_000197
+2026-11-14 10:07:31 INFO Inventory reserved for SKU user_id=USR_577 service=api-gateway response_ms=165.71 event_id=EVT_000778
+2026-11-14 10:58:27 INFO Token refreshed for session user_id=USR_541 service=order-service response_ms=135.68 event_id=EVT_000829
+2026-11-14 10:01:49 INFO Inventory reserved for SKU user_id=USR_457 service=payment response_ms=120.14 event_id=EVT_000188
+2026-11-14 10:19:12 INFO Inventory reserved for SKU user_id=USR_630 service=auth response_ms=62.73 event_id=EVT_000768
+2026-11-14 10:43:47 INFO Health check probe passed user_id=USR_459 service=auth response_ms=152.41 event_id=EVT_000061
+2026-11-14 10:21:27 INFO Token refreshed for session user_id=USR_507 service=inventory response_ms=86.5 event_id=EVT_000206
+2026-11-14 10:00:32 INFO Payment tokenized via provider user_id=USR_441 service=order-service response_ms=188.24 event_id=EVT_000863
+2026-11-14 10:42:48 INFO Health check probe passed user_id=USR_609 service=notification response_ms=165.45 event_id=EVT_000218
+2026-11-14 10:52:40 INFO Email receipt dispatched user_id=USR_915 service=inventory event_id=EVT_000899
+2026-11-14 10:48:21 INFO Email receipt dispatched user_id=USR_913 service=order-service response_ms=88.24 event_id=EVT_000581
+2026-11-14 10:44:22 ERROR Payment authorization declined by upstream processor user_id=USR_827 service=notification response_ms=2513.11 event_id=EVT_000462
+2026-11-14 10:01:58 ERROR Connection reset by peer on microservice client user_id=USR_224 service=notification response_ms=3561.58 event_id=EVT_000113
+2026-11-14 10:15:52 ERROR Database query timeout after 5000ms user_id=USR_884 service=api-gateway response_ms=2384.05 event_id=EVT_000515
+2026-11-14 10:05:43 WARNING Cache miss rate exceeded expected variance user_id=USR_391 service=inventory event_id=EVT_000187
+2026-11-14 10:45:00 WARNING API response time degraded above SLA user_id=USR_679 service=payment event_id=EVT_000499
+2026-11-14 10:24:04 INFO Inventory reserved for SKU user_id=USR_990 service=auth response_ms=131.12 event_id=EVT_000203
+2026-11-14 10:20:37 INFO User authenticated successfully user_id=USR_817 service=notification event_id=EVT_000138
+2026-11-14 10:28:36 INFO Health check probe passed user_id=USR_433 service=inventory response_ms=146.63 event_id=EVT_000721
+2026-11-14 10:49:38 INFO Inventory reserved for SKU user_id=USR_661 service=payment response_ms=91.89 event_id=EVT_000191
+2026-11-14 10:04:37 INFO Payment tokenized via provider user_id=USR_809 service=payment response_ms=98.05 event_id=EVT_000384
+2026-11-14 10:23:19 ERROR Authentication token signature validation failed user_id=USR_319 service=api-gateway response_ms=1995.65 event_id=EVT_000181
+2026-11-14 10:34:13 INFO User authenticated successfully user_id=USR_587 service=api-gateway response_ms=106.53 event_id=EVT_000175
+2026-11-14 10:49:35 INFO Payment tokenized via provider user_id=USR_812 service=auth response_ms=89.98 event_id=EVT_000442
+2026-11-14 10:51:29 CRITICAL Payment vault encryption key unavailable user_id=USR_396 service=api-gateway response_ms=6393.24 event_id=EVT_000751
+2026-11-14 10:18:50 INFO Inventory reserved for SKU user_id=USR_545 service=auth response_ms=142.77 event_id=EVT_000296
+2026-11-14 10:45:13 INFO Token refreshed for session user_id=USR_316 service=order-service response_ms=93.93 event_id=EVT_000671
+2026-11-14 10:26:11 INFO Order placed with ID user_id=USR_205 service=api-gateway response_ms=105.36 event_id=EVT_000427
+2026-11-14 10:00:48 INFO Inventory reserved for SKU user_id=USR_108 service=api-gateway response_ms=126.18 event_id=EVT_000538
+2026-11-14 10:29:36 WARNING API response time degraded above SLA user_id=USR_445 service=inventory response_ms=389.63 event_id=EVT_000428
+2026-11-14 10:14:02 INFO Payment tokenized via provider user_id=USR_991 service=payment response_ms=140.55 event_id=EVT_000967
+2026-11-14 10:50:39 INFO Payment tokenized via provider user_id=USR_928 service=api-gateway event_id=EVT_000793
+2026-11-14 10:37:24 INFO Token refreshed for session user_id=USR_950 service=inventory response_ms=143.87 event_id=EVT_000072
+2026-11-14 10:30:13 INFO Email receipt dispatched user_id=USR_561 service=inventory response_ms=135.96 event_id=EVT_000100
+MISSING_ S INFO Malformed record missing timestamp user_id=USR_242 service=payment response_ms=120 event_id=EVT_000002
+2026-11-14 10:34:15 WARNING Rate limit quota nearing threshold user_id=USR_106 service=order-service response_ms=846.83 event_id=EVT_000504
+2026-11-14 10:56:59 INFO Order placed with ID user_id=USR_992 service=payment response_ms=150.59 event_id=EVT_000836
+2026-11-14 10:21:11 INFO User authenticated successfully user_id=USR_175 service=api-gateway response_ms=167.5 event_id=EVT_000173
+2026-11-14 10:40:13 UNKNOWN_SEV_LEVEL Record with non-standard severity user_id=USR_559 service=order-service response_ms=200 event_id=EVT_000007
+2026-11-14 10:41:56 ERROR Payment authorization declined by upstream processor user_id=USR_160 service=notification response_ms=2333.39 event_id=EVT_000905
+2026-11-14 10:00:18 INFO Token refreshed for session user_id=USR_528 service=api-gateway event_id=EVT_000716
+2026-11-14 10:55:08 INFO Health check probe passed user_id=USR_685 service=api-gateway response_ms=74.52 event_id=EVT_000926
+2026-11-14 10:50:20 INFO Order placed with ID user_id=USR_632 service=notification response_ms=121.05 event_id=EVT_000888
+2026-11-14 10:18:44 INFO Order placed with ID user_id=USR_664 service=payment response_ms=126.5 event_id=EVT_000215
+2026-11-14 10:46:47 INFO Order placed with ID user_id=USR_377 service=notification response_ms=70.47 event_id=EVT_000767
+2026-11-14 10:43:48 INFO Inventory reserved for SKU user_id=USR_840 service=api-gateway response_ms=59.14 event_id=EVT_000276
+2026-11-14 10:53:06 INFO Email receipt dispatched user_id=USR_559 service=auth response_ms=79.45 event_id=EVT_000147
+2026-11-14 10:25:19 INFO Email receipt dispatched user_id=USR_787 service=api-gateway response_ms=86.5 event_id=EVT_000834
+2026-11-14 10:32:12 INFO Token refreshed for session user_id=USR_147 service=auth response_ms=151.99 event_id=EVT_000353
+2026-11-14 10:06:09 ERROR Payment authorization declined by upstream processor user_id=USR_408 service=order-service response_ms=1016.78 event_id=EVT_000817
+2026-11-14 10:28:45 INFO Health check probe passed user_id=USR_627 service=order-service response_ms=118.41 event_id=EVT_000796
+2026-11-14 10:30:53 INFO Inventory reserved for SKU user_id=USR_468 service=notification response_ms=98.58 event_id=EVT_000587
+2026-11-14 10:52:45 INFO User authenticated successfully user_id=USR_426 service=api-gateway response_ms=106.11 event_id=EVT_000652
+2026-11-14 10:30:10 WARNING API response time degraded above SLA user_id=USR_740 service=inventory response_ms=731.02 event_id=EVT_000112
+2026-11-14 10:48:35 INFO Payment tokenized via provider user_id=USR_761 service=notification response_ms=84.8 event_id=EVT_000092
+2026-11-14 10:28:27 WARNING API response time degraded above SLA user_id=USR_849 service=notification response_ms=802.89 event_id=EVT_000891
+2026-11-14 10:19:24 INFO Token refreshed for session user_id=USR_461 service=auth response_ms=127.28 event_id=EVT_000746
+2026-11-14 10:15:59 CRITICAL Circuit breaker opened: all downstream calls rejected user_id=USR_326 service=api-gateway response_ms=2933.17 event_id=EVT_000919
+2026-11-14 10:23:21 INFO Order placed with ID user_id=USR_881 service=inventory response_ms=96.2 event_id=EVT_000771
+2026-11-14 10:08:10 WARNING Rate limit quota nearing threshold user_id=USR_612 service=order-service response_ms=813.08 event_id=EVT_000422
+2026-11-14 10:49:56 INFO User authenticated successfully user_id=USR_215 service=api-gateway response_ms=78.67 event_id=EVT_000752
+2026-11-14 10:05:20 INFO Inventory reserved for SKU user_id=USR_619 service=payment response_ms=85.14 event_id=EVT_000995
+2026-11-14 10:03:32 WARNING Cache miss rate exceeded expected variance user_id=USR_765 service=notification response_ms=618.19 event_id=EVT_000924
+2026-11-14 10:26:27 INFO Inventory reserved for SKU user_id=USR_657 service=auth response_ms=107.87 event_id=EVT_000392
+2026-11-14 10:18:22 INFO Email receipt dispatched user_id=USR_119 service=notification response_ms=131.96 event_id=EVT_000908
+2026-11-14 10:39:20 INFO User authenticated successfully user_id=USR_659 service=api-gateway response_ms=131.88 event_id=EVT_000675
+2026-11-14 10:46:23 ERROR Payment authorization declined by upstream processor user_id=USR_988 service=auth response_ms=2725.93 event_id=EVT_000546
+2026-11-14 10:36:48 WARNING Rate limit quota nearing threshold user_id=USR_717 service=notification response_ms=809.01 event_id=EVT_000513
+2026-11-14 10:23:46 INFO Inventory reserved for SKU user_id=USR_594 service=payment event_id=EVT_000310
+2026-11-14 10:41:43 INFO Email receipt dispatched user_id=USR_567 service=api-gateway response_ms=70.97 event_id=EVT_000709
+2026-11-14 10:59:42 INFO Health check probe passed user_id=USR_777 service=auth response_ms=141.04 event_id=EVT_000259
+2026-11-14 10:06:48 WARNING Database pool connection threshold 85% reached user_id=USR_151 service=api-gateway response_ms=941.68 event_id=EVT_000438
+2026-11-14 10:06:20 INFO Order placed with ID user_id=USR_536 service=order-service response_ms=146.53 event_id=EVT_000850
+2026-11-14 10:41:07 INFO Payment tokenized via provider user_id=USR_277 service=api-gateway response_ms=129.73 event_id=EVT_000170
+2026-11-14 10:53:34 INFO Token refreshed for session user_id=USR_216 service=auth response_ms=145.27 event_id=EVT_000434
+2026-11-14 10:36:55 INFO Health check probe passed user_id=USR_447 service=payment response_ms=176.02 event_id=EVT_000898
+2026-11-14 10:37:08 INFO Email receipt dispatched user_id=USR_638 service=api-gateway response_ms=124.57 event_id=EVT_000194
+2026-11-14 10:00:39 INFO Order placed with ID user_id=USR_648 service=api-gateway response_ms=105.72 event_id=EVT_000531
+2026-11-14 10:17:29 WARNING API response time degraded above SLA user_id=USR_816 service=payment response_ms=1052.87 event_id=EVT_000083
+2026-11-14 10:36:22 INFO Health check probe passed user_id=USR_794 service=auth response_ms=125.67 event_id=EVT_000923
+2026-11-14 10:56:49 WARNING Database pool connection threshold 85% reached user_id=USR_989 service=inventory response_ms=593.94 event_id=EVT_000601
+2026-11-14 10:39:51 INFO Email receipt dispatched user_id=USR_335 service=inventory response_ms=130.86 event_id=EVT_000952
+2026-11-14 10:43:22 ERROR Database query timeout after 5000ms user_id=USR_506 service=order-service response_ms=1980.4 event_id=EVT_000408
+2026-11-14 10:11:27 INFO Inventory reserved for SKU user_id=USR_486 service=api-gateway response_ms=121.03 event_id=EVT_000997
+2026-11-14 10:34:25 INFO Email receipt dispatched user_id=USR_887 service=order-service response_ms=91.42 event_id=EVT_000729
+2026-11-14 10:52:25 INFO Email receipt dispatched user_id=USR_389 service=order-service response_ms=94.44 event_id=EVT_000660
+2026-11-14 10:47:06 INFO Token refreshed for session user_id=USR_880 service=notification response_ms=136.97 event_id=EVT_000095
+2026-11-14 10:52:07 INFO Order placed with ID user_id=USR_787 service=payment response_ms=92.22 event_id=EVT_000978
+2026-11-14 10:34:17 ERROR Deadlock detected in inventory transaction lock user_id=USR_229 service=order-service event_id=EVT_000120
+2026-11-14 10:56:37 WARNING Duplicate key injection test user_id=USR_400 service=auth response_ms=300 event_id=EVT_DUPLICATE_KEY
+2026-11-14 10:27:36 INFO Inventory reserved for SKU user_id=USR_687 service=inventory response_ms=101.79 event_id=EVT_000166
+2026-11-14 10:33:06 INFO Payment tokenized via provider user_id=USR_555 service=notification response_ms=116.57 event_id=EVT_000862
+2026-11-14 10:20:06 INFO User authenticated successfully user_id=USR_917 service=order-service response_ms=144.95 event_id=EVT_000679
+2026-11-14 10:38:33 INFO Email receipt dispatched user_id=USR_652 service=auth response_ms=132.02 event_id=EVT_000593
+2026-11-14 10:44:20 INFO Payment tokenized via provider user_id=USR_829 service=inventory response_ms=108.99 event_id=EVT_000617
+2026-11-14 10:46:26 INFO Email receipt dispatched user_id=USR_219 service=inventory response_ms=114.31 event_id=EVT_000254
+2026-11-14 10:23:37 INFO Token refreshed for session user_id=USR_571 service=payment response_ms=102.23 event_id=EVT_000261
+2026-11-14 10:06:46 WARNING Database pool connection threshold 85% reached user_id=USR_540 service=inventory response_ms=1060.06 event_id=EVT_000151
+2026-11-14 10:02:22 INFO Email receipt dispatched user_id=USR_205 service=notification event_id=EVT_000698
+2026-11-14 10:45:21 INFO Inventory reserved for SKU user_id=USR_809 service=notification response_ms=155.63 event_id=EVT_000467
+2026-11-14 10:56:16 INFO Order placed with ID user_id=USR_852 service=auth response_ms=30.49 event_id=EVT_000620
+2026-11-14 10:31:36 ERROR Connection reset by peer on microservice client user_id=USR_925 service=notification response_ms=2345.96 event_id=EVT_000268
+2026-11-14 10:56:29 INFO Inventory reserved for SKU user_id=USR_447 service=payment response_ms=137.19 event_id=EVT_000152
+2026-11-14 10:40:18 INFO Email receipt dispatched user_id=USR_510 service=inventory response_ms=104.31 event_id=EVT_000661
+2026-11-14 10:18:47 WARNING Database pool connection threshold 85% reached user_id=USR_387 service=payment response_ms=956.82 event_id=EVT_000682
+2026-11-14 10:40:42 INFO Inventory reserved for SKU user_id=USR_138 service=inventory response_ms=126.32 event_id=EVT_000715
+2026-99-99 99:99:99 ERROR Malformed record with garbage timestamp user_id=USR_470 service=inventory response_ms=500 event_id=EVT_000029
+2026-11-14 10:08:11 INFO Email receipt dispatched user_id=USR_825 service=notification response_ms=64.57 event_id=EVT_000693
+2026-11-14 10:24:28 ERROR Payment authorization declined by upstream processor user_id=USR_747 service=notification event_id=EVT_000724
+2026-11-14 10:56:37 ERROR Payment authorization declined by upstream processor user_id=USR_562 service=payment response_ms=2531.32 event_id=EVT_000647
+2026-11-14 10:16:46 INFO Inventory reserved for SKU user_id=USR_731 service=inventory event_id=EVT_000371
+2026-11-14 10:40:50 INFO Payment tokenized via provider user_id=USR_921 service=inventory response_ms=88.66 event_id=EVT_000833
+2026-11-14 10:39:56 INFO Email receipt dispatched user_id=USR_723 service=api-gateway response_ms=129.43 event_id=EVT_000988
+2026-11-14 10:49:57 INFO User authenticated successfully user_id=USR_187 service=inventory response_ms=63.39 event_id=EVT_000036
+2026-11-14 10:24:22 INFO Health check probe passed user_id=USR_438 service=inventory event_id=EVT_000490
+2026-11-14 10:39:45 INFO User authenticated successfully user_id=USR_409 service=api-gateway response_ms=100.84 event_id=EVT_000249
+2026-11-14 10:36:03 INFO User authenticated successfully user_id=USR_557 service=auth response_ms=86.92 event_id=EVT_000253
+2026-11-14 10:52:22 INFO User authenticated successfully user_id=USR_900 service=inventory response_ms=160.44 event_id=EVT_000754
+2026-11-14 10:27:58 INFO User authenticated successfully user_id=USR_820 service=payment response_ms=147.64 event_id=EVT_000435
+2026-11-14 10:47:24 INFO Inventory reserved for SKU user_id=USR_638 service=notification response_ms=116.78 event_id=EVT_000949
+2026-11-14 10:06:28 INFO Health check probe passed user_id=USR_357 service=inventory response_ms=151.37 event_id=EVT_000986
+2026-11-14 10:14:02 INFO Order placed with ID user_id=USR_300 service=inventory response_ms=69.88 event_id=EVT_000667
+2026-11-14 10:56:00 WARNING API response time degraded above SLA user_id=USR_412 service=order-service response_ms=590.27 event_id=EVT_000060
+2026-11-14 10:14:04 INFO Order placed with ID user_id=USR_229 service=order-service response_ms=122.02 event_id=EVT_000714
+2026-11-14 10:22:38 ERROR Payment authorization declined by upstream processor user_id=USR_100 service=inventory response_ms=2978.47 event_id=EVT_000378
+2026-11-14 10:23:09 INFO Payment tokenized via provider user_id=USR_137 service=order-service response_ms=139.13 event_id=EVT_000706
+2026-11-14 10:35:32 WARNING Cache miss rate exceeded expected variance user_id=USR_205 service=order-service response_ms=845.22 event_id=EVT_000651
+2026-11-14 10:03:10 INFO Health check probe passed user_id=USR_565 service=order-service response_ms=89.44 event_id=EVT_000501
+2026-11-14 10:31:35 INFO Health check probe passed user_id=USR_957 service=inventory response_ms=90.96 event_id=EVT_000727
+2026-11-14 10:41:34 INFO Inventory reserved for SKU user_id=USR_181 service=payment response_ms=156.98 event_id=EVT_000522
+2026-11-14 10:40:23 ERROR Payment authorization declined by upstream processor user_id=USR_477 service=payment response_ms=3027.69 event_id=EVT_000357
+2026-11-14 10:04:28 INFO Inventory reserved for SKU user_id=USR_928 service=notification response_ms=85.14 event_id=EVT_000740
+2026-11-14 10:08:57 ERROR Authentication token signature validation failed user_id=USR_938 service=auth response_ms=1994.29 event_id=EVT_000770
+2026-11-14 10:36:56 WARNING API response time degraded above SLA user_id=USR_697 service=api-gateway response_ms=780.23 event_id=EVT_000936
+2026-11-14 10:58:44 WARNING API response time degraded above SLA user_id=USR_775 service=payment response_ms=797.47 event_id=EVT_000790
+2026-11-14 10:04:35 INFO User authenticated successfully user_id=USR_311 service=auth response_ms=111.6 event_id=EVT_000262
+2026-11-14 10:43:47 INFO Payment tokenized via provider user_id=USR_792 service=api-gateway response_ms=125.88 event_id=EVT_000447
+2026-11-14 10:08:08 INFO Inventory reserved for SKU user_id=USR_187 service=notification response_ms=93.2 event_id=EVT_000782
+2026-11-14 10:02:29 WARNING API response time degraded above SLA user_id=USR_359 service=inventory response_ms=400.76 event_id=EVT_000199
+2026-11-14 10:56:47 INFO Order placed with ID user_id=USR_571 service=payment response_ms=87.87 event_id=EVT_000167
+2026-11-14 10:44:45 INFO Payment tokenized via provider user_id=USR_313 service=auth response_ms=68.85 event_id=EVT_000580
+2026-11-14 10:24:35 INFO Token refreshed for session user_id=USR_173 service=auth response_ms=93.67 event_id=EVT_000955
+2026-11-14 10:46:54 WARNING Rate limit quota nearing threshold user_id=USR_648 service=inventory event_id=EVT_000395
+2026-11-14 10:40:06 INFO Inventory reserved for SKU user_id=USR_453 service=auth response_ms=138.03 event_id=EVT_000128
+2026-11-14 10:23:11 WARNING API response time degraded above SLA user_id=USR_278 service=api-gateway response_ms=653.44 event_id=EVT_000944
+2026-11-14 10:16:14 INFO Inventory reserved for SKU user_id=USR_626 service=api-gateway response_ms=103.05 event_id=EVT_000040
+2026-11-14 10:18:23 INFO Inventory reserved for SKU user_id=USR_217 service=inventory event_id=EVT_000907
+2026-11-14 10:44:53 WARNING API response time degraded above SLA user_id=USR_960 service=api-gateway response_ms=699.73 event_id=EVT_000419
+2026-11-14 10:52:16 WARNING Rate limit quota nearing threshold user_id=USR_383 service=payment response_ms=844.96 event_id=EVT_000073
+2026-11-14 10:47:27 INFO User authenticated successfully user_id=USR_244 service=inventory response_ms=52.41 event_id=EVT_000603
+2026-11-14 10:51:35 WARNING Retry attempt 2 for external supplier gateway user_id=USR_180 service=notification response_ms=1003.11 event_id=EVT_000657
+2026-11-14 10:57:43 INFO Token refreshed for session user_id=USR_460 service=auth response_ms=174.92 event_id=EVT_000316
+2026-11-14 10:39:30 INFO Token refreshed for session user_id=USR_369 service=api-gateway response_ms=109.79 event_id=EVT_000502
+2026-11-14 10:36:57 INFO Payment tokenized via provider user_id=USR_927 service=notification response_ms=130.34 event_id=EVT_000394
+2026-11-14 10:56:05 INFO Health check probe passed user_id=USR_190 service=payment event_id=EVT_000383
+2026-11-14 10:38:10 INFO Token refreshed for session user_id=USR_605 service=inventory response_ms=152.61 event_id=EVT_000761
+2026-11-14 10:13:08 INFO Token refreshed for session user_id=USR_171 service=auth response_ms=82.77 event_id=EVT_000994
