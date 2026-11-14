@@ -35,7 +35,7 @@
       "justMyCode": true
     },
     {
-      "name": "Pytest: Run All 33 Tests",
+      "name": "Pytest: Run All Tests",
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",

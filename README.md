@@ -9,7 +9,7 @@ A production-grade, three-tier Data Engineering platform designed to ingest, par
 Modern distributed applications generate millions of log events across multiple microservices. These logs arrive in heterogeneous, noisy formats—some as structured CSV/JSON payloads, others as unstructured text lines with timestamps, error levels, and key-value attributes.
 
 > [!NOTE]
-> **Scope & Processing Mode:** The platform implements chunked batch file ingestion (supporting starter samples of 100 records up to configurable high-volume runs of 100,000+ records) with strict idempotent rerun semantics, rather than continuous unbounded streaming.
+> **Scope & Processing Mode:** The pipeline currently performs in-memory batch parsing and validation, chunked existing-ID lookups, and bulk database insertion. This approach is suitable for the demonstrated 100,000-record workload. Continuous streaming and bounded-memory chunked ingestion are outside the current implementation scope.
 
 ### Core Objectives
 1. **Automated Multi-Format Ingestion:** Ingest CSV, JSON (Array & Lines), and semi-structured text logs with automatic format sniffing.
@@ -225,18 +225,18 @@ cd c:\CandidateWorkspace
 $env:PYTHONPATH = "backend"
 pytest -v
 ```
-**Result:** **33/33 automated unit and integration tests passing.**
+**Result:** **43/43 automated unit and integration tests passing.**
 
 ### 4. Running in Visual Studio Code (Pre-configured IDE Integration)
 The workspace includes native `.vscode/` configurations for zero-friction local execution:
-- **Run & Debug (`launch.json`):** Press `F5` or select **"FastAPI: Run Platform Backend (Port 8000)"** to start the application with full interactive debugging. Also includes presets for **"Pytest: Run All 33 Tests"** and **"Python: Dual-Phase Benchmarks"**.
+- **Run & Debug (`launch.json`):** Press `F5` or select **"FastAPI: Run Platform Backend (Port 8000)"** to start the application with full interactive debugging. Also includes presets for **"Pytest: Run All Tests"** and **"Python: Dual-Phase Benchmarks"**.
 - **VS Code Tasks (`tasks.json`):** Run `Ctrl+Shift+P` -> `Tasks: Run Task` to trigger:
   - `1. Start FastAPI Backend Server`
   - `2. Start Frontend Dev Server`
   - `3. Run Pytest Test Suite`
   - `4. Run 100k Benchmark Suite`
   - `5. Build Frontend Production`
-- **Native Test Explorer (`settings.json`):** Click the **Testing Beaker Icon** in the VS Code sidebar to explore, run, and debug all 33 tests with real-time pass/fail indicators.
+- **Native Test Explorer (`settings.json`):** Click the **Testing Beaker Icon** in the VS Code sidebar to explore, run, and debug all tests with real-time pass/fail indicators.
 - **Integrated Terminal:** PowerShell terminals automatically initialize with `PYTHONPATH = "backend"`.
 
 > [!NOTE]
@@ -260,6 +260,16 @@ python backend/benchmark_ab.py
 ```
 > [!NOTE]
 > **Benchmarking Storage Engine:** The local benchmarks below were executed using **SQLite 3 with Write-Ahead Logging (WAL) mode and foreign key enforcement** (`data/benchmark_clean.db`). In enterprise production deployments, **PostgreSQL 15+** serves as the target analytical relational store (DDL in [`database/schema.sql`](database/schema.sql)).
+
+| Metric | Benchmark A (Fresh Ingestion) | Benchmark B (Idempotent Rerun) |
+| :--- | :--- | :--- |
+| **Input Records** | 100,000 | 100,000 |
+| **Newly Inserted** | 98,485 | 0 |
+| **Quarantined Rejections** | 1,515 | 1,515 |
+| **Previously Skipped** | 0 | 98,485 |
+| **Duration** | 17.67 sec | 7.46 sec |
+| **Throughput** | 5,658 records/sec | 13,396 records/sec |
+| **Reconciliation Status** | VERIFIED (100% Accounted) | VERIFIED (100% Accounted) |
 
 #### Benchmark A: Fresh Ingestion (Clean Database, 100,000 Records)
 ```text

@@ -470,3 +470,46 @@ def test_timestamps_serialized_with_utc_z():
         assert rd["created_at"].endswith("Z")
     finally:
         db.close()
+
+
+def test_csv_with_leading_blank_lines():
+    """Ensure CSV with leading blank lines is not rejected."""
+    unique_msg = f"Hello {uuid.uuid4().hex[:6]}"
+    content = f"""
+
+timestamp,severity,message
+2026-11-14T10:00:00Z,INFO,{unique_msg}"""
+    res = PipelineService.process_log_file(content, "leading_blank.csv")
+    assert res["status"] == "SUCCESS"
+    assert res["reconciliation"]["newly_inserted_records"] == 1
+    assert res["reconciliation"]["rejected_records"] == 0
+    assert res["reconciliation"]["is_reconciled"] is True
+
+
+def test_csv_with_utf8_bom():
+    """Ensure CSV with UTF-8 BOM is recognized and parsed correctly."""
+    unique_msg = f"Hello BOM {uuid.uuid4().hex[:6]}"
+    content = "\ufefftimestamp,severity,message\n"
+    content += f"2026-11-14T10:00:00Z,INFO,{unique_msg}"
+    res = PipelineService.process_log_file(content, "bom.csv")
+    assert res["status"] == "SUCCESS"
+    assert res["reconciliation"]["newly_inserted_records"] == 1
+    assert res["reconciliation"]["rejected_records"] == 0
+    assert res["reconciliation"]["is_reconciled"] is True
+
+
+def test_csv_multiline_raw_record():
+    """Ensure multiline quoted CSV records preserve complete original raw record."""
+    content = (
+        'timestamp,severity,message\n'
+        '2026-11-14T10:00:00Z,INFO,"Payment\n'
+        'processing failed"\n'
+    )
+    from app.parsers.csv_parser import CsvLogParser
+    parser = CsvLogParser()
+    parsed = parser.parse_content(content)
+    assert len(parsed) == 1
+    assert parsed[0].is_parse_ok is True
+    assert parsed[0].data["message"] == "Payment\nprocessing failed"
+    expected_raw = '2026-11-14T10:00:00Z,INFO,"Payment\nprocessing failed"'
+    assert parsed[0].raw_record == expected_raw

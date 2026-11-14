@@ -1,6 +1,6 @@
 import csv
 import io
-from typing import List
+from typing import List, Tuple, Optional
 from app.parsers.base import BaseLogParser, ParsedRecordResult
 
 REQUIRED_COLUMNS = {"timestamp", "severity", "message"}
@@ -15,12 +15,27 @@ ACCEPTABLE_VARIANTS = {
 }
 
 
+def read_record(reader: csv.reader, raw_lines: List[str]) -> Tuple[Optional[List[str]], Optional[str]]:
+    """
+    Reads one complete logical CSV record while preserving its original text.
+    Handles multiline quoted values across multiple physical lines.
+    """
+    start_line = reader.line_num
+    try:
+        row = next(reader)
+    except StopIteration:
+        return None, None
+    end_line = reader.line_num
+    raw_record = "\n".join(raw_lines[start_line:end_line])
+    return row, raw_record
+
+
 class CsvLogParser(BaseLogParser):
     """
     Parses CSV log files.
-    Extracts headers and creates dictionary records.
-    Captures malformed CSV lines with row-level error reporting.
-    Validates required column schema.
+    Tracks logical records and their physical line ranges.
+    Handles UTF-8 BOM, leading blank lines, and multiline quoted records.
+    Validates required column schema and column count.
     """
 
     def parse_content(self, content: str) -> List[ParsedRecordResult]:
@@ -28,76 +43,76 @@ class CsvLogParser(BaseLogParser):
         if not content_stripped:
             return []
 
-        results: List[ParsedRecordResult] = []
+        # 1. Normalize UTF-8 BOM and prepare reader
+        content = content.removeprefix("\ufeff")
+        stream = io.StringIO(content, newline="")
+        reader = csv.reader(stream)
         raw_lines = content.splitlines()
 
-        # Find header line (first non-empty line)
-        header_idx = -1
-        for idx, line in enumerate(raw_lines):
-            if line.strip():
-                header_idx = idx
-                break
-
-        if header_idx == -1:
-            return []
-
-        stream = io.StringIO(content)
+        results: List[ParsedRecordResult] = []
 
         try:
-            reader = csv.reader(stream)
-            try:
-                headers = next(reader)
-            except StopIteration:
-                return []
+            # 2. Skip leading blank rows to select the header record
+            headers: Optional[List[str]] = None
+            header_raw: Optional[str] = None
+            while True:
+                row, raw_rec = read_record(reader, raw_lines)
+                if row is None:
+                    return []
+                if not row or all(c.strip() == "" for c in row):
+                    continue
+                headers = row
+                header_raw = raw_rec
+                break
 
             cleaned_headers = [h.strip().lower() for h in headers]
             mapped_headers = [ACCEPTABLE_VARIANTS.get(h, h) for h in cleaned_headers]
             num_cols = len(cleaned_headers)
 
-            # Check if required schema columns are present
+            # 3. Check if required schema columns are present
             present_canonical = set(mapped_headers)
             missing_cols = REQUIRED_COLUMNS - present_canonical
             if missing_cols:
-                # Schema error: every non-empty data row is rejected with SCHEMA_ERROR
-                # preserving exact raw line without loss for complete 1-to-1 reconciliation
+                # Schema error: quarantine each logical data record individually
                 err_msg = f"Incompatible schema: missing required column(s) {sorted(list(missing_cols))}"
-                for line in raw_lines[header_idx + 1:]:
-                    if not line.strip():
+                while True:
+                    row, raw_rec = read_record(reader, raw_lines)
+                    if row is None:
+                        break
+                    if not row or all(c.strip() == "" for c in row):
                         continue
                     results.append(
                         ParsedRecordResult(
-                            raw_record=line,
+                            raw_record=raw_rec,
                             parse_error=err_msg,
                             reject_type="SCHEMA_ERROR"
                         )
                     )
-                # If there were no data lines at all (header only), record header as schema error
+                # If there were no data records at all (header only), quarantine header
                 if not results:
                     results.append(
                         ParsedRecordResult(
-                            raw_record=raw_lines[header_idx],
+                            raw_record=header_raw or ",".join(headers),
                             parse_error=err_msg,
                             reject_type="SCHEMA_ERROR"
                         )
                     )
                 return results
 
-            for row_idx, row in enumerate(reader, start=2):
-                # Skip empty lines
+            # 4. Process data records
+            while True:
+                row, raw_rec = read_record(reader, raw_lines)
+                if row is None:
+                    break
+
+                # Skip empty lines between records
                 if not row or all(c.strip() == "" for c in row):
                     continue
 
-                # Preserve exact raw line from raw_lines using reader.line_num
-                raw_line = None
-                if 1 <= reader.line_num <= len(raw_lines):
-                    raw_line = raw_lines[reader.line_num - 1]
-                if not raw_line or not raw_line.strip():
-                    raw_line = ",".join(row)
-
                 if len(row) != num_cols:
                     results.append(ParsedRecordResult(
-                        raw_record=raw_line,
-                        parse_error=f"Malformed CSV: expected {num_cols} columns but got {len(row)} at row {row_idx}",
+                        raw_record=raw_rec,
+                        parse_error=f"Malformed CSV: expected {num_cols} columns but got {len(row)}",
                         reject_type="MALFORMED"
                     ))
                     continue
@@ -107,7 +122,7 @@ class CsvLogParser(BaseLogParser):
                     val = col_val.strip()
                     record[col_name] = val if val != "" else None
 
-                results.append(ParsedRecordResult(raw_record=raw_line, data=record))
+                results.append(ParsedRecordResult(raw_record=raw_rec, data=record))
 
         except Exception as e:
             results.append(ParsedRecordResult(
