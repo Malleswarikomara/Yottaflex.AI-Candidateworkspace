@@ -400,5 +400,6 @@ All required negative scenarios are verified by automated tests in `backend/test
 - [Architecture Design & Trade-offs Note](reports/architecture_design.md)
 - [Performance Benchmark Report (100k Records)](reports/performance_benchmark.md)
 - [Reconciliation & Quality Audit Report](reports/reconciliation_report.md)
+- [AI Transparency & Prompt History Log](prompts/prompt_history.md)
 - [PostgreSQL Schema DDL](database/schema.sql)
 - [Backend Pytest Suite](backend/tests/test_pipeline.py)

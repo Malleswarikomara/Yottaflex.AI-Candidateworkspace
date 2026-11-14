@@ -24,6 +24,7 @@ include_dirs = [
     "frontend",
     "database",
     "reports",
+    "prompts",
     "screenshots",
     ".vscode",
     "data/sample",
