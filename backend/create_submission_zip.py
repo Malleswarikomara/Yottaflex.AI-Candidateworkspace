@@ -26,6 +26,7 @@ include_dirs = [
     "database",
     "reports",
     "screenshots",
+    ".vscode",
 ]
 
 # Patterns/directories to exclude

@@ -227,6 +227,18 @@ pytest -v
 ```
 **Result:** **33/33 automated unit and integration tests passing.**
 
+### 4. Running in Visual Studio Code (Pre-configured IDE Integration)
+The workspace includes native `.vscode/` configurations for zero-friction local execution:
+- **Run & Debug (`launch.json`):** Press `F5` or select **"FastAPI: Run Platform Backend (Port 8000)"** to start the application with full interactive debugging. Also includes presets for **"Pytest: Run All 33 Tests"** and **"Python: Dual-Phase Benchmarks"**.
+- **VS Code Tasks (`tasks.json`):** Run `Ctrl+Shift+P` -> `Tasks: Run Task` to trigger:
+  - `1. Start FastAPI Backend Server`
+  - `2. Start Frontend Dev Server`
+  - `3. Run Pytest Test Suite`
+  - `4. Run 100k Benchmark Suite`
+  - `5. Build Frontend Production`
+- **Native Test Explorer (`settings.json`):** Click the **Testing Beaker Icon** in the VS Code sidebar to explore, run, and debug all 33 tests with real-time pass/fail indicators.
+- **Integrated Terminal:** PowerShell terminals automatically initialize with `PYTHONPATH = "backend"`.
+
 ---
 
 ## 6. Reproducible Sample Data & Benchmarking

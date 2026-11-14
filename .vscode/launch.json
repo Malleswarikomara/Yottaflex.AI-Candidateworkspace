@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "FastAPI: Run Platform Backend (Port 8000)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/app/main.py",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "justMyCode": true
+    },
+    {
+      "name": "Python: Dual-Phase Benchmarks (100k Records)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/benchmark_ab.py",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "justMyCode": true
+    },
+    {
+      "name": "Python: Audit Reconciliation Report",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/reconciliation.py",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "justMyCode": true
+    },
+    {
+      "name": "Pytest: Run All 33 Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-v"],
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "justMyCode": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "python.testing.pytestArgs": [
+    "backend/tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/backend"
+  ],
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}/backend"
+  },
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "*.sql": "sql",
+    "*.csv": "csv"
+  }
+}

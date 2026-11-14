@@ -1,0 +1,71 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Start FastAPI Backend Server",
+      "type": "shell",
+      "command": "python backend/app/main.py",
+      "options": {
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/backend"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "2. Start Frontend Dev Server",
+      "type": "shell",
+      "command": "npm --prefix frontend run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "3. Run Pytest Test Suite",
+      "type": "shell",
+      "command": "pytest -v",
+      "options": {
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/backend"
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "4. Run 100k Benchmark Suite",
+      "type": "shell",
+      "command": "python backend/benchmark_ab.py",
+      "options": {
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/backend"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "5. Build Frontend Production",
+      "type": "shell",
+      "command": "npm --prefix frontend run build",
+      "problemMatcher": []
+    },
+    {
+      "label": "6. Run Audit Reconciliation Report",
+      "type": "shell",
+      "command": "python backend/reconciliation.py",
+      "options": {
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/backend"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}
