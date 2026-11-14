@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" style="background:#0f172a; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <!-- Nav Header -->
+      <rect x="0" y="0" width="1600" height="70" fill="#0b0f19" stroke="#1e293b"/>
+      <text x="40" y="44" fill="#6366f1" font-size="22" font-weight="bold">LOG ANALYTICS PLATFORM</text>
+      <rect x="360" y="22" width="130" height="28" rx="6" fill="#1e1b4b" stroke="#4338ca"/>
+      <text x="375" y="41" fill="#a5b4fc" font-size="12">v1.0.0 Production</text>
+
+      <!-- Tabs -->
+      <rect x="520" y="16" width="105" height="38" rx="8" fill="#312e81" stroke="#6366f1"/>
+      <text x="540" y="41" fill="#ffffff" font-size="14" font-weight="bold">Overview</text>
+      <text x="655" y="41" fill="#94a3b8" font-size="14">Log Explorer</text>
+      <text x="770" y="41" fill="#94a3b8" font-size="14">Performance</text>
+      <text x="890" y="41" fill="#94a3b8" font-size="14">Data Quality</text>
+      <text x="1010" y="41" fill="#94a3b8" font-size="14">Pipeline Monitoring</text>
+      <text x="1170" y="41" fill="#94a3b8" font-size="14">Ingestion Hub</text>
+
+      <rect x="1440" y="20" width="120" height="30" rx="8" fill="#064e3b" stroke="#059669"/>
+      <circle cx="1458" cy="35" r="5" fill="#10b981"/>
+      <text x="1472" y="40" fill="#6ee7b7" font-size="12" font-weight="bold">SYSTEM OK</text>
+
+      <!-- Page Title -->
+      <text x="40" y="120" fill="#f8fafc" font-size="26" font-weight="bold">Platform Observability &amp; Metrics Overview</text>
+      <text x="40" y="148" fill="#94a3b8" font-size="14">Real-time pipeline ingestion health, normalized log volumes, decoupled error rates, and API latency analytics.</text>
+
+      <!-- 5 KPI Cards -->
+      <!-- Card 1 -->
+      <rect x="40" y="175" width="290" height="120" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="60" y="205" fill="#94a3b8" font-size="13">Total Ingested Logs</text>
+      <text x="60" y="245" fill="#f8fafc" font-size="30" font-weight="bold">100,000</text>
+      <text x="60" y="275" fill="#64748b" font-size="11">Cleaned &amp; validated in DB</text>
+
+      <!-- Card 2 -->
+      <rect x="345" y="175" width="290" height="120" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="365" y="205" fill="#94a3b8" font-size="13">Severity Error Rate</text>
+      <text x="365" y="245" fill="#ef4444" font-size="30" font-weight="bold">10.14%</text>
+      <text x="365" y="275" fill="#64748b" font-size="11">Formula: (ERROR + CRITICAL) / Total</text>
+
+      <!-- Card 3 -->
+      <rect x="650" y="175" width="290" height="120" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="670" y="205" fill="#94a3b8" font-size="13">HTTP Failure Rate</text>
+      <text x="670" y="245" fill="#f59e0b" font-size="30" font-weight="bold">10.17%</text>
+      <text x="670" y="275" fill="#64748b" font-size="11">9,001 failures / 88,496 reqs (>=500)</text>
+
+      <!-- Card 4 -->
+      <rect x="955" y="175" width="290" height="120" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="975" y="205" fill="#94a3b8" font-size="13">Avg API Latency</text>
+      <text x="975" y="245" fill="#38bdf8" font-size="30" font-weight="bold">658.58 ms</text>
+      <text x="975" y="275" fill="#64748b" font-size="11">Min: 0.0ms | Max: 60,000.0ms</text>
+
+      <!-- Card 5 -->
+      <rect x="1260" y="175" width="300" height="120" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="1280" y="205" fill="#94a3b8" font-size="13">P95 Tail Latency</text>
+      <text x="1280" y="245" fill="#8b5cf6" font-size="30" font-weight="bold">2,722.56 ms</text>
+      <text x="1280" y="275" fill="#64748b" font-size="11">Median (P50): 133.04 ms</text>
+
+      <!-- Visual Charts Grid -->
+      <!-- Left Donut Chart -->
+      <rect x="40" y="315" width="480" height="420" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="65" y="348" fill="#f8fafc" font-size="16" font-weight="bold">Severity Distribution</text>
+      <text x="65" y="372" fill="#64748b" font-size="12">Normalized Log Levels (ISO-8601)</text>
+
+      <circle cx="280" cy="520" r="110" fill="none" stroke="#3b82f6" stroke-width="40" stroke-dasharray="518 172"/>
+      <circle cx="280" cy="520" r="110" fill="none" stroke="#f59e0b" stroke-width="40" stroke-dasharray="103 587" stroke-dashoffset="-518"/>
+      <circle cx="280" cy="520" r="110" fill="none" stroke="#ef4444" stroke-width="40" stroke-dasharray="56 634" stroke-dashoffset="-621"/>
+      <circle cx="280" cy="520" r="110" fill="none" stroke="#dc2626" stroke-width="40" stroke-dasharray="14 676" stroke-dashoffset="-677"/>
+      <text x="245" y="525" fill="#f8fafc" font-size="32" font-weight="bold">100k</text>
+      <text x="260" y="555" fill="#94a3b8" font-size="14">Logs</text>
+
+      <!-- Legend -->
+      <rect x="65" y="690" width="14" height="14" fill="#3b82f6"/>
+      <text x="85" y="702" fill="#cbd5e1" font-size="12">INFO (75%)</text>
+      <rect x="175" y="690" width="14" height="14" fill="#f59e0b"/>
+      <text x="195" y="702" fill="#cbd5e1" font-size="12">WARN (15%)</text>
+      <rect x="290" y="690" width="14" height="14" fill="#ef4444"/>
+      <text x="310" y="702" fill="#cbd5e1" font-size="12">ERROR (8%)</text>
+      <rect x="410" y="690" width="14" height="14" fill="#dc2626"/>
+      <text x="430" y="702" fill="#cbd5e1" font-size="12">CRIT (2%)</text>
+
+      <!-- Right Service Workload Bars -->
+      <rect x="540" y="315" width="1020" height="420" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="565" y="348" fill="#f8fafc" font-size="16" font-weight="bold">Service Workload &amp; Error Breakdown</text>
+      <text x="565" y="372" fill="#64748b" font-size="12">Microservice Entities: api-gateway, auth, inventory, notification, order-service, payment</text>
+
+      <!-- Bars -->
+      <g transform="translate(580, 420)">
+        <rect x="20" y="30" width="60" height="230" fill="#6366f1" rx="4"/>
+        <rect x="85" y="235" width="25" height="25" fill="#ef4444" rx="4"/>
+        <text x="25" y="280" fill="#94a3b8" font-size="12">api-gateway</text>
+        <text x="30" y="15" fill="#f8fafc" font-size="11">16.3k</text>
+
+        <rect x="175" y="25" width="60" height="235" fill="#6366f1" rx="4"/>
+        <rect x="240" y="235" width="25" height="25" fill="#ef4444" rx="4"/>
+        <text x="190" y="280" fill="#94a3b8" font-size="12">auth</text>
+        <text x="185" y="10" fill="#f8fafc" font-size="11">16.4k</text>
+
+        <rect x="330" y="23" width="60" height="237" fill="#6366f1" rx="4"/>
+        <rect x="395" y="235" width="25" height="25" fill="#ef4444" rx="4"/>
+        <text x="335" y="280" fill="#94a3b8" font-size="12">inventory</text>
+        <text x="340" y="8" fill="#f8fafc" font-size="11">16.5k</text>
+
+        <rect x="485" y="20" width="60" height="240" fill="#6366f1" rx="4"/>
+        <rect x="550" y="235" width="25" height="25" fill="#ef4444" rx="4"/>
+        <text x="485" y="280" fill="#94a3b8" font-size="12">notification</text>
+        <text x="495" y="5" fill="#f8fafc" font-size="11">16.6k</text>
+
+        <rect x="640" y="35" width="60" height="225" fill="#6366f1" rx="4"/>
+        <rect x="705" y="235" width="25" height="25" fill="#ef4444" rx="4"/>
+        <text x="635" y="280" fill="#94a3b8" font-size="12">order-service</text>
+        <text x="650" y="20" fill="#f8fafc" font-size="11">16.1k</text>
+
+        <rect x="795" y="28" width="60" height="232" fill="#6366f1" rx="4"/>
+        <rect x="860" y="235" width="25" height="25" fill="#ef4444" rx="4"/>
+        <text x="805" y="280" fill="#94a3b8" font-size="12">payment</text>
+        <text x="805" y="13" fill="#f8fafc" font-size="11">16.3k</text>
+      </g>
+
+      <!-- Latest Run Banner -->
+      <rect x="40" y="755" width="1520" height="180" rx="12" fill="#0b0f19" stroke="#059669" stroke-width="2"/>
+      <text x="70" y="795" fill="#10b981" font-size="18" font-weight="bold">LATEST PIPELINE RUN AUDIT: RUN_20261114_092055_7BA682 (SUCCESS)</text>
+      <text x="70" y="830" fill="#f8fafc" font-size="16" font-weight="bold">Source-to-Target Conservation Law: Input (100,000) = Inserted (98,485) + Quarantined (1,515) + Skipped (0)</text>
+      <text x="70" y="865" fill="#94a3b8" font-size="13">Duration: 17.67s | Throughput: 5,658 rec/sec | Audit Invariant: 100% RECONCILED (0 Silently Discarded Rows)</text>
+      <rect x="70" y="885" width="140" height="28" rx="6" fill="#064e3b" stroke="#10b981"/>
+      <text x="80" y="904" fill="#6ee7b7" font-size="12" font-weight="bold">✓ 100% AUDIT PASS</text>
+    </svg>

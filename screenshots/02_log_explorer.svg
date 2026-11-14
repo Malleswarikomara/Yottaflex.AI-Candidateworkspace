@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" style="background:#0f172a; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <!-- Nav Header -->
+      <rect x="0" y="0" width="1600" height="70" fill="#0b0f19" stroke="#1e293b"/>
+      <text x="40" y="44" fill="#6366f1" font-size="22" font-weight="bold">LOG ANALYTICS PLATFORM</text>
+      <text x="540" y="41" fill="#94a3b8" font-size="14">Overview</text>
+      <rect x="635" y="16" width="125" height="38" rx="8" fill="#312e81" stroke="#6366f1"/>
+      <text x="650" y="41" fill="#ffffff" font-size="14" font-weight="bold">Log Explorer</text>
+      <text x="780" y="41" fill="#94a3b8" font-size="14">Performance</text>
+      <text x="900" y="41" fill="#94a3b8" font-size="14">Data Quality</text>
+      <text x="1020" y="41" fill="#94a3b8" font-size="14">Pipeline Monitoring</text>
+
+      <text x="40" y="120" fill="#f8fafc" font-size="26" font-weight="bold">Log Explorer &amp; Query Console</text>
+      <text x="40" y="148" fill="#94a3b8" font-size="14">Search, filter, and inspect canonical application events across 100,000 indexed records.</text>
+
+      <!-- Search Toolbar -->
+      <rect x="40" y="175" width="1520" height="70" rx="10" fill="#1e293b" stroke="#334155"/>
+      <rect x="60" y="190" width="380" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+      <text x="80" y="215" fill="#64748b" font-size="13">Search message, endpoint, or event ID...</text>
+
+      <rect x="460" y="190" width="160" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+      <text x="480" y="215" fill="#cbd5e1" font-size="13">Severity: All</text>
+
+      <rect x="640" y="190" width="180" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+      <text x="660" y="215" fill="#cbd5e1" font-size="13">Service: All</text>
+
+      <!-- Table -->
+      <rect x="40" y="265" width="1520" height="680" rx="12" fill="#1e293b" stroke="#334155"/>
+      <rect x="40" y="265" width="1520" height="45" rx="0" fill="#0b0f19"/>
+      <text x="60" y="293" fill="#94a3b8" font-size="12" font-weight="bold">EVENT ID</text>
+      <text x="200" y="293" fill="#94a3b8" font-size="12" font-weight="bold">TIMESTAMP (UTC)</text>
+      <text x="400" y="293" fill="#94a3b8" font-size="12" font-weight="bold">SEVERITY</text>
+      <text x="520" y="293" fill="#94a3b8" font-size="12" font-weight="bold">SERVICE</text>
+      <text x="660" y="293" fill="#94a3b8" font-size="12" font-weight="bold">MESSAGE</text>
+      <text x="1220" y="293" fill="#94a3b8" font-size="12" font-weight="bold">LATENCY</text>
+      <text x="1350" y="293" fill="#94a3b8" font-size="12" font-weight="bold">HTTP</text>
+      <text x="1460" y="293" fill="#94a3b8" font-size="12" font-weight="bold">ACTION</text>
+
+      <g font-size="12" font-family="monospace">
+        <!-- Row 1 -->
+        <text x="60" y="340" fill="#818cf8" font-weight="bold">EVT_000001</text>
+        <text x="200" y="340" fill="#cbd5e1">2026-11-14 10:15:32</text>
+        <rect x="395" y="325" width="60" height="20" rx="4" fill="#3b82f620" stroke="#3b82f6"/>
+        <text x="410" y="339" fill="#3b82f6" font-weight="bold">INFO</text>
+        <text x="520" y="340" fill="#cbd5e1">auth</text>
+        <text x="660" y="340" fill="#e2e8f0">User authenticated successfully</text>
+        <text x="1220" y="340" fill="#38bdf8">120.45 ms</text>
+        <text x="1350" y="340" fill="#10b981">200 OK</text>
+        <text x="1460" y="340" fill="#a5b4fc">[Inspect]</text>
+        <line x1="40" y1="360" x2="1560" y2="360" stroke="#334155"/>
+
+        <!-- Row 2 -->
+        <text x="60" y="395" fill="#818cf8" font-weight="bold">EVT_000002</text>
+        <text x="200" y="395" fill="#cbd5e1">2026-11-14 10:15:33</text>
+        <rect x="395" y="380" width="85" height="20" rx="4" fill="#f59e0b20" stroke="#f59e0b"/>
+        <text x="405" y="394" fill="#f59e0b" font-weight="bold">WARNING</text>
+        <text x="520" y="395" fill="#cbd5e1">api-gateway</text>
+        <text x="660" y="395" fill="#e2e8f0">API response time degraded above SLA</text>
+        <text x="1220" y="395" fill="#f59e0b">780.20 ms</text>
+        <text x="1350" y="395" fill="#10b981">200 OK</text>
+        <text x="1460" y="395" fill="#a5b4fc">[Inspect]</text>
+        <line x1="40" y1="415" x2="1560" y2="415" stroke="#334155"/>
+
+        <!-- Row 3 -->
+        <text x="60" y="450" fill="#818cf8" font-weight="bold">EVT_000003</text>
+        <text x="200" y="450" fill="#cbd5e1">2026-11-14 10:15:34</text>
+        <rect x="395" y="435" width="70" height="20" rx="4" fill="#ef444420" stroke="#ef4444"/>
+        <text x="408" y="449" fill="#ef4444" font-weight="bold">ERROR</text>
+        <text x="520" y="450" fill="#cbd5e1">payment</text>
+        <text x="660" y="450" fill="#e2e8f0">Payment authorization declined by upstream processor</text>
+        <text x="1220" y="450" fill="#ef4444">2,450.00 ms</text>
+        <text x="1350" y="450" fill="#ef4444">502 BAD_GATEWAY</text>
+        <text x="1460" y="450" fill="#a5b4fc">[Inspect]</text>
+        <line x1="40" y1="470" x2="1560" y2="470" stroke="#334155"/>
+
+        <!-- Row 4 -->
+        <text x="60" y="505" fill="#818cf8" font-weight="bold">EVT_000004</text>
+        <text x="200" y="505" fill="#cbd5e1">2026-11-14 10:15:35</text>
+        <rect x="395" y="490" width="85" height="20" rx="4" fill="#dc262620" stroke="#dc2626"/>
+        <text x="405" y="504" fill="#dc2626" font-weight="bold">CRITICAL</text>
+        <text x="520" y="505" fill="#cbd5e1">inventory</text>
+        <text x="660" y="505" fill="#e2e8f0">Deadlock detected in inventory transaction lock</text>
+        <text x="1220" y="505" fill="#dc2626">4,600.00 ms</text>
+        <text x="1350" y="505" fill="#dc2626">503 SERVICE_UNAVAIL</text>
+        <text x="1460" y="505" fill="#a5b4fc">[Inspect]</text>
+        <line x1="40" y1="525" x2="1560" y2="525" stroke="#334155"/>
+      </g>
+    </svg>

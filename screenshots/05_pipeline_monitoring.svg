@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" style="background:#0f172a; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <rect x="0" y="0" width="1600" height="70" fill="#0b0f19" stroke="#1e293b"/>
+      <text x="40" y="44" fill="#6366f1" font-size="22" font-weight="bold">LOG ANALYTICS PLATFORM</text>
+      <text x="540" y="41" fill="#94a3b8" font-size="14">Overview</text>
+      <text x="655" y="41" fill="#94a3b8" font-size="14">Log Explorer</text>
+      <text x="780" y="41" fill="#94a3b8" font-size="14">Performance</text>
+      <text x="900" y="41" fill="#94a3b8" font-size="14">Data Quality</text>
+      <rect x="1010" y="16" width="165" height="38" rx="8" fill="#312e81" stroke="#6366f1"/>
+      <text x="1025" y="41" fill="#ffffff" font-size="14" font-weight="bold">Pipeline Monitoring</text>
+
+      <text x="40" y="120" fill="#f8fafc" font-size="26" font-weight="bold">Pipeline Execution &amp; Audit Trace</text>
+      <text x="40" y="148" fill="#94a3b8" font-size="14">Historical execution runs, throughput, rerun skips, retries, and source-to-target reconciliation logs.</text>
+
+      <rect x="40" y="175" width="1520" height="760" rx="12" fill="#1e293b" stroke="#334155"/>
+      <rect x="40" y="175" width="1520" height="45" rx="0" fill="#0b0f19"/>
+      <text x="60" y="203" fill="#94a3b8" font-size="12" font-weight="bold">RUN ID</text>
+      <text x="320" y="203" fill="#94a3b8" font-size="12" font-weight="bold">SOURCE FILE</text>
+      <text x="560" y="203" fill="#94a3b8" font-size="12" font-weight="bold">FORMAT</text>
+      <text x="650" y="203" fill="#94a3b8" font-size="12" font-weight="bold">STATUS</text>
+      <text x="780" y="203" fill="#94a3b8" font-size="12" font-weight="bold">DURATION</text>
+      <text x="890" y="203" fill="#94a3b8" font-size="12" font-weight="bold">INPUT</text>
+      <text x="990" y="203" fill="#94a3b8" font-size="12" font-weight="bold">INSERTED</text>
+      <text x="1100" y="203" fill="#94a3b8" font-size="12" font-weight="bold">QUARANTINED</text>
+      <text x="1230" y="203" fill="#94a3b8" font-size="12" font-weight="bold">SKIPPED</text>
+      <text x="1340" y="203" fill="#94a3b8" font-size="12" font-weight="bold">RETRIES</text>
+      <text x="1440" y="203" fill="#94a3b8" font-size="12" font-weight="bold">RECONCILED</text>
+
+      <g font-size="12" font-family="monospace">
+        <!-- Run B -->
+        <text x="60" y="250" fill="#818cf8" font-weight="bold">RUN_20261114_092113_1B83D3</text>
+        <text x="320" y="250" fill="#cbd5e1">benchmark_100000_records.csv</text>
+        <text x="560" y="250" fill="#94a3b8">CSV</text>
+        <rect x="645" y="235" width="80" height="20" rx="4" fill="#f59e0b20" stroke="#f59e0b"/>
+        <text x="655" y="249" fill="#f59e0b" font-weight="bold">PARTIAL</text>
+        <text x="780" y="250" fill="#cbd5e1">7.46s</text>
+        <text x="890" y="250" fill="#f8fafc" font-weight="bold">100,000</text>
+        <text x="990" y="250" fill="#10b981" font-weight="bold">0</text>
+        <text x="1100" y="250" fill="#ef4444" font-weight="bold">1,515</text>
+        <text x="1230" y="250" fill="#38bdf8" font-weight="bold">98,485</text>
+        <text x="1340" y="250" fill="#cbd5e1">0</text>
+        <text x="1440" y="250" fill="#10b981" font-weight="bold">✓ VERIFIED</text>
+        <line x1="40" y1="270" x2="1560" y2="270" stroke="#334155"/>
+
+        <!-- Run A -->
+        <text x="60" y="300" fill="#818cf8" font-weight="bold">RUN_20261114_092055_7BA682</text>
+        <text x="320" y="300" fill="#cbd5e1">benchmark_100000_records.csv</text>
+        <text x="560" y="300" fill="#94a3b8">CSV</text>
+        <rect x="645" y="285" width="80" height="20" rx="4" fill="#f59e0b20" stroke="#f59e0b"/>
+        <text x="655" y="299" fill="#f59e0b" font-weight="bold">PARTIAL</text>
+        <text x="780" y="300" fill="#cbd5e1">17.67s</text>
+        <text x="890" y="300" fill="#f8fafc" font-weight="bold">100,000</text>
+        <text x="990" y="300" fill="#10b981" font-weight="bold">98,485</text>
+        <text x="1100" y="300" fill="#ef4444" font-weight="bold">1,515</text>
+        <text x="1230" y="300" fill="#38bdf8" font-weight="bold">0</text>
+        <text x="1340" y="300" fill="#cbd5e1">0</text>
+        <text x="1440" y="300" fill="#10b981" font-weight="bold">✓ VERIFIED</text>
+        <line x1="40" y1="320" x2="1560" y2="320" stroke="#334155"/>
+      </g>
+    </svg>

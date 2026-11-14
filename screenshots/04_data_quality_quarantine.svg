@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" style="background:#0f172a; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <rect x="0" y="0" width="1600" height="70" fill="#0b0f19" stroke="#1e293b"/>
+      <text x="40" y="44" fill="#6366f1" font-size="22" font-weight="bold">LOG ANALYTICS PLATFORM</text>
+      <text x="540" y="41" fill="#94a3b8" font-size="14">Overview</text>
+      <text x="655" y="41" fill="#94a3b8" font-size="14">Log Explorer</text>
+      <text x="780" y="41" fill="#94a3b8" font-size="14">Performance</text>
+      <rect x="880" y="16" width="135" height="38" rx="8" fill="#312e81" stroke="#6366f1"/>
+      <text x="895" y="41" fill="#ffffff" font-size="14" font-weight="bold">Data Quality</text>
+      <text x="1035" y="41" fill="#94a3b8" font-size="14">Pipeline Monitoring</text>
+
+      <text x="40" y="120" fill="#f8fafc" font-size="26" font-weight="bold">Data Quality &amp; Quarantine Observability</text>
+      <text x="40" y="148" fill="#94a3b8" font-size="14">Zero silent discards: Isolated corrupt, duplicate, schema-mismatched, and malformed records.</text>
+
+      <!-- Audit Equation Card -->
+      <rect x="40" y="175" width="1520" height="90" rx="12" fill="#1e293b" stroke="#059669" stroke-width="2"/>
+      <text x="60" y="205" fill="#10b981" font-size="14" font-weight="bold">END-TO-END CONSERVATION PROOF (PER-RUN):</text>
+      <text x="60" y="238" fill="#f8fafc" font-size="18" font-weight="bold">Input (100,000) = Inserted (98,485) + Quarantined (1,515) + Previously Skipped (0)  ->  100% RECONCILED</text>
+
+      <!-- Donut & Reasons -->
+      <rect x="40" y="285" width="480" height="360" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="65" y="320" fill="#f8fafc" font-size="16" font-weight="bold">Rejection Taxonomy</text>
+      <text x="65" y="342" fill="#64748b" font-size="12">Classified by reject_type</text>
+      <circle cx="280" cy="480" r="90" fill="none" stroke="#f59e0b" stroke-width="32" stroke-dasharray="290 275"/>
+      <circle cx="280" cy="480" r="90" fill="none" stroke="#ef4444" stroke-width="32" stroke-dasharray="180 385" stroke-dashoffset="-290"/>
+      <circle cx="280" cy="480" r="90" fill="none" stroke="#8b5cf6" stroke-width="32" stroke-dasharray="96 469" stroke-dashoffset="-470"/>
+      <text x="245" y="475" fill="#f8fafc" font-size="28" font-weight="bold">1,515</text>
+      <text x="240" y="505" fill="#94a3b8" font-size="12">Rejects / Run</text>
+
+      <rect x="540" y="285" width="1020" height="360" rx="12" fill="#1e293b" stroke="#334155"/>
+      <text x="565" y="320" fill="#f8fafc" font-size="16" font-weight="bold">Rejection Reasons Distribution</text>
+
+      <g transform="translate(565, 360)" font-size="12">
+        <text x="0" y="20" fill="#cbd5e1">Invalid timestamp format ('2026-99-99 99:99:99')</text>
+        <rect x="360" y="8" width="271" height="16" fill="#ef4444" rx="4"/>
+        <text x="640" y="20" fill="#f8fafc">271 (17.9%)</text>
+
+        <text x="0" y="60" fill="#cbd5e1">Negative response time (-350.0ms)</text>
+        <rect x="360" y="48" width="255" height="16" fill="#ef4444" rx="4"/>
+        <text x="625" y="60" fill="#f8fafc">255 (16.8%)</text>
+
+        <text x="0" y="100" fill="#cbd5e1">Invalid severity ('UNKNOWN_SEV_LEVEL')</text>
+        <rect x="360" y="88" width="250" height="16" fill="#f59e0b" rx="4"/>
+        <text x="620" y="100" fill="#f8fafc">250 (16.5%)</text>
+
+        <text x="0" y="140" fill="#cbd5e1">Missing required field: message</text>
+        <rect x="360" y="128" width="243" height="16" fill="#f59e0b" rx="4"/>
+        <text x="615" y="140" fill="#f8fafc">243 (16.0%)</text>
+
+        <text x="0" y="180" fill="#cbd5e1">Missing required field: timestamp</text>
+        <rect x="360" y="168" width="238" height="16" fill="#f59e0b" rx="4"/>
+        <text x="610" y="180" fill="#f8fafc">238 (15.7%)</text>
+
+        <text x="0" y="220" fill="#cbd5e1">Duplicate event_id within batch (258 total)</text>
+        <rect x="360" y="208" width="258" height="16" fill="#8b5cf6" rx="4"/>
+        <text x="630" y="220" fill="#f8fafc">258 (17.0%)</text>
+      </g>
+
+      <!-- Quarantine Table -->
+      <rect x="40" y="665" width="1520" height="280" rx="12" fill="#1e293b" stroke="#334155"/>
+      <rect x="40" y="665" width="1520" height="40" rx="0" fill="#0b0f19"/>
+      <text x="60" y="690" fill="#94a3b8" font-size="12" font-weight="bold">REJECT ID</text>
+      <text x="140" y="690" fill="#94a3b8" font-size="12" font-weight="bold">RUN ID</text>
+      <text x="320" y="690" fill="#94a3b8" font-size="12" font-weight="bold">TYPE</text>
+      <text x="460" y="690" fill="#94a3b8" font-size="12" font-weight="bold">REJECTION REASON</text>
+      <text x="960" y="690" fill="#94a3b8" font-size="12" font-weight="bold">RAW RECORD PREVIEW</text>
+
+      <g font-size="12" font-family="monospace">
+        <text x="60" y="730" fill="#94a3b8">#1</text>
+        <text x="140" y="730" fill="#818cf8">RUN_20261114_092055</text>
+        <rect x="315" y="715" width="125" height="20" rx="4" fill="#f59e0b20" stroke="#f59e0b"/>
+        <text x="325" y="729" fill="#f59e0b" font-weight="bold">VALIDATION_ERR</text>
+        <text x="460" y="730" fill="#ef4444">Invalid timestamp format: '2026-99-99 99:99:99'</text>
+        <text x="960" y="730" fill="#64748b">EVT_000045,2026-99-99 99:99:99,ERROR...</text>
+        <line x1="40" y1="750" x2="1560" y2="750" stroke="#334155"/>
+
+        <text x="60" y="780" fill="#94a3b8">#2</text>
+        <text x="140" y="780" fill="#818cf8">RUN_20261114_092055</text>
+        <rect x="315" y="765" width="85" height="20" rx="4" fill="#8b5cf620" stroke="#8b5cf6"/>
+        <text x="325" y="779" fill="#8b5cf6" font-weight="bold">DUPLICATE</text>
+        <text x="460" y="780" fill="#ef4444">Duplicate event_id within batch: EVT_DUPLICATE_KEY_001</text>
+        <text x="960" y="780" fill="#64748b">EVT_DUPLICATE_KEY_001,2026-11-14T10:14...</text>
+        <line x1="40" y1="800" x2="1560" y2="800" stroke="#334155"/>
+      </g>
+    </svg>
