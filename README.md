@@ -239,6 +239,9 @@ The workspace includes native `.vscode/` configurations for zero-friction local 
 - **Native Test Explorer (`settings.json`):** Click the **Testing Beaker Icon** in the VS Code sidebar to explore, run, and debug all 33 tests with real-time pass/fail indicators.
 - **Integrated Terminal:** PowerShell terminals automatically initialize with `PYTHONPATH = "backend"`.
 
+> [!NOTE]
+> **Production Upgrade Path:** In an environment where dependency upgrades are permitted, consider upgrading FastAPI, Starlette, Pydantic, and AnyIO to mutually compatible versions. Validate the application against the upgraded dependencies by running the complete test suite and checking all API endpoints. This may eliminate the third-party deprecation warnings without requiring warning filters.
+
 ---
 
 ## 6. Reproducible Sample Data & Benchmarking

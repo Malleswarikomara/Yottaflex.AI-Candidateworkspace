@@ -107,3 +107,4 @@ flowchart TD
 2. **PostgreSQL Binary COPY:** Implement `psycopg2.copy_expert` for direct binary stream ingestion, scaling throughput to 50,000+ records/sec.
 3. **Columnar Cold Storage:** Daily compaction of historical logs older than 14 days into Apache Parquet partitioned by `(year, month, day, service)` on S3/MinIO for 90% cost savings.
 4. **Alerting Webhooks:** Slack / PagerDuty webhook dispatch when P95 latency exceeds 3,000ms or error rate exceeds 15% across a 5-minute rolling window.
+5. **Production Dependency Upgrade Path:** In an environment where dependency upgrades are permitted, consider upgrading FastAPI, Starlette, Pydantic, and AnyIO to mutually compatible versions. Validate the application against the upgraded dependencies by running the complete test suite and checking all API endpoints. This may eliminate third-party deprecation warnings without requiring warning filters.
