@@ -256,7 +256,8 @@ def test_http_sample_endpoints_integration():
             finally:
                 db.close()
 
-        # 2. Override get_db dependency
+        # 2. Override get_db dependency safely preserving existing overrides
+        original_overrides = app.dependency_overrides.copy()
         app.dependency_overrides[get_db] = override_get_db
 
         try:
@@ -291,5 +292,6 @@ def test_http_sample_endpoints_integration():
                 assert r2.get("newly_inserted_records") == 0
                 assert r2.get("previously_skipped_records") == newly_inserted
         finally:
-            # 8. Restore the dependency override after testing
+            # 8. Safely restore the original dependency overrides after testing
             app.dependency_overrides.clear()
+            app.dependency_overrides.update(original_overrides)

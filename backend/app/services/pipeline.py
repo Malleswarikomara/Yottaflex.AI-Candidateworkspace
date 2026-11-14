@@ -85,6 +85,7 @@ class PipelineService:
             rejected_records: List[Dict[str, Any]] = []
             seen_event_ids: set = set()
             intra_batch_duplicates = 0
+            validated_record_count = 0
 
             # 3. Validation & Quarantine Loop
             for res in parse_results:
@@ -101,6 +102,7 @@ class PipelineService:
 
                 try:
                     cleaned = validate_and_normalize_record(res.data, filename, run_id)
+                    validated_record_count += 1
                     event_id = cleaned["event_id"]
 
                     if event_id in seen_event_ids:
@@ -192,7 +194,7 @@ class PipelineService:
             pipeline_run.end_time = end_time
             pipeline_run.duration_seconds = duration_sec
             pipeline_run.total_input_records = total_input_count
-            pipeline_run.valid_records = len(valid_records)
+            pipeline_run.valid_records = validated_record_count
             pipeline_run.newly_inserted_records = newly_inserted_count
             pipeline_run.rejected_records = rejected_count
             pipeline_run.duplicate_records = total_duplicates
@@ -234,7 +236,7 @@ class PipelineService:
                 "reconciliation": {
                     "total_input_records": total_input_count,
                     "newly_inserted_records": newly_inserted_count,
-                    "valid_records": len(valid_records),
+                    "valid_records": validated_record_count,
                     "rejected_records": rejected_count,
                     "previously_skipped_records": previously_skipped_records,
                     "intra_batch_duplicates": intra_batch_duplicates,

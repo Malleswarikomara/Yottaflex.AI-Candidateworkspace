@@ -532,3 +532,33 @@ def test_csv_multiline_crlf_raw_record():
         assert "\r\n" in rej.raw_record
     finally:
         db.close()
+
+
+def test_valid_records_counts_all_validated_before_duplicate_screening():
+    """Verify that valid_records represents all records that passed validation before duplicate screening."""
+    ts = "2026-11-14T10:00:00Z"
+    unique_tag = uuid.uuid4().hex[:6]
+    # 4 records in total:
+    # 2 identical records (1 original + 1 intra-batch duplicate)
+    # 1 distinct valid record
+    # 1 corrupt record (negative latency)
+    csv_payload = f"""event_id,timestamp,severity,service,message,response_ms
+EVT_DUP_{unique_tag},{ts},INFO,auth,Duplicate message,100
+EVT_DUP_{unique_tag},{ts},INFO,auth,Duplicate message,100
+EVT_OK_{unique_tag},{ts},INFO,auth,Unique valid message,150
+EVT_BAD_{unique_tag},{ts},INFO,auth,Bad latency record,-500
+"""
+    res = PipelineService.process_log_file(csv_payload, "valid_count_test.csv")
+    recon = res["reconciliation"]
+    # Total input: 4 records
+    assert recon["total_input_records"] == 4
+    # Valid records (passed validation): 3 records (EVT_DUP, EVT_DUP, EVT_OK)
+    assert recon["valid_records"] == 3
+    # Newly inserted: 2 records (EVT_DUP first instance + EVT_OK)
+    assert recon["newly_inserted_records"] == 2
+    # Rejected records: 2 records (1 duplicate + 1 negative latency)
+    assert recon["rejected_records"] == 2
+    assert recon["intra_batch_duplicates"] == 1
+    # Conservation law holds: 4 == 2 (inserted) + 2 (rejected) + 0 (skipped)
+    assert recon["accounted_for"] == 4
+    assert recon["is_reconciled"] is True
