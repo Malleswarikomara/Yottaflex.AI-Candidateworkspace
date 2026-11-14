@@ -7,8 +7,8 @@ from typing import Optional, Dict, Any, List
 backend_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(backend_dir))
 
-from sqlalchemy import func, desc, case
-from sqlalchemy.orm import Session
+from sqlalchemy import func, desc, case, create_engine
+from sqlalchemy.orm import Session, sessionmaker
 from app.database.connection import SessionLocal, DATABASE_URL
 from app.models.models import PipelineRun, ApplicationLog, RejectedLog, LogMetric
 from app.services.metrics import calculate_percentile
@@ -17,7 +17,13 @@ from app.services.metrics import calculate_percentile
 def run_reconciliation(report_path: Optional[Path] = None, db: Optional[Session] = None) -> List[Dict[str, Any]]:
     should_close = False
     if db is None:
-        db = SessionLocal()
+        clean_db = backend_dir.parent / "data" / "benchmark_clean.db"
+        if "DATABASE_URL" not in os.environ and clean_db.exists():
+            clean_engine = create_engine(f"sqlite:///{clean_db}")
+            CleanSession = sessionmaker(autocommit=False, autoflush=False, bind=clean_engine)
+            db = CleanSession()
+        else:
+            db = SessionLocal()
         should_close = True
 
     try:
@@ -26,12 +32,13 @@ def run_reconciliation(report_path: Optional[Path] = None, db: Optional[Session]
         print("=" * 70)
 
         # Detect actual database engine
-        if "benchmark_clean.db" in str(DATABASE_URL):
+        active_url = str(db.bind.url) if db and db.bind else str(DATABASE_URL)
+        if "benchmark_clean.db" in active_url:
             db_engine_desc = "SQLite 3 with WAL Mode (`data/benchmark_clean.db`) [Production Target: PostgreSQL 14+]"
-        elif str(DATABASE_URL).startswith("sqlite"):
-            db_engine_desc = f"SQLite 3 (`{DATABASE_URL}`) [Production Target: PostgreSQL 14+]"
+        elif active_url.startswith("sqlite"):
+            db_engine_desc = f"SQLite 3 (`{active_url}`) [Production Target: PostgreSQL 14+]"
         else:
-            db_engine_desc = f"PostgreSQL (`{DATABASE_URL}`)"
+            db_engine_desc = f"PostgreSQL (`{active_url}`)"
 
         # 1. Pipeline Runs Audit
         runs = db.query(PipelineRun).order_by(desc(PipelineRun.start_time)).all()
@@ -106,6 +113,10 @@ def run_reconciliation(report_path: Optional[Path] = None, db: Optional[Session]
         warn_c = sev_counts.get("WARNING", 0)
         err_c = sev_counts.get("ERROR", 0)
         crit_c = sev_counts.get("CRITICAL", 0)
+        info_pct = (info_c / total_logs * 100.0) if total_logs > 0 else 0.0
+        warn_pct = (warn_c / total_logs * 100.0) if total_logs > 0 else 0.0
+        err_pct = (err_c / total_logs * 100.0) if total_logs > 0 else 0.0
+        crit_pct = (crit_c / total_logs * 100.0) if total_logs > 0 else 0.0
         global_sev_err_rate = round(((err_c + crit_c) / total_logs * 100.0), 2) if total_logs > 0 else 0.0
 
         # HTTP status breakdown
@@ -144,6 +155,12 @@ def run_reconciliation(report_path: Optional[Path] = None, db: Optional[Session]
             max_lat = round(latencies[-1], 2)
         else:
             avg_lat = p50_lat = p95_lat = p99_lat = max_lat = None
+
+        avg_lat_str = f"{avg_lat} ms" if avg_lat is not None else "N/A"
+        p50_lat_str = f"{p50_lat} ms" if p50_lat is not None else "N/A"
+        p95_lat_str = f"{p95_lat} ms" if p95_lat is not None else "N/A"
+        p99_lat_str = f"{p99_lat} ms" if p99_lat is not None else "N/A"
+        max_lat_str = f"{max_lat} ms" if max_lat is not None else "N/A"
 
         # Rejection Types breakdown (MALFORMED, VALIDATION_ERROR, DUPLICATE, SCHEMA_ERROR)
         types_grouped = (
@@ -219,6 +236,14 @@ def run_reconciliation(report_path: Optional[Path] = None, db: Optional[Session]
 > **Single Run Summary:**
 > - Processed **{r0_rej:,} quarantined rejected records**, of which **{r0_dupes:,}** were intra-batch duplicates. Total valid records in `application_logs`: **{total_logs:,}**.
 """
+        elif num_runs == 0:
+            quarantine_desc = f"{total_rejected:,} (0 recorded runs)"
+            rejection_types_header = "### Rejection Types Breakdown (No Runs Recorded)"
+            rejection_reasons_header = "### Detailed Rejection Reasons Breakdown (No Runs Recorded)"
+            cumulative_note = """
+> [!NOTE]
+> **No Runs Recorded:** The database currently contains zero pipeline execution runs.
+"""
         else:
             quarantine_desc = f"{total_rejected:,} (Cumulative across {num_runs} recorded runs)"
             rejection_types_header = f"### Rejection Types Breakdown (Cumulative across {num_runs} Recorded Runs)"
@@ -251,13 +276,16 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
 | Run ID | Source File | Format | Status | Total Input | Newly Inserted | Quarantined Rejects | Intra-Batch Dupes | Skipped (Rerun) | Accounted Sum | Reconciled? | Duration |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 """)
-            for r in run_rows:
-                status_icon = "SUCCESS" if r["is_reconciled"] else "FAIL"
-                f.write(
-                    f"| `{r['run_id']}` | `{r['source_file']}` | {r['format']} | `{r['status']}` | "
-                    f"{r['total_input']:,} | {r['newly_inserted']:,} | {r['rejected']:,} | {r['duplicates']:,} | "
-                    f"{r['previously_skipped']:,} | {r['accounted']:,} | **{status_icon}** | {r['duration_sec']}s |\n"
-                )
+            if not run_rows:
+                f.write("| *None* | *No runs recorded* | N/A | `N/A` | 0 | 0 | 0 | 0 | 0 | 0 | **N/A** | 0.0s |\n")
+            else:
+                for r in run_rows:
+                    status_icon = "SUCCESS" if r["is_reconciled"] else "FAIL"
+                    f.write(
+                        f"| `{r['run_id']}` | `{r['source_file']}` | {r['format']} | `{r['status']}` | "
+                        f"{r['total_input']:,} | {r['newly_inserted']:,} | {r['rejected']:,} | {r['duplicates']:,} | "
+                        f"{r['previously_skipped']:,} | {r['accounted']:,} | **{status_icon}** | {r['duration_sec']}s |\n"
+                    )
 
             f.write(f"""
 ---
@@ -267,10 +295,10 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
 | Metric Category | Target Layer (`application_logs`) | Quarantine Layer (`rejected_logs` Table Total) |
 | :--- | :--- | :--- |
 | **Total Stored Records** | **{total_logs:,} (Deduplicated Canonical Records)** | **{quarantine_desc}** |
-| **INFO Logs** | {info_c:,} ({(info_c/total_logs*100):.1f}%) | N/A |
-| **WARNING Logs** | {warn_c:,} ({(warn_c/total_logs*100):.1f}%) | N/A |
-| **ERROR Logs** | {err_c:,} ({(err_c/total_logs*100):.1f}%) | N/A |
-| **CRITICAL Logs** | {crit_c:,} ({(crit_c/total_logs*100):.1f}%) | N/A |
+| **INFO Logs** | {info_c:,} ({info_pct:.1f}%) | N/A |
+| **WARNING Logs** | {warn_c:,} ({warn_pct:.1f}%) | N/A |
+| **ERROR Logs** | {err_c:,} ({err_pct:.1f}%) | N/A |
+| **CRITICAL Logs** | {crit_c:,} ({crit_pct:.1f}%) | N/A |
 | **Severity-based Error Rate** | **{global_sev_err_rate}%** (`(ERROR+CRITICAL) / Total * 100`) | N/A |
 | **HTTP Request Count** | **{http_requests_count:,}** | N/A |
 | **HTTP Failure Count (>=500)** | **{http_failures_count:,}** | N/A |
@@ -280,11 +308,11 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
 | **Total Cumulative Latency** | **{total_lat_ms:,.2f} ms** | N/A |
 
 ### Latency Percentiles (API Requests)
-- **Average Latency:** `{avg_lat} ms`
-- **Median (P50):** `{p50_lat} ms`
-- **95th Percentile (P95):** `{p95_lat} ms`
-- **99th Percentile (P99):** `{p99_lat} ms`
-- **Maximum Latency:** `{max_lat} ms`
+- **Average Latency:** `{avg_lat_str}`
+- **Median (P50):** `{p50_lat_str}`
+- **95th Percentile (P95):** `{p95_lat_str}`
+- **99th Percentile (P99):** `{p99_lat_str}`
+- **Maximum Latency:** `{max_lat_str}`
 
 ---
 
@@ -296,36 +324,45 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
 | Run ID | MALFORMED | SCHEMA_ERROR | VALIDATION_ERROR | DUPLICATE | Total Rejections |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 """)
-            for r in run_rows:
-                tb = r.get("type_breakdown", {})
-                f.write(
-                    f"| `{r['run_id']}` | {tb.get('MALFORMED', 0):,} | {tb.get('SCHEMA_ERROR', 0):,} | "
-                    f"{tb.get('VALIDATION_ERROR', 0):,} | {tb.get('DUPLICATE', 0):,} | **{r['rejected']:,}** |\n"
-                )
+            if not run_rows:
+                f.write("| *None* | 0 | 0 | 0 | 0 | **0** |\n")
+            else:
+                for r in run_rows:
+                    tb = r.get("type_breakdown", {})
+                    f.write(
+                        f"| `{r['run_id']}` | {tb.get('MALFORMED', 0):,} | {tb.get('SCHEMA_ERROR', 0):,} | "
+                        f"{tb.get('VALIDATION_ERROR', 0):,} | {tb.get('DUPLICATE', 0):,} | **{r['rejected']:,}** |\n"
+                    )
 
             f.write(f"""
 {rejection_types_header}
 | Reject Type | Total Quarantined Count | % of Rejections | Business Handling |
 | :--- | :--- | :--- | :--- |
 """)
-            for t_name, cnt in types_grouped:
-                pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
-                handling = {
-                    "MALFORMED": "Syntax or serialization errors",
-                    "SCHEMA_ERROR": "Missing required fields or incompatible schema",
-                    "VALIDATION_ERROR": "Invalid field values or domain constraints",
-                    "DUPLICATE": "Intra-batch duplicate event IDs",
-                }.get(t_name, "Data quality violation")
-                f.write(f"| `{t_name or 'UNKNOWN'}` | **{cnt:,}** | {pct:.1f}% | {handling} |\n")
+            if not types_grouped:
+                f.write("| *None* | **0** | 0.0% | No quarantined records |\n")
+            else:
+                for t_name, cnt in types_grouped:
+                    pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
+                    handling = {
+                        "MALFORMED": "Syntax or serialization errors",
+                        "SCHEMA_ERROR": "Missing required fields or incompatible schema",
+                        "VALIDATION_ERROR": "Invalid field values or domain constraints",
+                        "DUPLICATE": "Intra-batch duplicate event IDs",
+                    }.get(t_name, "Data quality violation")
+                    f.write(f"| `{t_name or 'UNKNOWN'}` | **{cnt:,}** | {pct:.1f}% | {handling} |\n")
 
             f.write(f"""
 {rejection_reasons_header}
 | Rejection Reason | Cumulative Count | % of Rejections |
 | :--- | :--- | :--- |
 """)
-            for reason, cnt in reasons_grouped:
-                pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
-                f.write(f"| {reason} | **{cnt:,}** | {pct:.1f}% |\n")
+            if not reasons_grouped:
+                f.write("| *None* | **0** | 0.0% |\n")
+            else:
+                for reason, cnt in reasons_grouped:
+                    pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
+                    f.write(f"| {reason} | **{cnt:,}** | {pct:.1f}% |\n")
 
             f.write(f"""
 ---
@@ -335,19 +372,22 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
 | Service Name | Total Valid Logs | Errors + Critical | Severity Error Rate % | HTTP Requests | HTTP 5xx | HTTP Failure Rate % | Avg Latency | Max Latency |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 """)
-            for svc in service_groups:
-                s_tot = svc.total or 0
-                s_err = svc.errors or 0
-                s_sev_rate = round((s_err / s_tot * 100.0), 2) if s_tot > 0 else 0.0
-                s_http_tot = svc.http_reqs or 0
-                s_http_fail = svc.http_fails or 0
-                s_http_rate = round((s_http_fail / s_http_tot * 100.0), 2) if s_http_tot > 0 else 0.0
-                s_avg = round(float(svc.avg_lat), 2) if svc.avg_lat is not None else "N/A"
-                s_max = round(float(svc.max_lat), 2) if svc.max_lat is not None else "N/A"
-                f.write(
-                    f"| `{svc.service}` | {s_tot:,} | {s_err:,} | **{s_sev_rate}%** | "
-                    f"{s_http_tot:,} | {s_http_fail:,} | **{s_http_rate}%** | {s_avg} ms | {s_max} ms |\n"
-                )
+            if not service_groups:
+                f.write("| *None* | 0 | 0 | **0.0%** | 0 | 0 | **0.0%** | N/A | N/A |\n")
+            else:
+                for svc in service_groups:
+                    s_tot = svc.total or 0
+                    s_err = svc.errors or 0
+                    s_sev_rate = round((s_err / s_tot * 100.0), 2) if s_tot > 0 else 0.0
+                    s_http_tot = svc.http_reqs or 0
+                    s_http_fail = svc.http_fails or 0
+                    s_http_rate = round((s_http_fail / s_http_tot * 100.0), 2) if s_http_tot > 0 else 0.0
+                    s_avg = round(float(svc.avg_lat), 2) if svc.avg_lat is not None else "N/A"
+                    s_max = round(float(svc.max_lat), 2) if svc.max_lat is not None else "N/A"
+                    f.write(
+                        f"| `{svc.service}` | {s_tot:,} | {s_err:,} | **{s_sev_rate}%** | "
+                        f"{s_http_tot:,} | {s_http_fail:,} | **{s_http_rate}%** | {s_avg} ms | {s_max} ms |\n"
+                    )
 
             f.write(f"""
 ---

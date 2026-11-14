@@ -839,3 +839,53 @@ EVT_R2_DUP_{tag2},2026-11-14T10:05:00Z,INFO,auth,Third duplicate {tag2},100
         assert "### Per-Run Rejection Breakdown" in content
     finally:
         db.close()
+
+
+def test_reconciliation_empty_database(tmp_path):
+    """
+    Verify that run_reconciliation executes cleanly on an empty database
+    (0 pipeline runs, 0 application logs, 0 rejected logs) without ZeroDivisionError or crash.
+    """
+    from reconciliation import run_reconciliation
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from app.database.connection import Base
+
+    # Create fresh empty in-memory SQLite database
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(bind=engine)
+    TestingSession = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    db = TestingSession()
+
+    try:
+        report_file = tmp_path / "test_empty_reconciliation_report.md"
+        run_rows = run_reconciliation(report_path=report_file, db=db)
+
+        # 1. Zero runs returned
+        assert run_rows == []
+
+        # 2. Report file successfully generated
+        assert report_file.exists()
+        content = report_file.read_text(encoding="utf-8")
+
+        # 3. Assert header reflects no runs recorded
+        assert "NO RUNS RECORDED" in content
+
+        # 4. Assert zero percentage rates are safely computed without ZeroDivisionError
+        assert "| **Total Stored Records** | **0 (Deduplicated Canonical Records)**" in content
+        assert "| **Severity-based Error Rate** | **0.0%**" in content
+        assert "| **HTTP Failure Rate** | **0.0%**" in content
+        assert "- **Average Latency:** `N/A`" in content
+
+        # 5. Tables display empty placeholders cleanly
+        assert "| *None* | *No runs recorded*" in content
+        assert "| *None* | 0 | 0 | 0 | 0 | **0** |" in content
+        assert "No quarantined records" in content
+    finally:
+        db.close()
+

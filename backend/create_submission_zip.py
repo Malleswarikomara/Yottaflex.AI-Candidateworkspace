@@ -13,7 +13,6 @@ include_files = [
     "README.md",
     "architecture_design.md",
     "benchmark_report.md",
-    "reconciliation_report.md",
     "requirements.txt",
     "pytest.ini",
     ".env.example",
