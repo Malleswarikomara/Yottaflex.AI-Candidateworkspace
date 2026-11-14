@@ -217,3 +217,79 @@ def test_route_run_sample_datasets():
             assert res2["reconciliation"]["previously_skipped_records"] == res1["reconciliation"]["newly_inserted_records"]
         finally:
             db.close()
+
+
+def test_http_sample_endpoints_integration():
+    """Real HTTP integration tests using FastAPI TestClient and isolated database."""
+    from fastapi.testclient import TestClient
+    from app.main import app
+    from app.database.connection import get_db
+
+    samples = [
+        "sample_logs.csv",
+        "sample_logs.json",
+        "sample_logs.log",
+        "quick_starter.json",
+    ]
+
+    for s in samples:
+        # 1. Create fresh temporary SQLite database for each sample
+        engine = create_engine(
+            "sqlite://",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+
+        @event.listens_for(engine, "connect")
+        def enable_fk(conn, rec):
+            c = conn.cursor()
+            c.execute("PRAGMA foreign_keys=ON")
+            c.close()
+
+        Base.metadata.create_all(bind=engine)
+        TestingSession = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+        def override_get_db():
+            db = TestingSession()
+            try:
+                yield db
+            finally:
+                db.close()
+
+        # 2. Override get_db dependency
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            with TestClient(app) as client:
+                # 3. Call sample endpoint using HTTP POST
+                res1 = client.post(f"/api/pipeline/run-sample?sample_name={s}")
+                # 4. Verify HTTP 200 and a valid run_id
+                assert res1.status_code == 200
+                d1 = res1.json()
+                run_id1 = d1.get("run_id")
+                assert run_id1 is not None
+                r1 = d1.get("reconciliation", {})
+                assert r1.get("is_reconciled") is True
+                newly_inserted = r1.get("newly_inserted_records", 0)
+                assert newly_inserted > 0
+                assert r1.get("previously_skipped_records") == 0
+
+                # 5. Verify inserted records using the logs API
+                logs_res = client.get(f"/api/logs?run_id={run_id1}&limit=5")
+                assert logs_res.status_code == 200
+                ld = logs_res.json()
+                assert ld.get("total_records") == newly_inserted
+                assert len(ld.get("items", [])) > 0
+
+                # 6. Run the same sample again
+                res2 = client.post(f"/api/pipeline/run-sample?sample_name={s}")
+                assert res2.status_code == 200
+                d2 = res2.json()
+                r2 = d2.get("reconciliation", {})
+                # 7. Verify zero newly inserted duplicates and correct skipped counts
+                assert r2.get("is_reconciled") is True
+                assert r2.get("newly_inserted_records") == 0
+                assert r2.get("previously_skipped_records") == newly_inserted
+        finally:
+            # 8. Restore the dependency override after testing
+            app.dependency_overrides.clear()

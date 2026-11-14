@@ -26,7 +26,13 @@ def read_record(reader: csv.reader, raw_lines: List[str]) -> Tuple[Optional[List
     except StopIteration:
         return None, None
     end_line = reader.line_num
-    raw_record = "\n".join(raw_lines[start_line:end_line])
+    raw_record = "".join(raw_lines[start_line:end_line])
+    # Remove only the final record terminator.
+    # Preserve embedded newlines inside quoted fields.
+    if raw_record.endswith("\r\n"):
+        raw_record = raw_record[:-2]
+    elif raw_record.endswith("\n") or raw_record.endswith("\r"):
+        raw_record = raw_record[:-1]
     return row, raw_record
 
 
@@ -47,7 +53,7 @@ class CsvLogParser(BaseLogParser):
         content = content.removeprefix("\ufeff")
         stream = io.StringIO(content, newline="")
         reader = csv.reader(stream)
-        raw_lines = content.splitlines()
+        raw_lines = content.splitlines(keepends=True)
 
         results: List[ParsedRecordResult] = []
 

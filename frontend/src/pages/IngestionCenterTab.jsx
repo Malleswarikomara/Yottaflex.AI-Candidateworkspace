@@ -303,25 +303,32 @@ export default function IngestionCenterTab({ onPipelineSuccess }) {
             <span className="text-xs font-semibold text-slate-400 uppercase font-mono tracking-wider">
               Source-to-Target Conservation Law:
             </span>
-            <div className="flex items-center space-x-6 text-xs font-mono pt-1">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-mono pt-1">
               <div>
                 <span className="text-slate-500 block">Input Records</span>
                 <span className="text-slate-200 font-bold text-base">
-                  {result.reconciliation.total_input_records.toLocaleString()}
+                  {(result.reconciliation.total_input_records || 0).toLocaleString()}
                 </span>
               </div>
               <span className="text-slate-600 font-bold text-lg">=</span>
               <div>
-                <span className="text-slate-500 block">Target Inserted</span>
+                <span className="text-slate-500 block">Newly Inserted</span>
                 <span className="text-emerald-400 font-bold text-base">
-                  {result.reconciliation.valid_records.toLocaleString()}
+                  {(result.reconciliation.newly_inserted_records || 0).toLocaleString()}
                 </span>
               </div>
               <span className="text-slate-600 font-bold text-lg">+</span>
               <div>
-                <span className="text-slate-500 block">Quarantined</span>
+                <span className="text-slate-500 block">Rejected</span>
                 <span className="text-rose-400 font-bold text-base">
-                  {result.reconciliation.rejected_records.toLocaleString()}
+                  {(result.reconciliation.rejected_records || 0).toLocaleString()}
+                </span>
+              </div>
+              <span className="text-slate-600 font-bold text-lg">+</span>
+              <div>
+                <span className="text-slate-500 block">Previously Skipped</span>
+                <span className="text-sky-400 font-bold text-base">
+                  {(result.reconciliation.previously_skipped_records || 0).toLocaleString()}
                 </span>
               </div>
               <div className="ml-auto px-3 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-bold">
@@ -351,9 +358,9 @@ export default function IngestionCenterTab({ onPipelineSuccess }) {
               </span>
             </div>
             <div className="bg-slate-950 p-3 rounded border border-slate-800">
-              <span className="text-slate-500 block">DB Dupes Skipped</span>
+              <span className="text-slate-500 block">Previously Skipped</span>
               <span className="text-slate-300 font-bold text-sm">
-                {result.reconciliation.db_duplicates_skipped}
+                {result.reconciliation.previously_skipped_records || 0}
               </span>
             </div>
           </div>

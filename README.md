@@ -225,7 +225,7 @@ cd c:\CandidateWorkspace
 $env:PYTHONPATH = "backend"
 pytest -v
 ```
-**Result:** **43/43 automated unit and integration tests passing.**
+**Result:** **45/45 automated unit and integration tests passing.**
 
 ### 4. Running in Visual Studio Code (Pre-configured IDE Integration)
 The workspace includes native `.vscode/` configurations for zero-friction local execution:
@@ -254,7 +254,7 @@ Pre-generated datasets are committed in [`data/sample/`](data/sample):
 - `data/sample/quick_starter.json` — 100 quick-review starter records
 
 ### 2. Dual-Phase 100,000 Records Benchmark
-The ingestion engine executes in-memory batch parsing and schema validation with chunked bulk database inserts (`bulk_insert_mappings`, chunk size 900). Execute the dual-phase benchmark script (Fresh Ingestion vs. Idempotent Rerun):
+The ingestion engine performs in-memory batch parsing and validation, chunked existing-event-ID lookups using batches of 900, and bulk database insertion. The current implementation does not provide bounded-memory chunked ingestion or continuous streaming. Execute the dual-phase benchmark script (Fresh Ingestion vs. Idempotent Rerun):
 ```powershell
 python backend/benchmark_ab.py
 ```

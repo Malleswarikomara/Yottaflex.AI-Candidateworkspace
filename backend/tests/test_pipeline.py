@@ -513,3 +513,22 @@ def test_csv_multiline_raw_record():
     assert parsed[0].data["message"] == "Payment\nprocessing failed"
     expected_raw = '2026-11-14T10:00:00Z,INFO,"Payment\nprocessing failed"'
     assert parsed[0].raw_record == expected_raw
+
+
+def test_csv_multiline_crlf_raw_record():
+    """Ensure multiline CSV record with Windows CRLF preserves exact embedded CRLF in raw_record."""
+    bad_content = (
+        "timestamp,severity,message,response_ms\r\n"
+        '2026-11-14T10:00:00Z,ERROR,"First line\r\n'
+        'Second line",-50\r\n'
+    )
+    res = PipelineService.process_log_file(bad_content, "crlf_rej.csv")
+    assert res["reconciliation"]["rejected_records"] == 1
+    db = SessionLocal()
+    try:
+        rej = db.query(RejectedLog).filter(RejectedLog.run_id == res["run_id"]).first()
+        assert rej is not None
+        assert "First line\r\nSecond line" in rej.raw_record
+        assert "\r\n" in rej.raw_record
+    finally:
+        db.close()

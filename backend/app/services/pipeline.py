@@ -234,7 +234,7 @@ class PipelineService:
                 "reconciliation": {
                     "total_input_records": total_input_count,
                     "newly_inserted_records": newly_inserted_count,
-                    "valid_records": newly_inserted_count,
+                    "valid_records": len(valid_records),
                     "rejected_records": rejected_count,
                     "previously_skipped_records": previously_skipped_records,
                     "intra_batch_duplicates": intra_batch_duplicates,
