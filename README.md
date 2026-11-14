@@ -8,6 +8,9 @@ A production-grade, three-tier Data Engineering platform designed to ingest, par
 
 Modern distributed applications generate millions of log events across multiple microservices. These logs arrive in heterogeneous, noisy formats—some as structured CSV/JSON payloads, others as unstructured text lines with timestamps, error levels, and key-value attributes.
 
+> [!NOTE]
+> **Scope & Processing Mode:** The platform implements chunked batch file ingestion (supporting starter samples of 100 records up to configurable high-volume runs of 100,000+ records) with strict idempotent rerun semantics, rather than continuous unbounded streaming.
+
 ### Core Objectives
 1. **Automated Multi-Format Ingestion:** Ingest CSV, JSON (Array & Lines), and semi-structured text logs with automatic format sniffing.
 2. **Standardization & Normalization:**
@@ -16,13 +19,13 @@ Modern distributed applications generate millions of log events across multiple 
    - Generate deterministic, collision-resistant event IDs (SHA-256) when missing.
 3. **Data Quality & Zero Silent Loss:**
    - Strict schema validation detecting missing fields, unparseable timestamps, and negative response times.
-   - Corrupt or duplicate records are quarantined in `rejected_logs` with the exact raw line and descriptive failure reason.
-4. **Idempotent Ingestion:**
-   - Primary key constraints and batch deduplication ensure identical reruns never create duplicate target rows.
-5. **Operational Analytics:**
-   - Compute global and per-service error rates:
-     $$\text{Error Rate } \% = \frac{\text{Count}(\text{ERROR}) + \text{Count}(\text{CRITICAL})}{\text{Total Valid Logs}} \times 100$$
-   - Calculate response time distributions: Average, Min, Max, Median (P50), P95, and P99 latency percentiles.
+   - Corrupt or duplicate records are quarantined in `rejected_logs` with the exact raw line, descriptive failure reason, and structured `reject_type` (`MALFORMED`, `VALIDATION_ERROR`, `DUPLICATE`, `SCHEMA_ERROR`).
+4. **Idempotent Ingestion & Rerun Accounting:**
+   - Primary key constraints on `event_id` and batch deduplication ensure identical reruns never create duplicate target rows.
+   - Previously processed records are accounted for as `previously_skipped_records`.
+5. **Decoupled Operational Analytics:**
+   - Compute independent severity-based error rates and HTTP failure rates.
+   - Calculate response time distributions: Average, Min, Max, Median (P50), P95, and P99 latency percentiles using NIST linear interpolation.
 
 ---
 
@@ -36,8 +39,8 @@ flowchart TD
         Overview["Overview Dashboard\n(KPI Cards, Severity Donut, Service Error Bars)"]
         Explorer["Log Explorer\n(Live Search, Multi-Filter, Pagination, JSON Modal)"]
         Perf["Performance Analytics\n(Latency Histogram, P95 SLAs, Tail Latency)"]
-        Quality["Data Quality & Quarantine\n(Reconciliation Proof, Rejection Reason Bars)"]
-        Monitoring["Pipeline Monitoring\n(Execution Trace, Run Details, Audit Metrics)"]
+        Quality["Data Quality & Quarantine\n(Reconciliation Proof, Rejection Taxonomy & Reasons)"]
+        Monitoring["Pipeline Monitoring\n(Execution Trace, Retries, Failure Reason, Audit Metrics)"]
         IngestionHub["Ingestion Hub\n(File Upload Dropzone, Synthetic Generator, Sample Presets)"]
     end
 
@@ -46,13 +49,13 @@ flowchart TD
         Sniffer["Format Sniffer & Parser Factory"]
         Parsers["CSV / JSON / Text Semi-Structured Parsers"]
         Validator["Schema Validation, Normalization & Intra-batch Deduplication"]
-        MetricsEngine["Statistical Metrics Engine (NIST Linear Interpolation Percentiles)"]
+        MetricsEngine["Statistical Metrics Engine (Severity Error % vs HTTP Fail %)"]
     end
 
     subgraph Tier3["Tier 3: Persistence Layer (PostgreSQL / SQLite)"]
-        RunsTable[("pipeline_runs\n(Batch Execution History & Audit Status)")]
+        RunsTable[("pipeline_runs\n(Batch Execution History, Retries & Audit Status)")]
         TargetTable[("application_logs\n(Valid Cleaned Canonical Logs)")]
-        QuarantineTable[("rejected_logs\n(Quarantined Raw Records & Error Reasons)")]
+        QuarantineTable[("rejected_logs\n(Quarantined Raw Records & reject_type)")]
         MetricsTable[("log_metrics\n(Pre-aggregated Service Performance Rollups)")]
     end
 
@@ -80,7 +83,7 @@ The relational model supports high-throughput batch ingestion, query filtering, 
 
 ### Table 1: `pipeline_runs`
 - **Grain:** One record per batch ingestion execution (upload or synthetic run).
-- **Primary Key:** `run_id` (VARCHAR 64, e.g. `RUN_20261114_085150_B24CDD`).
+- **Primary Key:** `run_id` (VARCHAR 64, e.g. `RUN_20261114_091211_E07F62`).
 - **Columns:**
   | Column Name | Data Type | Nullable | Description |
   | :--- | :--- | :--- | :--- |
@@ -92,24 +95,28 @@ The relational model supports high-throughput batch ingestion, query filtering, 
   | `end_time` | TIMESTAMP WITH TZ | YES | Pipeline completion timestamp in UTC |
   | `duration_seconds` | FLOAT | YES | Total wall-clock processing time in seconds |
   | `total_input_records` | INTEGER | NO | Total raw rows/objects parsed from input |
-  | `valid_records` | INTEGER | NO | Total cleaned rows successfully loaded to `application_logs` |
+  | `valid_records` | INTEGER | NO | Total valid cleaned rows (backwards compatibility) |
+  | `newly_inserted_records` | INTEGER | NO | Rows newly stored into `application_logs` in this run |
   | `rejected_records` | INTEGER | NO | Total rows quarantined in `rejected_logs` |
-  | `duplicate_records` | INTEGER | NO | Count of intra-batch and cross-batch duplicates |
+  | `previously_skipped_records` | INTEGER | NO | Previously stored records skipped during reruns |
+  | `duplicate_records` | INTEGER | NO | Count of intra-batch duplicates and cross-batch skips |
+  | `retry_count` | INTEGER | NO | Number of retry attempts executed |
+  | `failure_reason` | TEXT | YES | Diagnostic message if processing failed |
   | `error_message` | TEXT | YES | Diagnostic stack trace if run failed |
 
 ### Table 2: `application_logs`
 - **Grain:** One record per unique, validated application event.
 - **Primary Key:** `event_id` (VARCHAR 64).
-- **Columns:**
+- **Columns & Constraints:**
   | Column Name | Data Type | Nullable | Description |
   | :--- | :--- | :--- | :--- |
   | `event_id` | VARCHAR(64) | NO | Unique event identifier (provided or deterministic SHA-256) |
-  | `run_id` | VARCHAR(64) | YES | Foreign Key referencing `pipeline_runs.run_id` |
+  | `run_id` | VARCHAR(64) | NO | Foreign Key referencing `pipeline_runs.run_id` |
   | `timestamp` | TIMESTAMP WITH TZ | NO | Normalized UTC event timestamp (Indexed) |
-  | `severity` | VARCHAR(16) | NO | Normalized level: `INFO`, `WARNING`, `ERROR`, `CRITICAL` (Indexed) |
+  | `severity` | VARCHAR(20) | NO | Canonical level: `INFO`, `WARNING`, `ERROR`, `CRITICAL` (CHECK constraint) |
   | `service` | VARCHAR(64) | NO | Microservice name (e.g. `auth`, `payment`, `api-gateway`) (Indexed) |
   | `message` | TEXT | NO | Cleaned log message payload |
-  | `response_ms` | FLOAT | YES | API response time in milliseconds (CHECK `>= 0`, Indexed) |
+  | `response_ms` | FLOAT | YES | API response time (CHECK: `response_ms IS NULL OR response_ms >= 0`) |
   | `user_id` | VARCHAR(64) | YES | Extracted user identifier (e.g. `USR_101`) |
   | `endpoint` | VARCHAR(255) | YES | HTTP path / API route (e.g. `/api/v1/charge`) |
   | `http_status` | INTEGER | YES | HTTP response status code (e.g. `200`, `500`) |
@@ -126,6 +133,7 @@ The relational model supports high-throughput batch ingestion, query filtering, 
   | `reject_id` | INTEGER | NO | Sequential auto-increment ID |
   | `run_id` | VARCHAR(64) | YES | Foreign Key referencing `pipeline_runs.run_id` |
   | `source_file` | VARCHAR(255) | NO | Originating source file |
+  | `reject_type` | VARCHAR(50) | NO | Taxonomy: `MALFORMED`, `VALIDATION_ERROR`, `DUPLICATE`, `SCHEMA_ERROR` |
   | `raw_record` | TEXT | NO | Unparsed raw record string (exact unadulterated input) |
   | `reason` | VARCHAR(255) | NO | Rejection explanation (e.g. `Negative response time: -350ms`) |
   | `rejected_at` | TIMESTAMP WITH TZ | NO | Quarantine timestamp in UTC |
@@ -142,7 +150,10 @@ The relational model supports high-throughput batch ingestion, query filtering, 
   | `total_logs` | INTEGER | NO | Count of valid logs for service in batch |
   | `error_count` | INTEGER | NO | Count of `ERROR` logs |
   | `critical_count` | INTEGER | NO | Count of `CRITICAL` logs |
-  | `error_rate_pct` | FLOAT | NO | Error rate percentage: `(error + critical) / total * 100` |
+  | `error_rate_pct` | FLOAT | NO | Severity-based error rate: `(error + critical) / total * 100` |
+  | `http_request_count` | INTEGER | NO | Count of logs with HTTP status |
+  | `http_failure_count` | INTEGER | NO | Count of HTTP status >= 500 |
+  | `http_failure_rate_pct` | FLOAT | NO | HTTP failure rate: `(HTTP >= 500) / http_request_count * 100` |
   | `avg_latency_ms` | FLOAT | YES | Mean response time (ms) |
   | `p50_latency_ms` | FLOAT | YES | Median (50th percentile) latency (ms) |
   | `p95_latency_ms` | FLOAT | YES | 95th percentile latency (ms) |
@@ -153,21 +164,26 @@ The relational model supports high-throughput batch ingestion, query filtering, 
 
 ## 4. Key Business Calculations & Formulas
 
-### 1. Error Rate Percentage
-Defined strictly across valid application logs:
-$$\text{Error Rate } \% = \frac{\text{Count}(\text{ERROR}) + \text{Count}(\text{CRITICAL})}{\text{Total Valid Logs}} \times 100$$
-*Business Rule:* Warnings are indicators of elevated resource usage or non-critical state, but are **not** counted as failed requests.
+### 1. Severity-Based Error Rate Percentage
+Defined strictly across valid application logs based on log severity level:
+$$\text{Severity Error Rate } \% = \frac{\text{Count}(\text{ERROR}) + \text{Count}(\text{CRITICAL})}{\text{Total Valid Logs}} \times 100$$
+*Business Rule:* Warnings are indicators of elevated resource usage or non-critical state, but are **not** counted as errors.
 
-### 2. Tail Latency & Percentiles
+### 2. HTTP Failure Rate Percentage
+Defined strictly for HTTP requests with status codes $\ge 500$:
+$$\text{HTTP Failure Rate } \% = \frac{\text{Count}(\text{HTTP Status} \ge 500)}{\text{Total Logs with HTTP Status}} \times 100$$
+*Business Rule:* Severity errors and HTTP failures are tracked separately to distinguish application internal exceptions from gateway/transport failures.
+
+### 3. Source-to-Target Conservation Law (Reconciliation)
+Every batch must satisfy:
+$$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined Rejections} + \text{Previously Skipped Records}$$
+If $\text{Input} \neq \text{Inserted} + \text{Rejected} + \text{PreviouslySkipped}$, the batch is flagged as an audit failure.
+
+### 4. Tail Latency & Percentiles
 Calculated using linear interpolation over sorted request latencies ($N$ samples):
 - **Average:** $\frac{1}{N} \sum_{i=1}^N \text{latency}_i$
 - **Rank $k$:** $k = (N - 1) \times \left(\frac{P}{100}\right)$
 - **Interpolated Value:** $V = \text{val}_{\lfloor k \rfloor} + (k - \lfloor k \rfloor) \times (\text{val}_{\lceil k \rceil} - \text{val}_{\lfloor k \rfloor})$
-
-### 3. Conservation Law Audit (Reconciliation)
-Every batch must satisfy:
-$$\text{Total Input Records} = \text{Valid Stored Records} + \text{Quarantined Records}$$
-If $\text{Input} \neq \text{Valid} + \text{Quarantined}$, the batch is flagged as an audit failure.
 
 ---
 
@@ -209,7 +225,7 @@ cd c:\CandidateWorkspace
 $env:PYTHONPATH = "backend"
 pytest -v
 ```
-**Result:** 25/25 automated unit and integration tests passing.
+**Result:** **33/33 automated unit and integration tests passing.**
 
 ---
 
@@ -233,23 +249,38 @@ python backend/benchmark.py
 ======================================================================
 APPLICATION LOG ANALYTICS - PERFORMANCE BENCHMARK: 100,000 RECORDS
 ======================================================================
-[1/4] Generating 100,000 synthetic application log records...
-      Generation completed in 0.92s (108,909 records/sec)
+
+[1/4] Generating 100,000 synthetic application log records (seed=42)...
+      Generation completed in 0.66s (152,608 records/sec)
+
 [2/4] Serializing records to CSV payload...
-      Payload size: 10.96 MB serialized in 0.55s
+      Payload size: 11.01 MB serialized in 0.56s
+
 [3/4] Ingesting and processing payload through core pipeline...
-      Pipeline completed in 15.97 seconds
-      Throughput: 6,262 records/sec
+      Pipeline completed in 8.26 seconds
+      Throughput: 12,113 records/sec
       Status: PARTIAL_SUCCESS
-[4/4] Audit Reconciliation Verification:
-      Total Input Records:   100,000
-      Valid Cleaned Records: 97,001
-      Quarantined Rejects:   2,999
-      Accounted For Sum:     100,000
-      Intra-batch Dupes:     541
-      Reconciliation Match:  VERIFIED (100% Accounted)
-      Error Rate %:          10.05%
-      Average Latency:       500.07 ms
+
+[4/4] Comprehensive Audit & Performance Metrics (17 Required KPI Fields):
+  1.  Total input records:               100,000
+  2.  Newly inserted records:            982
+  3.  Rejected records:                  1,515
+  4.  Intra-batch duplicates:            258
+  5.  Previously stored records skipped: 97,503
+  6.  Valid records with latency:        88,745
+  7.  Null latency records:              9,740
+  8.  Total latency in milliseconds:     58,445,828.23 ms
+  9.  Average latency:                   658.58 ms
+  10. P50 latency:                       133.04 ms
+  11. P95 latency:                       2722.56 ms
+  12. P99 latency:                       4834.68 ms
+  13. ERROR count:                       7,984
+  14. CRITICAL count:                    2,004
+  15. HTTP failure count:                9,001
+  16. Severity error rate:               10.14%
+  17. HTTP failure rate:                 10.17%
+----------------------------------------------------------------------
+      Reconciliation Check:              Input (100,000) == Inserted (982) + Rejects (1,515) + PreviouslySkipped (97,503) -> PASSED (100% Accounted)
 ======================================================================
 ```
 
@@ -264,21 +295,29 @@ Generates [`reports/reconciliation_report.md`](file:///c:/CandidateWorkspace/rep
 
 ## 7. Edge Cases & Negative Scenarios Tested
 
-All required negative scenarios are verified by automated tests in `backend/tests/`:
+All required negative scenarios are verified by 33 automated tests in `backend/tests/`:
 
 | Test Name | Edge Case Covered | System Behavior |
 | :--- | :--- | :--- |
 | `test_empty_input_handling` | Empty file / zero bytes payload | Handled gracefully; 0 input, 0 rejects, marked `SUCCESS` |
-| `test_malformed_json_syntax` | Corrupt unclosed JSON string | Quarantined to `rejected_logs` with syntax error message |
-| `test_malformed_csv_column_mismatch` | Row with extra/missing commas | Quarantined to `rejected_logs` with column mismatch error |
-| `test_intra_batch_duplicates_quarantined` | Duplicate `event_id` in same batch | First instance loaded; duplicate instance quarantined |
-| `test_idempotent_rerun_behavior` | Exact same file re-ingested | Existing IDs detected; 0 duplicates created; safely skipped |
-| `test_missing_timestamp_rejected` | Record missing timestamp | Quarantined; `Missing required field: timestamp` |
-| `test_missing_severity_rejected` | Record missing severity | Quarantined; `Missing required field: severity` |
-| `test_missing_message_rejected` | Record with empty message | Quarantined; `Missing required field: message` |
-| `test_domain_edge_case_negative_latency` | Negative latency (e.g. `-50ms`) | Quarantined; `Negative response time: -50.0ms` |
+| `test_malformed_json_syntax` | Corrupt unclosed JSON string | Quarantined to `rejected_logs` (`reject_type = MALFORMED`) |
+| `test_malformed_csv_column_mismatch` | Row with extra/missing commas | Quarantined to `rejected_logs` (`reject_type = MALFORMED`) |
+| `test_intra_batch_duplicates_quarantined` | Duplicate `event_id` in same batch | First instance loaded; duplicate quarantined (`reject_type = DUPLICATE`) |
+| `test_idempotent_rerun_behavior` | Exact same file re-ingested | Existing IDs detected; 0 duplicates created; recorded in `previously_skipped_records` |
+| `test_missing_timestamp_rejected` | Record missing timestamp | Quarantined; `Missing required field: timestamp` (`reject_type = VALIDATION_ERROR`) |
+| `test_missing_severity_rejected` | Record missing severity | Quarantined; `Missing required field: severity` (`reject_type = VALIDATION_ERROR`) |
+| `test_missing_message_rejected` | Record with empty message | Quarantined; `Missing required field: message` (`reject_type = VALIDATION_ERROR`) |
+| `test_domain_edge_case_negative_latency` | Negative latency (e.g. `-50ms`) | Quarantined; `Negative response time: -50.0ms` (`reject_type = VALIDATION_ERROR`) |
 | `test_timestamp_normalizations` | ISO, space-delimited, epoch ms | All parsed into normalized UTC ISO-8601 datetimes |
 | `test_severity_case_and_alias_normalization` | `[warning]`, `err`, `fatal` | Canonicalized to `WARNING`, `ERROR`, `CRITICAL` |
+| `test_unexpected_schema_change` | Incompatible or missing columns | Safely rejected with `reject_type = SCHEMA_ERROR` |
+| `test_partial_failure_and_retry` | Retry after partial ingestion | Retry safely skips already inserted rows without double-insertion |
+| `test_late_arriving_logs` | Event timestamps from 30 days ago | Older event timestamps accepted and normalized |
+| `test_out_of_order_timestamps` | Unsorted events in batch stream | Timestamps processed and indexed correctly regardless of arrival order |
+| `test_invalid_reference_key` | Bad foreign key / invalid run_id | Handled safely by database constraint without corrupting pipeline state |
+| `test_null_optional_fields` | Null `response_ms`, `user_id`, etc. | Optional fields accept nulls without rejecting valid records |
+| `test_http_failure_rate` | INFO log with HTTP 503 code | Counted in HTTP failure rate without inflating severity error rate |
+| `test_rerun_reconciliation` | Re-ingestion conservation law | Verified: $\text{Input} = \text{Newly Inserted} + \text{Rejected} + \text{Previously Skipped}$ |
 
 ---
 

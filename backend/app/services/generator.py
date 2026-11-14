@@ -3,13 +3,14 @@ import json
 import csv
 import io
 from datetime import datetime, timedelta, timezone
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional
 
 
 class SyntheticLogGenerator:
     """
     Generates realistic application log datasets with configurable volume,
     controlled error rates, and intentional edge-case anomalies for quality testing.
+    Supports fixed random seeds for deterministic reproducibility.
     """
 
     SERVICES = ["auth", "payment", "api-gateway", "order-service", "inventory", "notification"]
@@ -63,26 +64,36 @@ class SyntheticLogGenerator:
         self,
         base_time: datetime,
         idx: int,
-        inject_anomaly: bool = False
+        inject_anomaly: bool = False,
+        scenario: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Generate a single raw record dict."""
+        """Generate a single raw record dict with optional anomaly or specific scenario injection."""
         service = self.rng.choice(self.SERVICES)
         endpoint = self.rng.choice(self.ENDPOINTS[service])
         user_id = f"USR_{self.rng.randint(100, 999)}"
         event_id = f"EVT_{idx:06d}"
+        
+        # Default timestamp progression with natural variance
         timestamp = base_time + timedelta(seconds=self.rng.randint(0, 3600))
 
-        if inject_anomaly:
-            anomaly_type = self.rng.choice([
+        # Explicit scenario override or randomized anomaly selection
+        if scenario or inject_anomaly:
+            chosen = scenario or self.rng.choice([
                 "missing_timestamp",
                 "invalid_timestamp",
                 "invalid_severity",
                 "missing_message",
+                "missing_service",
                 "negative_latency",
                 "duplicate_id",
+                "boundary_zero_latency",
+                "boundary_high_latency",
+                "late_arriving",
+                "out_of_order",
+                "null_optional_fields"
             ])
 
-            if anomaly_type == "missing_timestamp":
+            if chosen == "missing_timestamp":
                 return {
                     "event_id": event_id,
                     "timestamp": None,
@@ -92,7 +103,7 @@ class SyntheticLogGenerator:
                     "response_ms": 120,
                     "user_id": user_id,
                 }
-            elif anomaly_type == "invalid_timestamp":
+            elif chosen == "invalid_timestamp":
                 return {
                     "event_id": event_id,
                     "timestamp": "2026-99-99 99:99:99",
@@ -102,7 +113,7 @@ class SyntheticLogGenerator:
                     "response_ms": 500,
                     "user_id": user_id,
                 }
-            elif anomaly_type == "invalid_severity":
+            elif chosen == "invalid_severity":
                 return {
                     "event_id": event_id,
                     "timestamp": timestamp.isoformat(),
@@ -112,7 +123,7 @@ class SyntheticLogGenerator:
                     "response_ms": 200,
                     "user_id": user_id,
                 }
-            elif anomaly_type == "missing_message":
+            elif chosen == "missing_message":
                 return {
                     "event_id": event_id,
                     "timestamp": timestamp.isoformat(),
@@ -122,29 +133,108 @@ class SyntheticLogGenerator:
                     "response_ms": 150,
                     "user_id": user_id,
                 }
-            elif anomaly_type == "negative_latency":
+            elif chosen == "missing_service":
+                return {
+                    "event_id": event_id,
+                    "timestamp": timestamp.isoformat(),
+                    "severity": "INFO",
+                    "service": "",
+                    "message": "Record missing required service entity",
+                    "response_ms": 110,
+                    "user_id": user_id,
+                }
+            elif chosen == "negative_latency":
                 return {
                     "event_id": event_id,
                     "timestamp": timestamp.isoformat(),
                     "severity": "INFO",
                     "service": service,
                     "message": "Invalid negative latency record",
-                    "response_ms": -350,
+                    "response_ms": -350.0,
                     "user_id": user_id,
                 }
-            elif anomaly_type == "duplicate_id":
+            elif chosen == "duplicate_id":
+                # Injects deliberate duplicate keys to verify quarantine / skip handling
+                dupe_idx = self.rng.randint(1, 5)
                 return {
-                    "event_id": "EVT_DUPLICATE_KEY",
+                    "event_id": f"EVT_DUPLICATE_KEY_{dupe_idx:03d}",
                     "timestamp": timestamp.isoformat(),
                     "severity": "WARNING",
                     "service": service,
-                    "message": "Duplicate key injection test",
+                    "message": f"Duplicate key injection test {dupe_idx}",
                     "response_ms": 300,
                     "user_id": user_id,
                 }
+            elif chosen == "boundary_zero_latency":
+                # Valid boundary value: exactly 0.0 ms
+                return {
+                    "event_id": event_id,
+                    "timestamp": timestamp.isoformat(),
+                    "severity": "INFO",
+                    "service": service,
+                    "message": "Sub-millisecond instant cached response",
+                    "response_ms": 0.0,
+                    "user_id": user_id,
+                    "endpoint": endpoint,
+                    "http_status": 200,
+                }
+            elif chosen == "boundary_high_latency":
+                # Valid boundary value: high SLA breach latency (60,000 ms)
+                return {
+                    "event_id": event_id,
+                    "timestamp": timestamp.isoformat(),
+                    "severity": "ERROR",
+                    "service": service,
+                    "message": "Upstream gateway gateway timeout at boundary SLA limit",
+                    "response_ms": 60000.0,
+                    "user_id": user_id,
+                    "endpoint": endpoint,
+                    "http_status": 504,
+                }
+            elif chosen == "late_arriving":
+                # Valid late-arriving log from 14 days ago
+                late_time = base_time - timedelta(days=14, seconds=self.rng.randint(0, 3600))
+                return {
+                    "event_id": event_id,
+                    "timestamp": late_time.isoformat(),
+                    "severity": "INFO",
+                    "service": service,
+                    "message": "Late arriving event from mobile client cache",
+                    "response_ms": 140.0,
+                    "user_id": user_id,
+                    "endpoint": endpoint,
+                    "http_status": 200,
+                }
+            elif chosen == "out_of_order":
+                # Valid event with timestamp jittered backwards by 2 hours
+                jittered_time = base_time - timedelta(minutes=self.rng.randint(10, 120))
+                return {
+                    "event_id": event_id,
+                    "timestamp": jittered_time.isoformat(),
+                    "severity": "WARNING",
+                    "service": service,
+                    "message": "Out-of-order event arriving after buffer reordering",
+                    "response_ms": 220.0,
+                    "user_id": user_id,
+                    "endpoint": endpoint,
+                    "http_status": 200,
+                }
+            elif chosen == "null_optional_fields":
+                # Valid event where optional fields (response_ms, user_id, endpoint, http_status) are null
+                return {
+                    "event_id": event_id,
+                    "timestamp": timestamp.isoformat(),
+                    "severity": "INFO",
+                    "service": service,
+                    "message": "Background cron worker execution with null optional fields",
+                    "response_ms": None,
+                    "user_id": None,
+                    "endpoint": None,
+                    "http_status": None,
+                }
 
         # Normal record generation
-        # Distribution: 75% INFO, 15% WARNING, 8% ERROR, 2% CRITICAL (Overall Error Rate = 10%)
+        # Distribution: 75% INFO, 15% WARNING, 8% ERROR, 2% CRITICAL (Severity Error Rate ~ 10%)
         roll = self.rng.random()
         if roll < 0.75:
             severity = "INFO"
@@ -167,10 +257,10 @@ class SyntheticLogGenerator:
             response_ms = round(self.rng.normalvariate(4500, 1000), 2)
             http_status = 503
 
-        # Clamp response_ms >= 10ms
+        # Clamp response_ms >= 10ms for regular traffic
         response_ms = max(10.0, response_ms)
 
-        # Occasional non-request log without latency
+        # Occasional non-request log without latency (10% of records)
         if self.rng.random() < 0.10:
             response_ms = None
             endpoint = None
@@ -193,7 +283,11 @@ class SyntheticLogGenerator:
         count: int = 1000,
         anomaly_ratio: float = 0.03
     ) -> List[Dict[str, Any]]:
-        """Generate a list of raw record dictionaries."""
+        """
+        Generate a list of raw record dictionaries.
+        Includes normal data, boundary values, duplicate records, missing values,
+        late or out-of-order data, and deliberately labelled invalid records.
+        """
         base_time = datetime(2026, 11, 14, 10, 0, 0, tzinfo=timezone.utc)
         records = []
         anomaly_count = int(count * anomaly_ratio)
@@ -203,7 +297,7 @@ class SyntheticLogGenerator:
             rec = self.generate_record(base_time, i, inject_anomaly=is_anomaly)
             records.append(rec)
 
-        # Shuffle to intersperse anomalies naturally
+        # Shuffle to intersperse anomalies and out-of-order timestamps naturally
         self.rng.shuffle(records)
         return records
 
@@ -254,3 +348,12 @@ class SyntheticLogGenerator:
 
             lines.append(" ".join(parts))
         return "\n".join(lines)
+
+
+def generate_logs(count: int = 100000, seed: int = 42, anomaly_ratio: float = 0.03) -> List[Dict[str, Any]]:
+    """
+    Convenience function to generate reproducible log datasets with a fixed seed.
+    Supports small starter batches (e.g., 100) or high-volume scalability runs (100,000+).
+    """
+    gen = SyntheticLogGenerator(seed=seed)
+    return gen.generate_dataset(count=count, anomaly_ratio=anomaly_ratio)

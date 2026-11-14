@@ -26,7 +26,7 @@ def compute_metrics_for_records(
     run_id: str
 ) -> List[Dict[str, Any]]:
     """
-    Compute error rate and latency statistics overall and per-service.
+    Compute severity-based error rate, HTTP failure rate, and latency statistics per-service.
     Returns a list of metric dictionaries ready for LogMetric model insertion.
     """
     if not valid_records:
@@ -48,10 +48,26 @@ def compute_metrics_for_records(
         error_count = sum(1 for r in records if r["severity"] == "ERROR")
         critical_count = sum(1 for r in records if r["severity"] == "CRITICAL")
 
-        failed_requests = sum(1 for r in records if r.get("is_failure"))
-        error_rate_pct = ((error_count + critical_count) / total_logs * 100.0) if total_logs > 0 else 0.0
+        # 1. Severity-based Error Rate
+        sev_error_total = error_count + critical_count
+        error_rate_pct = (sev_error_total / total_logs * 100.0) if total_logs > 0 else 0.0
 
-        # Latencies
+        # 2. HTTP Request & Failure Rate (HTTP Status >= 500)
+        http_requests = [r for r in records if r.get("http_status") is not None]
+        http_request_count = len(http_requests)
+        http_failures = [
+            r for r in http_requests
+            if isinstance(r.get("http_status"), int) and r["http_status"] >= 500
+        ]
+        http_failure_count = len(http_failures)
+        http_failure_rate_pct = (
+            (http_failure_count / http_request_count * 100.0)
+            if http_request_count > 0 else 0.0
+        )
+
+        failed_requests = sum(1 for r in records if r.get("is_failure"))
+
+        # 3. Latencies
         latencies = [
             float(r["response_ms"])
             for r in records
@@ -78,6 +94,9 @@ def compute_metrics_for_records(
             "critical_count": critical_count,
             "failed_requests": failed_requests,
             "error_rate_pct": round(error_rate_pct, 2),
+            "http_request_count": http_request_count,
+            "http_failure_count": http_failure_count,
+            "http_failure_rate_pct": round(http_failure_rate_pct, 2),
             "avg_latency_ms": avg_lat,
             "p50_latency_ms": p50_lat,
             "p95_latency_ms": p95_lat,

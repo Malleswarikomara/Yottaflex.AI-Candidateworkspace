@@ -34,7 +34,7 @@ class TextLogParser(BaseLogParser):
     Extracts timestamp, severity, bracketed services, message, and key-value pairs.
     """
 
-    def parse_line(self, line: str) -> ParsedRecordResult:
+    def parse_line(self, line: str) -> Optional[ParsedRecordResult]:
         raw_line = line.strip()
         if not raw_line:
             return None
@@ -52,7 +52,8 @@ class TextLogParser(BaseLogParser):
             else:
                 return ParsedRecordResult(
                     raw_record=raw_line,
-                    parse_error="Failed to extract timestamp from log line"
+                    parse_error="Failed to extract timestamp from log line",
+                    reject_type="MALFORMED"
                 )
 
         # 2. Extract Severity
@@ -74,12 +75,14 @@ class TextLogParser(BaseLogParser):
                 else:
                     return ParsedRecordResult(
                         raw_record=raw_line,
-                        parse_error="Failed to extract severity level from log line"
+                        parse_error="Failed to extract severity level from log line",
+                        reject_type="MALFORMED"
                     )
             else:
                 return ParsedRecordResult(
                     raw_record=raw_line,
-                    parse_error="Failed to extract severity level from log line"
+                    parse_error="Failed to extract severity level from log line",
+                    reject_type="MALFORMED"
                 )
 
         # Check for bracketed service tag after severity if not found earlier: e.g. INFO [payment]
@@ -104,7 +107,6 @@ class TextLogParser(BaseLogParser):
 
         # 4. Clean message: remove explicit key=value pairs from the natural text message
         cleaned_msg = KV_REGEX.sub("", remainder).strip()
-        # Clean stray brackets or hyphens
         cleaned_msg = re.sub(r"\s+", " ", cleaned_msg)
         cleaned_msg = cleaned_msg.strip(" -:;,")
         if not cleaned_msg:

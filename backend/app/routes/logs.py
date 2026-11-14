@@ -23,6 +23,8 @@ def list_logs(
     user_id: Optional[str] = None,
     is_failure: Optional[bool] = None,
     min_response_ms: Optional[float] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
     run_id: Optional[str] = None,
     sort_by: str = "timestamp",
     sort_dir: str = "desc",
@@ -52,6 +54,22 @@ def list_logs(
 
     if run_id and isinstance(run_id, str):
         query = query.filter(ApplicationLog.run_id == run_id)
+
+    if start_date and isinstance(start_date, str):
+        try:
+            from dateutil import parser as dt_p
+            s_dt = dt_p.parse(start_date)
+            query = query.filter(ApplicationLog.timestamp >= s_dt)
+        except Exception:
+            pass
+
+    if end_date and isinstance(end_date, str):
+        try:
+            from dateutil import parser as dt_p
+            e_dt = dt_p.parse(end_date)
+            query = query.filter(ApplicationLog.timestamp <= e_dt)
+        except Exception:
+            pass
 
     if search and isinstance(search, str):
         search_pattern = f"%{search}%"
@@ -95,8 +113,9 @@ def get_log_stats(
     Returns core operational KPIs:
     - Total log records
     - Breakdown by severity (INFO, WARNING, ERROR, CRITICAL)
-    - Error rate % = ((ERROR + CRITICAL) / Total) * 100
-    - Total failed requests
+    - Severity Error rate % = ((ERROR + CRITICAL) / Total) * 100
+    - HTTP Failure rate % = (HTTP status >= 500 / Total HTTP requests) * 100
+    - Total failed requests (severity error or HTTP failure)
     - Latency statistics (Average, Min, Max, P50, P95, P99)
     - Breakdown by service
     """
@@ -111,6 +130,9 @@ def get_log_stats(
         return {
             "total_logs": 0,
             "error_rate_pct": 0.0,
+            "http_request_count": 0,
+            "http_failure_count": 0,
+            "http_failure_rate_pct": 0.0,
             "failed_requests": 0,
             "severity_counts": {"INFO": 0, "WARNING": 0, "ERROR": 0, "CRITICAL": 0},
             "latency": {
@@ -138,10 +160,19 @@ def get_log_stats(
     err_c = sev_counts.get("ERROR", 0)
     crit_c = sev_counts.get("CRITICAL", 0)
 
-    # Error rate = (ERROR + CRITICAL) / Total * 100
+    # Severity-based error rate = (ERROR + CRITICAL) / Total * 100
     error_rate_pct = round(((err_c + crit_c) / total_logs) * 100.0, 2)
 
-    # Failed requests
+    # HTTP request counts & failures
+    http_req_query = query.filter(ApplicationLog.http_status.isnot(None))
+    http_request_count = http_req_query.count()
+    http_failure_count = http_req_query.filter(ApplicationLog.http_status >= 500).count()
+    http_failure_rate_pct = (
+        round((http_failure_count / http_request_count * 100.0), 2)
+        if http_request_count > 0 else 0.0
+    )
+
+    # Total combined failed requests
     failed_c = query.filter(ApplicationLog.is_failure == True).count()
 
     # Latencies array for percentiles
@@ -172,6 +203,8 @@ def get_log_stats(
             func.sum(case((ApplicationLog.severity == 'WARNING', 1), else_=0)).label("warn"),
             func.sum(case((ApplicationLog.severity == 'ERROR', 1), else_=0)).label("error"),
             func.sum(case((ApplicationLog.severity == 'CRITICAL', 1), else_=0)).label("crit"),
+            func.sum(case((ApplicationLog.http_status.isnot(None), 1), else_=0)).label("http_total"),
+            func.sum(case((ApplicationLog.http_status >= 500, 1), else_=0)).label("http_fail"),
             func.avg(ApplicationLog.response_ms).label("avg_resp"),
             func.max(ApplicationLog.response_ms).label("max_resp"),
         )
@@ -185,6 +218,9 @@ def get_log_stats(
         s_tot = s.total or 0
         s_err = (s.error or 0) + (s.crit or 0)
         s_rate = round((s_err / s_tot * 100.0), 2) if s_tot > 0 else 0.0
+        h_tot = s.http_total or 0
+        h_fail = s.http_fail or 0
+        h_rate = round((h_fail / h_tot * 100.0), 2) if h_tot > 0 else 0.0
         services_summary.append({
             "service": s.service,
             "total_logs": s_tot,
@@ -193,6 +229,9 @@ def get_log_stats(
             "error_count": s.error or 0,
             "critical_count": s.crit or 0,
             "error_rate_pct": s_rate,
+            "http_request_count": h_tot,
+            "http_failure_count": h_fail,
+            "http_failure_rate_pct": h_rate,
             "avg_latency_ms": round(float(s.avg_resp), 2) if s.avg_resp is not None else None,
             "max_latency_ms": round(float(s.max_resp), 2) if s.max_resp is not None else None,
         })
@@ -200,6 +239,9 @@ def get_log_stats(
     return {
         "total_logs": total_logs,
         "error_rate_pct": error_rate_pct,
+        "http_request_count": http_request_count,
+        "http_failure_count": http_failure_count,
+        "http_failure_rate_pct": http_failure_rate_pct,
         "failed_requests": failed_c,
         "severity_counts": {
             "INFO": info_c,

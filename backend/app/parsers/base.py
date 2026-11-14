@@ -1,13 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
 
 
 class ParsedRecordResult:
     """Container for parsed output of a single raw log entry."""
-    def __init__(self, raw_record: str, data: Dict[str, Any] = None, parse_error: str = None):
+    def __init__(
+        self,
+        raw_record: str,
+        data: Optional[Dict[str, Any]] = None,
+        parse_error: Optional[str] = None,
+        reject_type: str = "MALFORMED"
+    ):
         self.raw_record = raw_record
         self.data = data or {}
         self.parse_error = parse_error
+        self.reject_type = reject_type
 
     @property
     def is_parse_ok(self) -> bool:

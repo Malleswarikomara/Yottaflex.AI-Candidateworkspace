@@ -8,7 +8,8 @@ from sqlalchemy import (
     DateTime,
     Text,
     ForeignKey,
-    Index
+    Index,
+    CheckConstraint
 )
 from sqlalchemy.orm import relationship
 from app.database.connection import Base
@@ -30,8 +31,12 @@ class PipelineRun(Base):
     duration_seconds = Column(Float, nullable=True)
     total_input_records = Column(Integer, nullable=False, default=0)
     valid_records = Column(Integer, nullable=False, default=0)
+    newly_inserted_records = Column(Integer, nullable=False, default=0)
     rejected_records = Column(Integer, nullable=False, default=0)
     duplicate_records = Column(Integer, nullable=False, default=0)
+    previously_skipped_records = Column(Integer, nullable=False, default=0)
+    retry_count = Column(Integer, nullable=False, default=0)
+    failure_reason = Column(Text, nullable=True)
     error_message = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
 
@@ -41,6 +46,8 @@ class PipelineRun(Base):
     metrics = relationship("LogMetric", back_populates="run", cascade="all, delete-orphan")
 
     def to_dict(self):
+        accounted = self.newly_inserted_records + self.rejected_records + self.previously_skipped_records
+        is_reconciled = (accounted == self.total_input_records)
         return {
             "run_id": self.run_id,
             "source_file": self.source_file,
@@ -51,9 +58,14 @@ class PipelineRun(Base):
             "duration_seconds": self.duration_seconds,
             "total_input_records": self.total_input_records,
             "valid_records": self.valid_records,
+            "newly_inserted_records": self.newly_inserted_records,
             "rejected_records": self.rejected_records,
             "duplicate_records": self.duplicate_records,
-            "is_reconciled": (self.valid_records + self.rejected_records) == self.total_input_records,
+            "previously_skipped_records": self.previously_skipped_records,
+            "retry_count": self.retry_count,
+            "accounted_for": accounted,
+            "is_reconciled": is_reconciled,
+            "failure_reason": self.failure_reason or self.error_message,
             "error_message": self.error_message,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
@@ -63,9 +75,9 @@ class ApplicationLog(Base):
     __tablename__ = "application_logs"
 
     event_id = Column(String(64), primary_key=True)
-    run_id = Column(String(64), ForeignKey("pipeline_runs.run_id", ondelete="SET NULL"), nullable=True, index=True)
+    run_id = Column(String(64), ForeignKey("pipeline_runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
-    severity = Column(String(16), nullable=False, index=True)
+    severity = Column(String(20), nullable=False, index=True)
     service = Column(String(64), nullable=False, index=True)
     message = Column(Text, nullable=False)
     response_ms = Column(Float, nullable=True, index=True)
@@ -79,6 +91,8 @@ class ApplicationLog(Base):
     run = relationship("PipelineRun", back_populates="logs")
 
     __table_args__ = (
+        CheckConstraint("severity IN ('INFO', 'WARNING', 'ERROR', 'CRITICAL')", name="check_valid_severity"),
+        CheckConstraint("response_ms IS NULL OR response_ms >= 0", name="check_positive_response_ms"),
         Index("idx_app_logs_composite", "service", "severity", "timestamp"),
     )
 
@@ -104,10 +118,11 @@ class RejectedLog(Base):
     __tablename__ = "rejected_logs"
 
     reject_id = Column(Integer, primary_key=True, autoincrement=True)
-    run_id = Column(String(64), ForeignKey("pipeline_runs.run_id", ondelete="CASCADE"), nullable=True, index=True)
+    run_id = Column(String(64), ForeignKey("pipeline_runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
     source_file = Column(String(255), nullable=False)
     raw_record = Column(Text, nullable=False)
     reason = Column(String(255), nullable=False, index=True)
+    reject_type = Column(String(50), nullable=False, default="VALIDATION_ERROR", index=True)
     rejected_at = Column(DateTime(timezone=True), default=utc_now, index=True)
 
     run = relationship("PipelineRun", back_populates="rejected_logs")
@@ -119,6 +134,7 @@ class RejectedLog(Base):
             "source_file": self.source_file,
             "raw_record": self.raw_record,
             "reason": self.reason,
+            "reject_type": self.reject_type,
             "rejected_at": self.rejected_at.isoformat() if self.rejected_at else None,
         }
 
@@ -127,7 +143,7 @@ class LogMetric(Base):
     __tablename__ = "log_metrics"
 
     metric_id = Column(Integer, primary_key=True, autoincrement=True)
-    run_id = Column(String(64), ForeignKey("pipeline_runs.run_id", ondelete="CASCADE"), nullable=True, index=True)
+    run_id = Column(String(64), ForeignKey("pipeline_runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
     service = Column(String(64), nullable=False, index=True)
     total_logs = Column(Integer, nullable=False, default=0)
     info_count = Column(Integer, nullable=False, default=0)
@@ -136,6 +152,9 @@ class LogMetric(Base):
     critical_count = Column(Integer, nullable=False, default=0)
     failed_requests = Column(Integer, nullable=False, default=0)
     error_rate_pct = Column(Float, nullable=False, default=0.0)
+    http_request_count = Column(Integer, nullable=False, default=0)
+    http_failure_count = Column(Integer, nullable=False, default=0)
+    http_failure_rate_pct = Column(Float, nullable=False, default=0.0)
     avg_latency_ms = Column(Float, nullable=True)
     p50_latency_ms = Column(Float, nullable=True)
     p95_latency_ms = Column(Float, nullable=True)
@@ -157,6 +176,9 @@ class LogMetric(Base):
             "critical_count": self.critical_count,
             "failed_requests": self.failed_requests,
             "error_rate_pct": round(self.error_rate_pct, 2),
+            "http_request_count": self.http_request_count,
+            "http_failure_count": self.http_failure_count,
+            "http_failure_rate_pct": round(self.http_failure_rate_pct, 2),
             "avg_latency_ms": round(self.avg_latency_ms, 2) if self.avg_latency_ms is not None else None,
             "p50_latency_ms": round(self.p50_latency_ms, 2) if self.p50_latency_ms is not None else None,
             "p95_latency_ms": round(self.p95_latency_ms, 2) if self.p95_latency_ms is not None else None,

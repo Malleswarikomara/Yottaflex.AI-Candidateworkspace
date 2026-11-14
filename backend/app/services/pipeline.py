@@ -11,8 +11,9 @@ from app.parsers.factory import ParserFactory
 from app.validators.normalizers import (
     validate_and_normalize_record,
     LogValidationError,
+    LogSchemaError,
 )
-from app.services.metrics import compute_metrics_for_records
+from app.services.metrics import compute_metrics_for_records, calculate_percentile
 
 
 class PipelineService:
@@ -31,17 +32,18 @@ class PipelineService:
         filename: str,
         run_id: Optional[str] = None,
         db: Optional[Session] = None,
+        retry_count: int = 0,
         batch_size: int = 5000,
     ) -> Dict[str, Any]:
         """
-        Executes the end-to-end ingestion pipeline:
-        1. Initialize Run record
+        Executes end-to-end ingestion pipeline:
+        1. Initialize PipelineRun record
         2. Detect format & parse content
         3. Validate, cleanse, and normalize
-        4. Detect intra-batch duplicates and quarantine invalid records
-        5. Idempotent target publishing to database
-        6. Compute error rate & latency metrics
-        7. Audit reconciliation check
+        4. Detect intra-batch duplicates and quarantine invalid records with reject_type
+        5. Idempotent target publishing to database (track newly inserted vs previously skipped)
+        6. Compute severity error rates, HTTP failure rates, and latency percentiles
+        7. Audit reconciliation check: Input = Newly Inserted + Rejected + Previously Skipped
         """
         should_close_db = False
         if db is None:
@@ -63,8 +65,13 @@ class PipelineService:
             start_time=start_time,
             total_input_records=0,
             valid_records=0,
+            newly_inserted_records=0,
             rejected_records=0,
             duplicate_records=0,
+            previously_skipped_records=0,
+            retry_count=retry_count,
+            failure_reason=None,
+            error_message=None,
         )
         db.add(pipeline_run)
         db.commit()
@@ -87,6 +94,7 @@ class PipelineService:
                         "source_file": filename,
                         "raw_record": res.raw_record[:1000],
                         "reason": res.parse_error or "Parse error",
+                        "reject_type": getattr(res, "reject_type", "MALFORMED"),
                         "rejected_at": datetime.now(timezone.utc),
                     })
                     continue
@@ -102,6 +110,7 @@ class PipelineService:
                             "source_file": filename,
                             "raw_record": res.raw_record[:1000],
                             "reason": f"Duplicate event_id within batch: {event_id}",
+                            "reject_type": "DUPLICATE",
                             "rejected_at": datetime.now(timezone.utc),
                         })
                     else:
@@ -109,23 +118,25 @@ class PipelineService:
                         valid_records.append(cleaned)
 
                 except LogValidationError as e:
+                    reject_type = getattr(e, "reject_type", "VALIDATION_ERROR")
                     rejected_records.append({
                         "run_id": run_id,
                         "source_file": filename,
                         "raw_record": res.raw_record[:1000],
                         "reason": str(e),
+                        "reject_type": reject_type,
                         "rejected_at": datetime.now(timezone.utc),
                     })
 
-            # 4. Target Publishing & Idempotency
-            # Query existing event_ids in DB to prevent unique constraint crash on rerun
-            db_duplicate_count = 0
+            # 4. Target Publishing & Idempotent Deduplication
+            # Differentiate newly inserted vs previously stored records
+            previously_skipped_records = 0
             records_to_insert: List[Dict[str, Any]] = []
 
             if valid_records:
                 incoming_ids = [r["event_id"] for r in valid_records]
-                
-                # Check in chunks to prevent SQLite variable limit
+
+                # Check existing event_ids in database using chunking
                 existing_ids = set()
                 chunk_size = 900
                 for i in range(0, len(incoming_ids), chunk_size):
@@ -136,39 +147,42 @@ class PipelineService:
 
                 for r in valid_records:
                     if r["event_id"] in existing_ids:
-                        db_duplicate_count += 1
-                        # Safe idempotent handling: record already present from previous run
+                        # Existing event already in database from previous run: safe skip
+                        previously_skipped_records += 1
                     else:
                         records_to_insert.append(r)
 
-                # Batch insert into application_logs
+                # Batch insert newly discovered valid records
                 if records_to_insert:
                     db.bulk_insert_mappings(ApplicationLog, records_to_insert)
 
-            # Insert rejected records
+            # Insert quarantined records
             if rejected_records:
                 db.bulk_insert_mappings(RejectedLog, rejected_records)
 
-            # 5. Compute Error Rate & Latency Metrics
+            # 5. Compute Error Rate, HTTP Failure Rate, and Latency Metrics
             metric_entries = compute_metrics_for_records(valid_records, run_id)
             if metric_entries:
                 db.bulk_insert_mappings(LogMetric, metric_entries)
 
-            # 6. Audit Reconciliation
+            # 6. Audit Reconciliation Formula:
+            # Input = Newly Inserted + Rejected + Previously Skipped
+            newly_inserted_count = len(records_to_insert)
+            rejected_count = len(rejected_records)
+            accounted_for = newly_inserted_count + rejected_count + previously_skipped_records
+            is_reconciled = (accounted_for == total_input_count)
+
+            total_duplicates = intra_batch_duplicates + previously_skipped_records
+
             end_time = datetime.now(timezone.utc)
             duration_sec = round((end_time - start_time).total_seconds(), 3)
-            valid_count = len(valid_records)
-            rejected_count = len(rejected_records)
-            total_duplicate_count = intra_batch_duplicates + db_duplicate_count
-
-            is_reconciled = (valid_count + rejected_count) == total_input_count
 
             # Determine final status
             if total_input_count == 0:
                 final_status = "SUCCESS"
-            elif rejected_count == 0 and db_duplicate_count == 0:
+            elif rejected_count == 0 and (newly_inserted_count > 0 or previously_skipped_records > 0):
                 final_status = "SUCCESS"
-            elif valid_count > 0:
+            elif (newly_inserted_count > 0 or previously_skipped_records > 0) and is_reconciled:
                 final_status = "PARTIAL_SUCCESS"
             else:
                 final_status = "FAILED"
@@ -178,18 +192,37 @@ class PipelineService:
             pipeline_run.end_time = end_time
             pipeline_run.duration_seconds = duration_sec
             pipeline_run.total_input_records = total_input_count
-            pipeline_run.valid_records = valid_count
+            pipeline_run.valid_records = len(valid_records)
+            pipeline_run.newly_inserted_records = newly_inserted_count
             pipeline_run.rejected_records = rejected_count
-            pipeline_run.duplicate_records = total_duplicate_count
+            pipeline_run.duplicate_records = total_duplicates
+            pipeline_run.previously_skipped_records = previously_skipped_records
 
             db.commit()
 
-            # Global metrics rollup for summary
-            total_errors = sum(1 for r in valid_records if r["severity"] in ("ERROR", "CRITICAL"))
-            error_rate_pct = round((total_errors / valid_count * 100.0), 2) if valid_count > 0 else 0.0
+            # Global metrics rollup for response summary
+            count_error = sum(1 for r in valid_records if r["severity"] == "ERROR")
+            count_critical = sum(1 for r in valid_records if r["severity"] == "CRITICAL")
+            total_sev_errors = count_error + count_critical
+            sev_error_rate = round((total_sev_errors / len(valid_records) * 100.0), 2) if valid_records else 0.0
 
-            valid_latencies = [r["response_ms"] for r in valid_records if r.get("response_ms") is not None]
-            avg_latency = round(sum(valid_latencies) / len(valid_latencies), 2) if valid_latencies else None
+            http_reqs = [r for r in valid_records if r.get("http_status") is not None]
+            http_fails = [r for r in http_reqs if isinstance(r.get("http_status"), int) and r["http_status"] >= 500]
+            http_failure_rate = round((len(http_fails) / len(http_reqs) * 100.0), 2) if http_reqs else 0.0
+
+            valid_latencies = [float(r["response_ms"]) for r in valid_records if r.get("response_ms") is not None]
+            valid_with_latency_count = len(valid_latencies)
+            null_latency_count = len(valid_records) - valid_with_latency_count
+            total_latency_ms = round(sum(valid_latencies), 2) if valid_latencies else 0.0
+            avg_latency = round(sum(valid_latencies) / valid_with_latency_count, 2) if valid_with_latency_count > 0 else None
+
+            if valid_latencies:
+                valid_latencies.sort()
+                p50_latency = calculate_percentile(valid_latencies, 50)
+                p95_latency = calculate_percentile(valid_latencies, 95)
+                p99_latency = calculate_percentile(valid_latencies, 99)
+            else:
+                p50_latency = p95_latency = p99_latency = None
 
             return {
                 "run_id": run_id,
@@ -197,21 +230,37 @@ class PipelineService:
                 "source_file": filename,
                 "file_format": detected_format,
                 "duration_seconds": duration_sec,
+                "retry_count": retry_count,
                 "reconciliation": {
                     "total_input_records": total_input_count,
-                    "valid_records": valid_count,
+                    "newly_inserted_records": newly_inserted_count,
+                    "valid_records": newly_inserted_count,
                     "rejected_records": rejected_count,
-                    "accounted_for": valid_count + rejected_count,
-                    "is_reconciled": is_reconciled,
+                    "previously_skipped_records": previously_skipped_records,
                     "intra_batch_duplicates": intra_batch_duplicates,
-                    "db_duplicates_skipped": db_duplicate_count,
-                    "newly_inserted_logs": len(records_to_insert),
+                    "duplicate_records": total_duplicates,
+                    "accounted_for": accounted_for,
+                    "is_reconciled": is_reconciled,
                 },
                 "metrics_summary": {
-                    "valid_records": valid_count,
-                    "total_errors": total_errors,
-                    "error_rate_pct": error_rate_pct,
+                    "valid_records": len(valid_records),
+                    "newly_inserted": newly_inserted_count,
+                    "previously_skipped": previously_skipped_records,
+                    "error_count": count_error,
+                    "critical_count": count_critical,
+                    "severity_error_count": total_sev_errors,
+                    "severity_error_rate_pct": sev_error_rate,
+                    "error_rate_pct": sev_error_rate,
+                    "http_request_count": len(http_reqs),
+                    "http_failure_count": len(http_fails),
+                    "http_failure_rate_pct": http_failure_rate,
+                    "valid_records_with_latency": valid_with_latency_count,
+                    "null_latency_records": null_latency_count,
+                    "total_latency_ms": total_latency_ms,
                     "avg_latency_ms": avg_latency,
+                    "p50_latency_ms": p50_latency,
+                    "p95_latency_ms": p95_latency,
+                    "p99_latency_ms": p99_latency,
                 },
             }
 
@@ -221,6 +270,7 @@ class PipelineService:
             pipeline_run.status = "FAILED"
             pipeline_run.end_time = end_time
             pipeline_run.duration_seconds = round((end_time - start_time).total_seconds(), 3)
+            pipeline_run.failure_reason = str(exc)
             pipeline_run.error_message = str(exc)
             db.commit()
             raise exc

@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 
@@ -15,6 +15,7 @@ def list_rejected_logs(
     limit: int = 50,
     run_id: Optional[str] = None,
     reason: Optional[str] = None,
+    reject_type: Optional[str] = None,
     source_file: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
@@ -26,6 +27,9 @@ def list_rejected_logs(
 
     if reason and isinstance(reason, str):
         query = query.filter(RejectedLog.reason.ilike(f"%{reason}%"))
+
+    if reject_type and isinstance(reject_type, str):
+        query = query.filter(RejectedLog.reject_type == reject_type.upper())
 
     if source_file and isinstance(source_file, str):
         query = query.filter(RejectedLog.source_file.ilike(f"%{source_file}%"))
@@ -48,7 +52,7 @@ def get_rejected_stats(
     run_id: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    """Returns frequency distribution of rejection reasons for data quality analytics."""
+    """Returns frequency distribution of rejection reasons and reject types for data quality analytics."""
     query = db.query(RejectedLog)
     if run_id and isinstance(run_id, str):
         query = query.filter(RejectedLog.run_id == run_id)
@@ -56,6 +60,8 @@ def get_rejected_stats(
     total_rejected = query.count()
 
     reason_filter = (RejectedLog.run_id == run_id) if (run_id and isinstance(run_id, str)) else True
+
+    # Rejection Reasons Breakdown
     reason_groups = (
         db.query(RejectedLog.reason, func.count(RejectedLog.reject_id).label("count"))
         .filter(reason_filter)
@@ -64,7 +70,16 @@ def get_rejected_stats(
         .all()
     )
 
-    breakdown = [
+    # Rejection Types Breakdown (MALFORMED, VALIDATION_ERROR, DUPLICATE, SCHEMA_ERROR)
+    type_groups = (
+        db.query(RejectedLog.reject_type, func.count(RejectedLog.reject_id).label("count"))
+        .filter(reason_filter)
+        .group_by(RejectedLog.reject_type)
+        .order_by(desc("count"))
+        .all()
+    )
+
+    reasons_breakdown = [
         {
             "reason": r.reason,
             "count": r.count,
@@ -73,7 +88,17 @@ def get_rejected_stats(
         for r in reason_groups
     ]
 
+    types_breakdown = [
+        {
+            "type": t.reject_type or "VALIDATION_ERROR",
+            "count": t.count,
+            "percentage": round((t.count / total_rejected * 100.0), 1) if total_rejected > 0 else 0.0
+        }
+        for t in type_groups
+    ]
+
     return {
         "total_rejected": total_rejected,
-        "reasons_breakdown": breakdown
+        "reasons_breakdown": reasons_breakdown,
+        "types_breakdown": types_breakdown,
     }

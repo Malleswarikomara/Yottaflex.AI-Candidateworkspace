@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, CheckCircle2, AlertTriangle, XCircle, Clock, Eye, X } from 'lucide-react';
+import { Database, CheckCircle2, AlertTriangle, XCircle, Clock, Eye, X, RotateCcw, AlertOctagon } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function PipelineMonitoringTab({ runs, onRefresh }) {
@@ -62,7 +62,7 @@ export default function PipelineMonitoringTab({ runs, onRefresh }) {
             Pipeline Execution & Observability Audit
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Historical trace of all batch ingestion runs, latency, throughput, and audit reconciliation logs.
+            Historical trace of all batch ingestion runs, latency, throughput, rerun skips, retries, and audit reconciliation logs.
           </p>
         </div>
         <button
@@ -85,51 +85,59 @@ export default function PipelineMonitoringTab({ runs, onRefresh }) {
                 <th className="px-3 py-3">Status</th>
                 <th className="px-3 py-3">Duration</th>
                 <th className="px-3 py-3">Total Input</th>
-                <th className="px-3 py-3">Valid DB</th>
+                <th className="px-3 py-3">Newly Inserted</th>
                 <th className="px-3 py-3">Quarantined</th>
+                <th className="px-3 py-3">Skipped (Rerun)</th>
+                <th className="px-3 py-3">Retries</th>
                 <th className="px-3 py-3">Reconciliation</th>
                 <th className="px-3 py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               {runs && runs.length > 0 ? (
-                runs.map((run) => (
-                  <tr key={run.run_id} className="hover:bg-slate-800/40 transition">
-                    <td className="px-4 py-2.5 font-bold text-indigo-400">{run.run_id}</td>
-                    <td className="px-3 py-2.5 text-slate-200">{run.source_file}</td>
-                    <td className="px-3 py-2.5">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                        {run.file_format}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5">{getStatusBadge(run.status)}</td>
-                    <td className="px-3 py-2.5 text-slate-400">{run.duration_seconds}s</td>
-                    <td className="px-3 py-2.5 font-bold text-slate-200">{run.total_input_records.toLocaleString()}</td>
-                    <td className="px-3 py-2.5 text-emerald-400 font-bold">{run.valid_records.toLocaleString()}</td>
-                    <td className="px-3 py-2.5 text-rose-400 font-bold">{run.rejected_records.toLocaleString()}</td>
-                    <td className="px-3 py-2.5">
-                      {run.is_reconciled ? (
-                        <span className="text-emerald-400 flex items-center space-x-1">
-                          <span>✓ Verified</span>
+                runs.map((run) => {
+                  const inserted = run.newly_inserted_records !== undefined && run.newly_inserted_records !== null ? run.newly_inserted_records : run.valid_records;
+                  const skipped = run.previously_skipped_records || 0;
+                  return (
+                    <tr key={run.run_id} className="hover:bg-slate-800/40 transition">
+                      <td className="px-4 py-2.5 font-bold text-indigo-400">{run.run_id}</td>
+                      <td className="px-3 py-2.5 text-slate-200">{run.source_file}</td>
+                      <td className="px-3 py-2.5">
+                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                          {run.file_format}
                         </span>
-                      ) : (
-                        <span className="text-rose-400 font-bold">✗ Mismatch</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <button
-                        onClick={() => handleInspectRun(run)}
-                        className="p-1 hover:bg-slate-700 text-slate-400 hover:text-indigo-400 rounded transition"
-                        title="Inspect run audit"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-3 py-2.5">{getStatusBadge(run.status)}</td>
+                      <td className="px-3 py-2.5 text-slate-400">{run.duration_seconds}s</td>
+                      <td className="px-3 py-2.5 font-bold text-slate-200">{run.total_input_records.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-emerald-400 font-bold">{inserted.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-rose-400 font-bold">{run.rejected_records.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-sky-400 font-bold">{skipped.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-slate-300">{run.retry_count || 0}</td>
+                      <td className="px-3 py-2.5">
+                        {run.is_reconciled ? (
+                          <span className="text-emerald-400 flex items-center space-x-1">
+                            <span>✓ Verified</span>
+                          </span>
+                        ) : (
+                          <span className="text-rose-400 font-bold">✗ Mismatch</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <button
+                          onClick={() => handleInspectRun(run)}
+                          className="p-1 hover:bg-slate-700 text-slate-400 hover:text-indigo-400 rounded transition"
+                          title="Inspect run audit"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="10" className="text-center py-10 text-slate-500">
+                  <td colSpan="12" className="text-center py-10 text-slate-500">
                     No pipeline runs recorded yet
                   </td>
                 </tr>
@@ -169,25 +177,34 @@ export default function PipelineMonitoringTab({ runs, onRefresh }) {
                   <span className="text-xs font-semibold text-slate-400 uppercase font-mono tracking-wider">
                     Source-to-Target Conservation Law:
                   </span>
-                  <div className="flex items-center space-x-4 text-xs font-mono pt-1">
+                  <div className="flex flex-wrap items-center gap-3 text-xs font-mono pt-1">
                     <div>
-                      <span className="text-slate-500 block">Total Input</span>
+                      <span className="text-slate-500 block text-[10px]">Total Input</span>
                       <span className="text-slate-200 font-bold text-sm">
                         {runDetails.reconciliation.total_input_records.toLocaleString()}
                       </span>
                     </div>
                     <span className="text-slate-600 font-bold text-lg">=</span>
                     <div>
-                      <span className="text-slate-500 block">Cleaned Target</span>
+                      <span className="text-slate-500 block text-[10px]">Newly Inserted</span>
                       <span className="text-emerald-400 font-bold text-sm">
-                        {runDetails.reconciliation.valid_records.toLocaleString()}
+                        {(runDetails.reconciliation.newly_inserted_records !== undefined
+                          ? runDetails.reconciliation.newly_inserted_records
+                          : runDetails.reconciliation.valid_records).toLocaleString()}
                       </span>
                     </div>
                     <span className="text-slate-600 font-bold text-lg">+</span>
                     <div>
-                      <span className="text-slate-500 block">Quarantined</span>
+                      <span className="text-slate-500 block text-[10px]">Quarantined</span>
                       <span className="text-rose-400 font-bold text-sm">
                         {runDetails.reconciliation.rejected_records.toLocaleString()}
+                      </span>
+                    </div>
+                    <span className="text-slate-600 font-bold text-lg">+</span>
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Previously Skipped</span>
+                      <span className="text-sky-400 font-bold text-sm">
+                        {(runDetails.reconciliation.previously_skipped_records || 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="ml-auto px-3 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-bold">
@@ -195,6 +212,17 @@ export default function PipelineMonitoringTab({ runs, onRefresh }) {
                     </div>
                   </div>
                 </div>
+
+                {/* Failure Reason Alert Banner if failed */}
+                {runDetails.run && runDetails.run.failure_reason && (
+                  <div className="bg-rose-950/40 border border-rose-800 rounded-lg p-3 text-xs font-mono text-rose-300 flex items-start space-x-2">
+                    <AlertOctagon className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+                    <div>
+                      <strong className="block font-bold">Failure Reason:</strong>
+                      <span>{runDetails.run.failure_reason}</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Aggregated Service Metrics */}
                 {runDetails.metrics && runDetails.metrics.length > 0 && (
@@ -209,7 +237,9 @@ export default function PipelineMonitoringTab({ runs, onRefresh }) {
                             <th className="px-3 py-2">Service</th>
                             <th className="px-3 py-2">Logs</th>
                             <th className="px-3 py-2">Errors</th>
-                            <th className="px-3 py-2">Error %</th>
+                            <th className="px-3 py-2">Sev Error %</th>
+                            <th className="px-3 py-2">HTTP 5xx</th>
+                            <th className="px-3 py-2">HTTP Fail %</th>
                             <th className="px-3 py-2">Avg Latency</th>
                             <th className="px-3 py-2">P95 Latency</th>
                             <th className="px-3 py-2">Max Latency</th>
@@ -222,6 +252,8 @@ export default function PipelineMonitoringTab({ runs, onRefresh }) {
                               <td className="px-3 py-2 text-slate-400">{m.total_logs}</td>
                               <td className="px-3 py-2 text-rose-400">{m.error_count + m.critical_count}</td>
                               <td className="px-3 py-2 text-amber-400">{m.error_rate_pct}%</td>
+                              <td className="px-3 py-2 text-rose-400">{m.http_failure_count || 0}</td>
+                              <td className="px-3 py-2 text-amber-400">{m.http_failure_rate_pct || 0}%</td>
                               <td className="px-3 py-2 text-slate-300">{m.avg_latency_ms} ms</td>
                               <td className="px-3 py-2 text-indigo-400">{m.p95_latency_ms} ms</td>
                               <td className="px-3 py-2 text-rose-400">{m.max_latency_ms} ms</td>

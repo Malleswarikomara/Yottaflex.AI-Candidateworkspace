@@ -299,10 +299,10 @@
   {
     "event_id": "EVT_000001",
     "timestamp": "2026-11-14T10:50:37+00:00",
-    "severity": "UNKNOWN_SEV_LEVEL",
-    "service": "notification",
-    "message": "Record with non-standard severity",
-    "response_ms": 200,
+    "severity": "INFO",
+    "service": "",
+    "message": "Record missing required service entity",
+    "response_ms": 110,
     "user_id": "USR_125"
   },
   {
@@ -461,11 +461,11 @@
   },
   {
     "event_id": "EVT_000002",
-    "timestamp": null,
-    "severity": "INFO",
+    "timestamp": "2026-99-99 99:99:99",
+    "severity": "ERROR",
     "service": "payment",
-    "message": "Malformed record missing timestamp",
-    "response_ms": 120,
+    "message": "Malformed record with garbage timestamp",
+    "response_ms": 500,
     "user_id": "USR_242"
   },
   {

@@ -7,7 +7,16 @@ from typing import Optional, Tuple, Any, Dict
 
 class LogValidationError(Exception):
     """Custom exception raised when a log record fails validation."""
-    pass
+    def __init__(self, message: str, reject_type: str = "VALIDATION_ERROR"):
+        super().__init__(message)
+        self.message = message
+        self.reject_type = reject_type
+
+
+class LogSchemaError(LogValidationError):
+    """Custom exception raised when a log record fails schema requirements."""
+    def __init__(self, message: str):
+        super().__init__(message, reject_type="SCHEMA_ERROR")
 
 
 # Severity mapping dictionary
@@ -34,9 +43,10 @@ def normalize_timestamp(raw_val: Any) -> datetime:
     """
     Parse and normalize any timestamp into a timezone-aware UTC datetime.
     Supports ISO-8601, Common Log format, RFC 2822, and numeric Unix epochs.
+    Older (late-arriving) timestamps are accepted as valid.
     """
     if raw_val is None:
-        raise LogValidationError("Missing required field: timestamp")
+        raise LogSchemaError("Missing required field: timestamp")
 
     if isinstance(raw_val, datetime):
         if raw_val.tzinfo is None:
@@ -46,7 +56,6 @@ def normalize_timestamp(raw_val: Any) -> datetime:
     # Check for numeric epoch (seconds or milliseconds)
     if isinstance(raw_val, (int, float)):
         try:
-            # If timestamp is > 10^11, it's in milliseconds
             if raw_val > 1e11:
                 return datetime.fromtimestamp(raw_val / 1000.0, tz=timezone.utc)
             return datetime.fromtimestamp(float(raw_val), tz=timezone.utc)
@@ -55,9 +64,8 @@ def normalize_timestamp(raw_val: Any) -> datetime:
 
     raw_str = str(raw_val).strip()
     if not raw_str:
-        raise LogValidationError("Missing required field: timestamp (empty value)")
+        raise LogSchemaError("Missing required field: timestamp (empty value)")
 
-    # Check if raw_str is all numeric digits (string epoch)
     if raw_str.isdigit():
         val = int(raw_str)
         if val > 1e11:
@@ -65,14 +73,13 @@ def normalize_timestamp(raw_val: Any) -> datetime:
         return datetime.fromtimestamp(float(val), tz=timezone.utc)
 
     try:
-        # dateutil handles ISO-8601, 'YYYY-MM-DD HH:MM:SS', 'DD/Mon/YYYY:HH:MM:SS +0000', etc.
         dt = date_parser.parse(raw_str)
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         else:
             dt = dt.astimezone(timezone.utc)
 
-        # Boundary sanity check
+        # Boundary sanity check: accept historical logs from 1970 to 2100
         if dt.year < 1970 or dt.year > 2100:
             raise LogValidationError(f"Timestamp year out of allowable bounds (1970-2100): {dt.year}")
 
@@ -86,13 +93,12 @@ def normalize_timestamp(raw_val: Any) -> datetime:
 def normalize_severity(raw_val: Any) -> str:
     """Normalize severity level to INFO, WARNING, ERROR, or CRITICAL."""
     if raw_val is None:
-        raise LogValidationError("Missing required field: severity")
+        raise LogSchemaError("Missing required field: severity")
 
     raw_str = str(raw_val).strip().upper()
     if not raw_str:
-        raise LogValidationError("Missing required field: severity (empty value)")
+        raise LogSchemaError("Missing required field: severity (empty value)")
 
-    # Strip surrounding brackets or punctuation like [ERROR]
     cleaned = re.sub(r"[\[\]\(\)\-\:\s]", "", raw_str)
 
     if cleaned in SEVERITY_MAP:
@@ -104,7 +110,7 @@ def normalize_severity(raw_val: Any) -> str:
 def normalize_response_ms(raw_val: Any) -> Optional[float]:
     """
     Validate and extract latency in milliseconds.
-    Returns float or None. Rejects negative values or non-numeric garbage.
+    Returns float or None. Rejects negative values or non-numeric strings.
     """
     if raw_val is None:
         return None
@@ -113,7 +119,6 @@ def normalize_response_ms(raw_val: Any) -> Optional[float]:
         cleaned = raw_val.strip().lower()
         if not cleaned or cleaned in ("none", "null", "n/a", "-"):
             return None
-        # Handle unit suffix: ms or s
         if cleaned.endswith("ms"):
             cleaned = cleaned[:-2].strip()
             mult = 1.0
@@ -159,15 +164,16 @@ def validate_and_normalize_record(
     """
     Validate all fields of an extracted log record dictionary.
     Returns cleaned normalized dictionary ready for ApplicationLog insertion.
-    Raises LogValidationError on invalid records.
+    Optional fields (user_id, endpoint, http_status, response_ms) are allowed to be None.
+    Raises LogSchemaError or LogValidationError on invalid records.
     """
-    # 1. Message check
+    # 1. Message check (Required)
     raw_msg = raw_record.get("message") or raw_record.get("msg") or raw_record.get("log")
     if raw_msg is None or str(raw_msg).strip() == "":
-        raise LogValidationError("Missing required field: message")
+        raise LogSchemaError("Missing required field: message")
     message = str(raw_msg).strip()
 
-    # 2. Timestamp check
+    # 2. Timestamp check (Required)
     raw_ts = (
         raw_record.get("timestamp")
         or raw_record.get("time")
@@ -176,7 +182,7 @@ def validate_and_normalize_record(
     )
     timestamp = normalize_timestamp(raw_ts)
 
-    # 3. Severity check
+    # 3. Severity check (Required)
     raw_sev = (
         raw_record.get("severity")
         or raw_record.get("level")
@@ -185,13 +191,13 @@ def validate_and_normalize_record(
     )
     severity = normalize_severity(raw_sev)
 
-    # 4. Service check
+    # 4. Service check (Optional, defaults to 'app')
     raw_service = raw_record.get("service") or raw_record.get("service_name") or raw_record.get("app")
     service = str(raw_service).strip().lower() if raw_service else "app"
     if not service or service in ("none", "null"):
         service = "app"
 
-    # 5. Response Time check
+    # 5. Response Time check (Optional)
     raw_resp = (
         raw_record.get("response_ms")
         or raw_record.get("latency")
@@ -201,11 +207,11 @@ def validate_and_normalize_record(
     )
     response_ms = normalize_response_ms(raw_resp)
 
-    # 6. User ID
+    # 6. User ID (Optional)
     raw_user = raw_record.get("user_id") or raw_record.get("userId") or raw_record.get("user")
     user_id = str(raw_user).strip() if raw_user is not None and str(raw_user).strip() not in ("", "none", "null") else None
 
-    # 7. Endpoint & HTTP Status
+    # 7. Endpoint & HTTP Status (Optional)
     raw_endpoint = raw_record.get("endpoint") or raw_record.get("path") or raw_record.get("url")
     endpoint = str(raw_endpoint).strip() if raw_endpoint else None
 
@@ -215,17 +221,16 @@ def validate_and_normalize_record(
         try:
             http_status = int(raw_status)
         except (ValueError, TypeError):
-            # If status was e.g. "SUCCESS", that's not an http status code
             pass
 
-    # 8. Event ID
+    # 8. Event ID (Optional, auto-generated if missing)
     raw_event_id = raw_record.get("event_id") or raw_record.get("id") or raw_record.get("eventId")
     if raw_event_id and str(raw_event_id).strip():
         event_id = str(raw_event_id).strip()
     else:
         event_id = generate_deterministic_event_id(timestamp, service, message, user_id, response_ms)
 
-    # 9. Failure determination
+    # 9. Failure determination: Severity ERROR/CRITICAL or HTTP status >= 500
     is_failure = (severity in ("ERROR", "CRITICAL")) or (http_status is not None and http_status >= 500)
 
     return {

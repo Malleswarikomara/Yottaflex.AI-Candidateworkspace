@@ -25,7 +25,8 @@ class JsonLogParser(BaseLogParser):
                 if not isinstance(array_data, list):
                     return [ParsedRecordResult(
                         raw_record=content_stripped[:200],
-                        parse_error="Expected JSON array at root level"
+                        parse_error="Expected JSON array at root level",
+                        reject_type="MALFORMED"
                     )]
 
                 for item in array_data:
@@ -35,10 +36,11 @@ class JsonLogParser(BaseLogParser):
                     else:
                         results.append(ParsedRecordResult(
                             raw_record=raw_str,
-                            parse_error=f"JSON array item is not an object: {type(item).__name__}"
+                            parse_error=f"JSON array item is not an object: {type(item).__name__}",
+                            reject_type="MALFORMED"
                         ))
                 return results
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 # If array parsing fails, fall back to line-by-line parsing
                 pass
 
@@ -56,12 +58,14 @@ class JsonLogParser(BaseLogParser):
                 else:
                     results.append(ParsedRecordResult(
                         raw_record=line_str,
-                        parse_error=f"JSON line is not an object: {type(parsed).__name__}"
+                        parse_error=f"JSON line is not an object: {type(parsed).__name__}",
+                        reject_type="MALFORMED"
                     ))
             except json.JSONDecodeError as e:
                 results.append(ParsedRecordResult(
                     raw_record=line_str,
-                    parse_error=f"Malformed JSON syntax: {e.msg} at line {idx + 1}"
+                    parse_error=f"Malformed JSON syntax: {e.msg} at line {idx + 1}",
+                    reject_type="MALFORMED"
                 ))
 
         return results
