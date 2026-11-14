@@ -1,17 +1,17 @@
 # Data Pipeline Reconciliation & Quality Audit Report
 
-**Audit Generated:** 2026-11-14 09:21:41 UTC  
-**Target Storage Engine:** PostgreSQL / SQLite Embedded OLTP  
+**Audit Generated:** 2026-11-14 09:27:24 UTC  
+**Target Storage Engine (Actual Benchmark Engine):** **SQLite 3 with WAL Mode (`data/benchmark_clean.db`) [Production Target: PostgreSQL 14+]**  
 **Audit Status:** **VERIFIED — ALL RUNS 100% RECONCILED (0 Silently Discarded Rows)**  
 
 ---
 
-## 1. Pipeline Execution Reconciliation Matrix
+## 1. Pipeline Execution Reconciliation Matrix (Per-Run Accounting)
 
-Every incoming batch is audited against the conservation law:
+Every incoming batch is audited against the source-to-target conservation law:
 $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined Rejections} + \text{Previously Skipped Records}$$
 
-| Run ID | Source File | Format | Status | Input | Newly Inserted | Rejects | Skipped (Rerun) | Accounted | Reconciled? | Duration |
+| Run ID | Source File | Format | Status | Total Input | Newly Inserted | Quarantined Rejects | Skipped (Rerun) | Accounted Sum | Reconciled? | Duration |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `RUN_20261114_092113_1B83D3` | `benchmark_100000_records.csv` | CSV | `PARTIAL_SUCCESS` | 100,000 | 0 | 1,515 | 98,485 | 100,000 | **SUCCESS** | 7.299s |
 | `RUN_20261114_092055_7BA682` | `benchmark_100000_records.csv` | CSV | `PARTIAL_SUCCESS` | 100,000 | 98,485 | 1,515 | 0 | 100,000 | **SUCCESS** | 17.1s |
@@ -20,9 +20,14 @@ $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined
 
 ## 2. Storage Layer Global Summary & Decoupled Quality KPIs
 
-| Metric Category | Target Layer (`application_logs`) | Quarantine Layer (`rejected_logs`) |
+> [!NOTE]
+> **Clarification of Per-Run vs. Cumulative Database Storage Totals:**
+> - **Per Individual Benchmark Run (Run-Level):** Each 100,000-record run independently processed exactly **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`).
+> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the 1,515 invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **3,030 total quarantined records** (1,515 per run $\times$ 2 runs) and **516 cumulative intra-batch duplicate events** (258 per run $\times$ 2 runs). The valid records in `application_logs` remained strictly deduplicated at exactly **98,485 rows** (zero duplicates inserted).
+
+| Metric Category | Target Layer (`application_logs`) | Quarantine Layer (`rejected_logs` Table Total) |
 | :--- | :--- | :--- |
-| **Total Stored Records** | **98,485** | **3,030** |
+| **Total Stored Records** | **98,485 (Deduplicated Canonical Records)** | **3,030 (Cumulative across both runs: 1,515 per run)** |
 | **INFO Logs** | 73,858 (75.0%) | N/A |
 | **WARNING Logs** | 14,639 (14.9%) | N/A |
 | **ERROR Logs** | 7,984 (8.1%) | N/A |
@@ -48,26 +53,26 @@ $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined
 
 All invalid rows are quarantined in `rejected_logs` with full provenance (source file, run ID, exact unparsed raw line, descriptive rejection reason, and structured `reject_type` classification):
 
-### Rejection Types Breakdown
-| Reject Type | Quarantined Count | % of Rejections | Business Handling |
-| :--- | :--- | :--- | :--- |
-| `VALIDATION_ERROR` | **1,552** | 51.2% | Invalid severity, negative latency, or empty message |
-| `SCHEMA_ERROR` | **962** | 31.7% | Missing mandatory columns or incompatible header structure |
-| `DUPLICATE` | **516** | 17.0% | Intra-batch duplicate event ID collision |
+### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)
+| Reject Type | Cumulative Quarantined Count | Per-Run Count | % of Rejections | Business Handling |
+| :--- | :--- | :--- | :--- | :--- |
+| `VALIDATION_ERROR` | **1,552** | **776 / run** | 51.2% | Invalid severity, negative latency, or empty message |
+| `SCHEMA_ERROR` | **962** | **481 / run** | 31.7% | Missing mandatory columns or incompatible header structure |
+| `DUPLICATE` | **516** | **258 / run** | 17.0% | Intra-batch duplicate event ID collision |
 
-### Detailed Rejection Reasons Breakdown
-| Rejection Reason | Quarantined Count | % of Rejections |
-| :--- | :--- | :--- |
-| Invalid timestamp format: '2026-99-99 99:99:99' | **542** | 17.9% |
-| Negative response time: -350.0ms. Latency must be non-negative. | **510** | 16.8% |
-| Invalid severity: 'UNKNOWN_SEV_LEVEL'. Allowed values: INFO, WARNING, ERROR, CRITICAL. | **500** | 16.5% |
-| Missing required field: message | **486** | 16.0% |
-| Missing required field: timestamp | **476** | 15.7% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_004 | **108** | 3.6% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_001 | **106** | 3.5% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_005 | **106** | 3.5% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_002 | **98** | 3.2% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_003 | **98** | 3.2% |
+### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)
+| Rejection Reason | Cumulative Count | Per-Run Count | % of Rejections |
+| :--- | :--- | :--- | :--- |
+| Invalid timestamp format: '2026-99-99 99:99:99' | **542** | **271** | 17.9% |
+| Negative response time: -350.0ms. Latency must be non-negative. | **510** | **255** | 16.8% |
+| Invalid severity: 'UNKNOWN_SEV_LEVEL'. Allowed values: INFO, WARNING, ERROR, CRITICAL. | **500** | **250** | 16.5% |
+| Missing required field: message | **486** | **243** | 16.0% |
+| Missing required field: timestamp | **476** | **238** | 15.7% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_004 | **108** | **54** | 3.6% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_001 | **106** | **53** | 3.5% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_005 | **106** | **53** | 3.5% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_002 | **98** | **49** | 3.2% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_003 | **98** | **49** | 3.2% |
 
 ---
 
@@ -88,7 +93,7 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
 ## 5. Audit Assertions & Integrity Proofs
 - [x] **Primary Key Integrity:** All records in `application_logs` possess a non-null, unique `event_id` enforced by database PRIMARY KEY constraint.
 - [x] **Referential Integrity:** Quarantined rejections and valid application logs reference valid `run_id` records in `pipeline_runs`.
-- [x] **Strict Idempotency Proof:** Reruns of identical files or records check existing database keys, recording them as `previously_skipped_records` without primary key violation.
+- [x] **Strict Idempotency Proof:** Reruns of identical files or records check existing database keys, recording them as `previously_skipped_records` without primary key violation. In Benchmark B, exactly 0 duplicate rows were inserted and 98,485 existing rows were safely skipped.
 - [x] **Zero Silent Data Loss:** `Total Input = Newly Inserted + Quarantined Rejections + Previously Skipped` across 100% of pipeline executions.
 - [x] **Decoupled Error Accounting:** Severity-based application errors and HTTP 5xx transport failures are measured and monitored independently.
 - [x] **Granular Quarantine Taxonomy:** Rejections are categorized under `MALFORMED`, `VALIDATION_ERROR`, `DUPLICATE`, or `SCHEMA_ERROR` for actionable SLA monitoring.

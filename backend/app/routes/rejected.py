@@ -101,4 +101,5 @@ def get_rejected_stats(
         "total_rejected": total_rejected,
         "reasons_breakdown": reasons_breakdown,
         "types_breakdown": types_breakdown,
+        "reject_types_breakdown": types_breakdown,
     }
