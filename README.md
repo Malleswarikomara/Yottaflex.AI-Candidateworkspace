@@ -87,7 +87,7 @@ The relational model supports high-throughput batch ingestion, query filtering, 
 - **Columns:**
   | Column Name | Data Type | Nullable | Description |
   | :--- | :--- | :--- | :--- |
-  | `run_id` | VARCHAR(64) | NO | Deterministic / timestamped unique run identifier |
+  | `run_id` | VARCHAR(64) | NO | Timestamped unique run identifier with a UUID-based suffix |
   | `source_file` | VARCHAR(255) | NO | Name of uploaded or generated source file |
   | `file_format` | VARCHAR(32) | NO | Detected syntax: `CSV`, `JSON`, `TEXT` |
   | `status` | VARCHAR(32) | NO | `SUCCESS`, `PARTIAL_SUCCESS`, `FAILED` |
@@ -160,6 +160,25 @@ The relational model supports high-throughput batch ingestion, query filtering, 
   | `p99_latency_ms` | FLOAT | YES | 99th percentile tail latency (ms) |
   | `max_latency_ms` | FLOAT | YES | Peak maximum latency (ms) |
 
+### Rejection Taxonomy & Quarantine Categories
+
+When an input record cannot be safely normalized into `application_logs`, it is routed directly to `rejected_logs` with the exact raw unadulterated record, rejection reason, and structured `reject_type`:
+
+| `reject_type` | Definition & Scope | Trigger Conditions & Examples |
+| :--- | :--- | :--- |
+| `MALFORMED` | Raw syntax or serialization parsing errors | Unparseable JSON syntax, truncated JSON brackets, corrupt CSV delimiter structure, invalid regex match in semi-structured text. |
+| `SCHEMA_ERROR` | Missing mandatory schema requirements (`LogSchemaError`) | Record missing core required fields (`timestamp`, `severity`, or `message`), completely empty required values, or incompatible column structure. |
+| `VALIDATION_ERROR` | Domain constraint or value validation errors (`LogValidationError`) | Present fields containing invalid domain values (e.g., negative `response_ms: -50ms`, unparseable severity string, timestamp year outside allowable bounds 1970–2100). |
+| `DUPLICATE` | Intra-batch deterministic collision | Identical `event_id` encountered more than once within the same ingestion batch (first instance ingested, subsequent duplicates quarantined). |
+
+### Operational Semantics & System Boundaries
+
+- **Sequential Idempotency:** Reruns are fully idempotent. Re-submitting an identical file checks incoming deterministic `event_id`s against existing keys in `application_logs`. Pre-existing records are counted under `previously_skipped_records` and omitted from insertion, resulting in 0 newly inserted rows and zero duplicate primary keys.
+- **Manual Reruns & Client-Initiated Retries:** Retries are explicit, manual re-submissions or client-driven reruns of batches upon partial success or failure. The platform intentionally does not run background automatic retry loops or dead-letter queue polling workers, keeping operational state deterministic and predictable.
+- **Process Restart & Transaction Integrity:** If the backend process crashes or is restarted mid-ingestion, the database transaction is automatically rolled back via ACID transaction boundaries. The database remains in a consistent state without orphan records, and the batch can simply be resubmitted.
+- **Historical Backfill:** Historical backfill is accomplished by submitting historical batch files. Timestamps from any era within allowable bounds (1970–2100) are accepted, normalized to UTC, and indexed without rejection.
+- **Concurrency Boundary:** Uniqueness is strictly guaranteed by the `event_id` Primary Key constraint. However, the current ingestion pipeline does not implement database-level atomic upsert (`INSERT ... ON CONFLICT DO NOTHING`) or distributed locking. Sequential reruns are safely tracked via `previously_skipped_records`, but simultaneous concurrent ingestion of batches containing identical event IDs relies on PK constraint rollback to prevent duplicate rows.
+
 ---
 
 ## 4. Key Business Calculations & Formulas
@@ -225,7 +244,7 @@ cd c:\CandidateWorkspace
 $env:PYTHONPATH = "backend"
 pytest -v
 ```
-**Result:** **46/46 automated unit and integration tests passing.**
+**Result:** **48/48 automated unit and integration tests passing.**
 
 ### 4. Running in Visual Studio Code (Pre-configured IDE Integration)
 The workspace includes native `.vscode/` configurations for zero-friction local execution:
@@ -344,22 +363,29 @@ All required negative scenarios are verified by automated tests in `backend/test
 | `test_malformed_csv_column_mismatch` | Row with extra/missing commas | Quarantined to `rejected_logs` (`reject_type = MALFORMED`) |
 | `test_intra_batch_duplicates_quarantined` | Duplicate `event_id` in same batch | First instance loaded; duplicate quarantined (`reject_type = DUPLICATE`) |
 | `test_idempotent_rerun_behavior` | Exact same file re-ingested | Existing IDs detected; 0 duplicates created; recorded in `previously_skipped_records` |
-| `test_missing_timestamp_rejected` | Record missing timestamp | Quarantined; `Missing required field: timestamp` (`reject_type = VALIDATION_ERROR`) |
-| `test_missing_severity_rejected` | Record missing severity | Quarantined; `Missing required field: severity` (`reject_type = VALIDATION_ERROR`) |
-| `test_missing_message_rejected` | Record with empty message | Quarantined; `Missing required field: message` (`reject_type = VALIDATION_ERROR`) |
-| `test_domain_edge_case_negative_latency` | Negative latency (e.g. `-50ms`) | Quarantined; `Negative response time: -50.0ms` (`reject_type = VALIDATION_ERROR`) |
+| `test_missing_timestamp_rejected` | Record missing timestamp | Quarantined; `Missing required field: timestamp` (`reject_type = SCHEMA_ERROR`) |
+| `test_missing_severity_rejected` | Record missing severity | Quarantined; `Missing required field: severity` (`reject_type = SCHEMA_ERROR`) |
+| `test_missing_message_rejected` | Record with empty message | Quarantined; `Missing required field: message` (`reject_type = SCHEMA_ERROR`) |
+| `test_missing_required_field_quarantined_as_schema_error` | End-to-end pipeline missing required fields | Quarantined to `rejected_logs` with `reject_type = SCHEMA_ERROR` |
+| `test_domain_edge_case_negative_latency_rejected` | Negative latency (e.g. `-50ms`) | Quarantined; `Negative response time: -50.0ms` (`reject_type = VALIDATION_ERROR`) |
 | `test_valid_zero_latency_preserved` | Valid zero latency (`0` and `0.0ms`) | Preserved as `0.0`, not erroneously converted to `NULL` |
 | `test_timestamp_normalizations` | ISO, space-delimited, epoch ms, epoch 0 | All parsed into normalized UTC ISO-8601 datetimes with `Z` |
 | `test_severity_case_and_alias_normalization` | `[warning]`, `err`, `fatal` | Canonicalized to `WARNING`, `ERROR`, `CRITICAL` |
 | `test_unexpected_schema_change` | Incompatible or missing columns | Every data row safely quarantined with `reject_type = SCHEMA_ERROR` |
-| `test_partial_failure_and_retry` | Retry after partial ingestion | Retry safely skips already inserted rows without double-insertion |
-| `test_late_arriving_logs` | Event timestamps from 30 days ago | Older event timestamps accepted and normalized |
+| `test_partial_success_and_manual_rerun` | Retry/rerun after partial ingestion | Manual rerun safely skips already inserted rows without double-insertion |
+| `test_late_arriving_logs` | Event timestamps from historical dates | Older event timestamps accepted and normalized |
 | `test_out_of_order_timestamps` | Unsorted events in batch stream | Timestamps processed and indexed correctly regardless of arrival order |
-| `test_invalid_reference_key` | Bad foreign key / invalid run_id | Handled safely by database constraint without corrupting pipeline state |
+| `test_invalid_reference_key` | Database constraint integrity test | Foreign key enforcement prevents inserting records with non-existent `run_id`, maintaining relational integrity |
 | `test_null_optional_fields` | Null `response_ms`, `user_id`, etc. | Optional fields accept nulls without rejecting valid records |
-| `test_service_filtered_error_rate` | Error rate filtered by service | Service filter strictly applied to severity and failure counts |
+| `test_route_logs_stats_service_filtering` | Error rate filtered by service | Service filter strictly applied to severity and failure counts in logs stats |
 | `test_http_failure_rate` | INFO log with HTTP 503 code | Counted in HTTP failure rate without inflating severity error rate |
-| `test_rerun_reconciliation` | Re-ingestion conservation law | Verified: $\text{Input} = \text{Newly Inserted} + \text{Rejected} + \text{Previously Skipped}$ |
+| `test_rerun_reconciliation` | Re-ingestion conservation law | Verified: $\text{Total Input} = \text{Newly Inserted} + \text{Rejected} + \text{Previously Skipped}$ |
+| `test_csv_with_leading_blank_lines` | CSV files with leading blank rows | Blank lines skipped before header extraction without data loss |
+| `test_csv_with_utf8_bom` | CSV files with UTF-8 BOM (`\ufeff`) | BOM prefix stripped cleanly without corrupting first header column |
+| `test_csv_multiline_raw_record` | Multiline quoted CSV records | Logical record boundaries tracked and preserved in `raw_record` |
+| `test_csv_multiline_crlf_raw_record` | Multiline CSV records with `\r\n` CRLF | Exact Windows line-endings preserved in `raw_record` |
+| `test_json_and_text_parser_raw_record_whitespace_preservation` | Raw indentation/whitespace in JSON/Text | Exact unstripped original line whitespace preserved in `raw_record` |
+| `test_http_sample_endpoints_integration` | FastAPI TestClient HTTP integration | Verifies all 4 sample dataset endpoints return HTTP 200 and reconcile |
 
 ---
 

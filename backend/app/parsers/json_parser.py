@@ -54,16 +54,16 @@ class JsonLogParser(BaseLogParser):
             try:
                 parsed = json.loads(line_str)
                 if isinstance(parsed, dict):
-                    results.append(ParsedRecordResult(raw_record=line_str, data=parsed))
+                    results.append(ParsedRecordResult(raw_record=line, data=parsed))
                 else:
                     results.append(ParsedRecordResult(
-                        raw_record=line_str,
+                        raw_record=line,
                         parse_error=f"JSON line is not an object: {type(parsed).__name__}",
                         reject_type="MALFORMED"
                     ))
             except json.JSONDecodeError as e:
                 results.append(ParsedRecordResult(
-                    raw_record=line_str,
+                    raw_record=line,
                     parse_error=f"Malformed JSON syntax: {e.msg} at line {idx + 1}",
                     reject_type="MALFORMED"
                 ))

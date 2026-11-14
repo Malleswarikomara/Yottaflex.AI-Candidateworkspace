@@ -56,8 +56,8 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
 ### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)
 | Reject Type | Cumulative Quarantined Count | Per-Run Count | % of Rejections | Business Handling |
 | :--- | :--- | :--- | :--- | :--- |
-| `VALIDATION_ERROR` | **1,552** | **776 / run** | 51.2% | Invalid severity, negative latency, or empty message |
-| `SCHEMA_ERROR` | **962** | **481 / run** | 31.7% | Missing mandatory columns or incompatible header structure |
+| `VALIDATION_ERROR` | **1,552** | **776 / run** | 51.2% | Invalid severity string, negative latency value, or invalid timestamp format |
+| `SCHEMA_ERROR` | **962** | **481 / run** | 31.7% | Missing mandatory fields (timestamp, message) or incompatible header structure |
 | `DUPLICATE` | **516** | **258 / run** | 17.0% | Intra-batch duplicate event ID collision |
 
 ### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)

@@ -140,18 +140,21 @@ def test_idempotent_rerun_behavior():
 # -----------------------------------------------------------------------------
 
 def test_missing_timestamp_rejected():
-    with pytest.raises(LogValidationError, match="Missing required field: timestamp"):
+    with pytest.raises(LogSchemaError, match="Missing required field: timestamp") as exc:
         validate_and_normalize_record({"severity": "INFO", "message": "Test"}, "test.csv", "RUN_1")
+    assert exc.value.reject_type == "SCHEMA_ERROR"
 
 
 def test_missing_severity_rejected():
-    with pytest.raises(LogValidationError, match="Missing required field: severity"):
+    with pytest.raises(LogSchemaError, match="Missing required field: severity") as exc:
         validate_and_normalize_record({"timestamp": "2026-11-14T10:00:00Z", "message": "Test"}, "test.csv", "RUN_1")
+    assert exc.value.reject_type == "SCHEMA_ERROR"
 
 
 def test_missing_message_rejected():
-    with pytest.raises(LogValidationError, match="Missing required field: message"):
+    with pytest.raises(LogSchemaError, match="Missing required field: message") as exc:
         validate_and_normalize_record({"timestamp": "2026-11-14T10:00:00Z", "severity": "INFO", "message": ""}, "test.csv", "RUN_1")
+    assert exc.value.reject_type == "SCHEMA_ERROR"
 
 
 # -----------------------------------------------------------------------------
@@ -250,8 +253,13 @@ val4,val5,val6
         db.close()
 
 
-def test_partial_failure_and_retry():
-    """Verify partial failure handling and retry idempotency without duplicate insertion."""
+def test_partial_success_and_manual_rerun():
+    """
+    Verify partial success handling and manual rerun idempotency.
+    In this architecture, retries are manual re-submissions of batches.
+    Duplicate prevention via deterministic event IDs ensures already inserted rows
+    are safely skipped without double-insertion upon rerun.
+    """
     unique_a = f"EVT_PART_{uuid.uuid4().hex[:6]}"
     unique_b = f"EVT_PART_{uuid.uuid4().hex[:6]}"
     # Batch with 2 valid records and 1 malformed record (negative latency)
@@ -267,12 +275,63 @@ EVT_BAD,2026-11-14T10:02:00Z,INFO,auth,Bad latency record,-999
     assert res1["reconciliation"]["rejected_records"] == 1
     assert res1["reconciliation"]["is_reconciled"] is True
 
-    # 2. Retry execution with retry_count=1: should NOT duplicate the 2 successfully inserted records
+    # 2. Manual rerun execution: should NOT duplicate the 2 successfully inserted records
     res2 = PipelineService.process_log_file(csv_content, "batch_partial.csv", retry_count=1)
     assert res2["reconciliation"]["newly_inserted_records"] == 0
     assert res2["reconciliation"]["previously_skipped_records"] == 2
     assert res2["reconciliation"]["rejected_records"] == 1
     assert res2["reconciliation"]["is_reconciled"] is True
+
+
+def test_missing_required_field_quarantined_as_schema_error():
+    """
+    End-to-end pipeline verification: records missing a required core field
+    (timestamp, severity, or message) are quarantined in rejected_logs with reject_type == 'SCHEMA_ERROR'.
+    """
+    unique_tag = uuid.uuid4().hex[:6]
+    csv_payload = f"""timestamp,severity,service,message,response_ms
+,INFO,auth,Missing timestamp record,100
+2026-11-14T10:00:00Z,,auth,Missing severity record,100
+2026-11-14T10:01:00Z,INFO,auth,,100
+2026-11-14T10:02:00Z,INFO,auth,Fully valid record {unique_tag},100
+"""
+    result = PipelineService.process_log_file(csv_payload, "test_schema_errors.csv")
+    assert result["reconciliation"]["total_input_records"] == 4
+    assert result["reconciliation"]["newly_inserted_records"] == 1
+    assert result["reconciliation"]["rejected_records"] == 3
+    assert result["reconciliation"]["is_reconciled"] is True
+
+    db = SessionLocal()
+    try:
+        rejections = db.query(RejectedLog).filter(RejectedLog.run_id == result["run_id"]).all()
+        assert len(rejections) == 3
+        for rej in rejections:
+            assert rej.reject_type == "SCHEMA_ERROR"
+            assert "Missing required field" in rej.reason
+    finally:
+        db.close()
+
+
+def test_json_and_text_parser_raw_record_whitespace_preservation():
+    """Verify raw unstripped indentation and whitespace is preserved in raw_record."""
+    from app.parsers.json_parser import JsonLogParser
+    from app.parsers.text_parser import TextLogParser
+
+    json_parser = JsonLogParser()
+    ndjson_content = '   {"event_id": "INDENT_1", "timestamp": "2026-11-14T10:00:00Z", "severity": "INFO", "message": "Indented JSON"}\n   CORRUPT JSON LINE   '
+    res_json = json_parser.parse_content(ndjson_content)
+    assert len(res_json) == 2
+    assert res_json[0].raw_record.startswith("   {")
+    assert res_json[1].raw_record == "   CORRUPT JSON LINE   "
+    assert res_json[1].reject_type == "MALFORMED"
+
+    text_parser = TextLogParser()
+    text_content = "   2026-11-14 10:00:00 [INFO] [auth] Leading whitespace text line\n   NOT A VALID LOG LINE   "
+    res_text = text_parser.parse_content(text_content)
+    assert len(res_text) == 2
+    assert res_text[0].raw_record.startswith("   2026-11-14")
+    assert res_text[1].raw_record == "   NOT A VALID LOG LINE   "
+    assert res_text[1].reject_type == "MALFORMED"
 
 
 def test_late_arriving_logs():
@@ -562,3 +621,5 @@ EVT_BAD_{unique_tag},{ts},INFO,auth,Bad latency record,-500
     # Conservation law holds: 4 == 2 (inserted) + 2 (rejected) + 0 (skipped)
     assert recon["accounted_for"] == 4
     assert recon["is_reconciled"] is True
+    # In metrics_summary, unique_valid_records represents unique valid records after deduplication
+    assert res["metrics_summary"]["unique_valid_records"] == 2

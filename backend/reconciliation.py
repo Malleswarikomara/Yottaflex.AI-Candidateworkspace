@@ -225,8 +225,8 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
                 pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
                 per_run = int(cnt / num_runs) if num_runs > 0 else cnt
                 handling = {
-                    "VALIDATION_ERROR": "Invalid severity, negative latency, or empty message",
-                    "SCHEMA_ERROR": "Missing mandatory columns or incompatible header structure",
+                    "VALIDATION_ERROR": "Invalid severity string, negative latency value, or invalid timestamp format",
+                    "SCHEMA_ERROR": "Missing mandatory fields (timestamp, message) or incompatible header structure",
                     "DUPLICATE": "Intra-batch duplicate event ID collision",
                     "MALFORMED": "Unparseable syntax or missing required fields"
                 }.get(t_name, "Data quality violation")

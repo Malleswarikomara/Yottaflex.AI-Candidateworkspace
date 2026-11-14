@@ -63,16 +63,17 @@ flowchart TD
 3. **Data Quality Quarantine & Taxonomy (`rejected_logs`):**
    - Negative latencies, unparseable timestamps, missing required fields, schema incompatibilities, and intra-batch duplicates are never silently discarded.
    - They are quarantined immediately in `rejected_logs` with the exact raw record string, descriptive rejection reason, and structured `reject_type`:
-     - `MALFORMED`: Unparseable syntax or missing required fields.
-     - `VALIDATION_ERROR`: Invalid severity, negative response time, or empty message.
-     - `DUPLICATE`: Intra-batch duplicate event ID collision.
-     - `SCHEMA_ERROR`: Incompatible column structure or missing required headers.
+     - `MALFORMED`: Corrupt syntax or serialization errors (e.g. unparseable JSON syntax, invalid regex match in semi-structured text, corrupted CSV line formatting).
+     - `SCHEMA_ERROR`: Missing required core fields (`timestamp`, `severity`, `message`, or missing mandatory CSV headers) or incompatible column structure (`LogSchemaError`).
+     - `VALIDATION_ERROR`: Domain and value errors on present fields (e.g., negative latency values, unparseable severity string values, timestamp years outside 1970–2100).
+     - `DUPLICATE`: Intra-batch duplicate event ID collision within the same ingestion run.
 
-4. **Idempotent Target Publishing & Rerun Accounting:**
-   - Valid records are batch-checked against existing primary keys (`event_id`) in `application_logs`.
-   - If an input file is re-run, existing keys are recorded under `previously_skipped_records`, ensuring reruns are 100% safe and produce zero unintended primary key collisions.
-   - Rerun status values: `SUCCESS`, `PARTIAL_SUCCESS` (some records quarantined or skipped), or `FAILED`.
-   - Start time, end time, duration, retry count, and failure reasons are preserved even during catastrophic failures.
+4. **Idempotent Target Publishing & Operational Semantics:**
+   - **Deterministic Identity & Sequential Idempotency:** Valid records are deduplicated intra-batch and screened against existing primary keys (`event_id`) in `application_logs` using chunked queries (chunks of 900). If an input file is sequentially re-ingested, already-inserted records are counted under `previously_skipped_records` and omitted from insertion, guaranteeing sequential rerun idempotency with zero double-counting.
+   - **Manual Reruns & Retries:** Retries are explicit, manual re-submissions of batches or files (or client-initiated reruns). The system does not run background automatic retry loops or exponential backoff workers.
+   - **Process Restart & Transaction Integrity:** In the event of an unhandled exception or process termination mid-ingestion, the database transaction is rolled back via standard ACID semantics, leaving the target table clean. The run can be resubmitted manually.
+   - **Historical Backfill:** Backfills are executed by submitting historical batch files. Timestamps from any era (1970–2100) are accepted and normalized.
+   - **Concurrency Safeguards & Boundary:** Primary Key constraints on `event_id` physically enforce uniqueness at the database layer. However, the ingestion engine does not perform atomic database-level upserts (`INSERT ... ON CONFLICT DO NOTHING`) or distributed locking. Sequential reruns are fully accounted for, whereas simultaneous concurrent ingestion of batches containing identical event IDs is bounded by database PK constraint enforcement (which triggers an IntegrityError rollback to preserve target integrity).
 
 5. **Decoupled Business Calculations:**
    - **Severity-based Error Rate:**

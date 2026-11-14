@@ -33,7 +33,6 @@ class PipelineService:
         run_id: Optional[str] = None,
         db: Optional[Session] = None,
         retry_count: int = 0,
-        batch_size: int = 5000,
     ) -> Dict[str, Any]:
         """
         Executes end-to-end ingestion pipeline:
@@ -245,6 +244,7 @@ class PipelineService:
                     "is_reconciled": is_reconciled,
                 },
                 "metrics_summary": {
+                    "unique_valid_records": len(valid_records),
                     "valid_records": len(valid_records),
                     "newly_inserted": newly_inserted_count,
                     "previously_skipped": previously_skipped_records,

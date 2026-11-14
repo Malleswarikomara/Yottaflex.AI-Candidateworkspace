@@ -35,23 +35,23 @@ class TextLogParser(BaseLogParser):
     """
 
     def parse_line(self, line: str) -> Optional[ParsedRecordResult]:
-        raw_line = line.strip()
-        if not raw_line:
+        line_to_parse = line.strip()
+        if not line_to_parse:
             return None
 
         # 1. Extract Timestamp
-        ts_match = TS_REGEX.match(raw_line)
+        ts_match = TS_REGEX.match(line_to_parse)
         if ts_match:
             timestamp_str = ts_match.group("timestamp")
-            remainder = raw_line[ts_match.end():].strip()
+            remainder = line_to_parse[ts_match.end():].strip()
         else:
-            ts_match2 = APACHE_TS_REGEX.match(raw_line)
+            ts_match2 = APACHE_TS_REGEX.match(line_to_parse)
             if ts_match2:
                 timestamp_str = ts_match2.group("timestamp")
-                remainder = raw_line[ts_match2.end():].strip()
+                remainder = line_to_parse[ts_match2.end():].strip()
             else:
                 return ParsedRecordResult(
-                    raw_record=raw_line,
+                    raw_record=line,
                     parse_error="Failed to extract timestamp from log line",
                     reject_type="MALFORMED"
                 )
@@ -74,13 +74,13 @@ class TextLogParser(BaseLogParser):
                     remainder = remainder[sev_match.end():].strip()
                 else:
                     return ParsedRecordResult(
-                        raw_record=raw_line,
+                        raw_record=line,
                         parse_error="Failed to extract severity level from log line",
                         reject_type="MALFORMED"
                     )
             else:
                 return ParsedRecordResult(
-                    raw_record=raw_line,
+                    raw_record=line,
                     parse_error="Failed to extract severity level from log line",
                     reject_type="MALFORMED"
                 )
@@ -125,7 +125,7 @@ class TextLogParser(BaseLogParser):
             "http_status": kv_data.get("status") or kv_data.get("status_code") or kv_data.get("http_status"),
         }
 
-        return ParsedRecordResult(raw_record=raw_line, data=record)
+        return ParsedRecordResult(raw_record=line, data=record)
 
     def parse_content(self, content: str) -> List[ParsedRecordResult]:
         content_stripped = content.strip()
