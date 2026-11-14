@@ -11,8 +11,6 @@ if output_zip.exists():
 # Items to include
 include_files = [
     "README.md",
-    "architecture_design.md",
-    "benchmark_report.md",
     "requirements.txt",
     "pytest.ini",
     ".env.example",
