@@ -34,7 +34,8 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Database & Environment
-data/logs.db
+data/*.db
+data/input/
 .env
 
 # OS
