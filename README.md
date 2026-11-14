@@ -244,7 +244,7 @@ cd c:\CandidateWorkspace
 $env:PYTHONPATH = "backend"
 pytest -v
 ```
-**Result:** **51/51 automated unit and integration tests passing.**
+**Result:** **53/53 automated unit and integration tests passing.**
 
 ### 4. Running in Visual Studio Code (Pre-configured IDE Integration)
 The workspace includes native `.vscode/` configurations for zero-friction local execution:
@@ -389,6 +389,8 @@ All required negative scenarios are verified by automated tests in `backend/test
 | `test_json_array_raw_record_preservation` | Raw element preservation in JSON array | Original multiline raw text slice with indentation preserved in `rejected_logs` |
 | `test_database_failure_injection_rollback_and_retry` | Injected database crash and rollback | Transaction cleanly rolled back; run marked `FAILED`; subsequent retry succeeds |
 | `test_http_sample_endpoints_integration` | FastAPI TestClient HTTP integration | Verifies all 4 sample dataset endpoints return HTTP 200 and reconcile |
+| `test_extreme_timezone_aware_datetime_overflow` | Extreme datetime UTC conversion overflow/underflow | Safely catches `OverflowError`/`ValueError` and converts to `LogValidationError` |
+| `test_multi_run_reconciliation_actual_rejection_counts` | Multi-run reconciliation per-run accounting | Verifies rejected and duplicate counts are grouped by `run_id` without averaging |
 
 ---
 

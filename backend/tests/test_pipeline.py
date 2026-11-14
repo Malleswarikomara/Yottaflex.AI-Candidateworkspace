@@ -757,3 +757,85 @@ EVT_BAD_{unique_tag},{ts},INFO,auth,Bad latency record,-500
     assert recon["is_reconciled"] is True
     # In metrics_summary, unique_valid_records represents unique valid records after deduplication
     assert res["metrics_summary"]["unique_valid_records"] == 2
+
+
+def test_extreme_timezone_aware_datetime_overflow():
+    """Verify extreme timezone-aware datetime values that overflow UTC conversion raise LogValidationError."""
+    from datetime import timedelta
+    # 1. Extreme datetime at boundary of max year that overflows when converting timezone to UTC
+    extreme_dt = datetime.max.replace(tzinfo=timezone(timedelta(hours=-12)))
+    with pytest.raises(LogValidationError, match="Invalid timestamp datetime conversion"):
+        normalize_timestamp(extreme_dt)
+
+    # 2. Extreme datetime at boundary of min year that underflows when converting timezone to UTC
+    extreme_min_dt = datetime.min.replace(tzinfo=timezone(timedelta(hours=12)))
+    with pytest.raises(LogValidationError, match="Invalid timestamp datetime conversion"):
+        normalize_timestamp(extreme_min_dt)
+
+    # 3. Confirm normal valid timestamps still work
+    normal_dt = datetime(2026, 11, 14, 10, 0, 0, tzinfo=timezone.utc)
+    res_dt = normalize_timestamp(normal_dt)
+    assert res_dt == normal_dt
+
+
+def test_multi_run_reconciliation_actual_rejection_counts(tmp_path):
+    """
+    Create multiple runs with different rejection counts and verify that
+    run_reconciliation correctly groups rejected records by run_id,
+    calculates intra-batch duplicates per run, and displays the exact count for each run.
+    """
+    from reconciliation import run_reconciliation
+
+    tag1 = uuid.uuid4().hex[:6]
+    tag2 = uuid.uuid4().hex[:6]
+
+    # Run 1: 1 valid record, 2 rejected records (1 schema error missing message, 1 negative latency)
+    csv_run1 = f"""event_id,timestamp,severity,service,message,response_ms
+EVT_R1_1_{tag1},2026-11-14T10:00:00Z,INFO,auth,Valid run 1 record {tag1},100
+EVT_R1_2_{tag1},2026-11-14T10:01:00Z,INFO,auth,,100
+EVT_R1_3_{tag1},2026-11-14T10:02:00Z,INFO,auth,Bad latency record {tag1},-999
+"""
+    res1 = PipelineService.process_log_file(csv_run1, "test_multi_r1.csv", run_id=f"RUN_MULTI_1_{tag1}")
+    assert res1["reconciliation"]["rejected_records"] == 2
+    assert res1["reconciliation"]["newly_inserted_records"] == 1
+
+    # Run 2: 2 valid records, 3 rejected records (1 missing timestamp, 2 duplicate event_ids)
+    csv_run2 = f"""event_id,timestamp,severity,service,message,response_ms
+EVT_R2_1_{tag2},2026-11-14T10:03:00Z,INFO,auth,Valid run 2 record {tag2},120
+EVT_R2_2_{tag2},2026-11-14T10:04:00Z,INFO,auth,Valid run 2 record b {tag2},130
+EVT_R2_3_{tag2},,INFO,auth,Missing timestamp record {tag2},100
+EVT_R2_DUP_{tag2},2026-11-14T10:05:00Z,INFO,auth,Original duplicate {tag2},100
+EVT_R2_DUP_{tag2},2026-11-14T10:05:00Z,INFO,auth,Second duplicate {tag2},100
+EVT_R2_DUP_{tag2},2026-11-14T10:05:00Z,INFO,auth,Third duplicate {tag2},100
+"""
+    res2 = PipelineService.process_log_file(csv_run2, "test_multi_r2.csv", run_id=f"RUN_MULTI_2_{tag2}")
+    # In run 2: 1 missing ts + 2 duplicate event_ids = 3 rejected
+    assert res2["reconciliation"]["rejected_records"] == 3
+    assert res2["reconciliation"]["intra_batch_duplicates"] == 2
+
+    # Run reconciliation and generate temporary report
+    rep_file = tmp_path / "test_reconciliation_multi.md"
+    db = SessionLocal()
+    try:
+        run_rows = run_reconciliation(report_path=rep_file, db=db)
+
+        # Find the two run rows
+        row1 = next((r for r in run_rows if r["run_id"] == f"RUN_MULTI_1_{tag1}"), None)
+        row2 = next((r for r in run_rows if r["run_id"] == f"RUN_MULTI_2_{tag2}"), None)
+
+        assert row1 is not None
+        assert row2 is not None
+
+        # Verify exact, individual per-run rejection counts (not an average!)
+        assert row1["rejected"] == 2
+        assert row1["duplicates"] == 0
+        assert row2["rejected"] == 3
+        assert row2["duplicates"] == 2
+
+        # Verify markdown report contains exact per-run counts
+        content = rep_file.read_text(encoding="utf-8")
+        assert f"| `RUN_MULTI_1_{tag1}`" in content
+        assert f"| `RUN_MULTI_2_{tag2}`" in content
+        assert "### Per-Run Rejection Breakdown" in content
+    finally:
+        db.close()

@@ -1,6 +1,6 @@
 # Data Pipeline Reconciliation & Quality Audit Report
 
-**Audit Generated:** 2026-11-14 11:23:04 UTC  
+**Audit Generated:** 2026-11-14 11:40:05 UTC  
 **Target Storage Engine (Actual Benchmark Engine):** **SQLite 3 with WAL Mode (`data/benchmark_clean.db`) [Production Target: PostgreSQL 14+]**  
 **Audit Status:** **VERIFIED — ALL RUNS 100% RECONCILED (0 Silently Discarded Rows)**  
 
@@ -11,10 +11,10 @@
 Every incoming batch is audited against the source-to-target conservation law:
 $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined Rejections} + \text{Previously Skipped Records}$$
 
-| Run ID | Source File | Format | Status | Total Input | Newly Inserted | Quarantined Rejects | Skipped (Rerun) | Accounted Sum | Reconciled? | Duration |
+| Run ID | Source File | Format | Status | Total Input | Newly Inserted | Quarantined Rejects | Intra-Batch Dupes | Skipped (Rerun) | Accounted Sum | Reconciled? | Duration |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `RUN_20261114_092113_1B83D3` | `benchmark_100000_records.csv` | CSV | `PARTIAL_SUCCESS` | 100,000 | 0 | 1,515 | 98,485 | 100,000 | **SUCCESS** | 7.299s |
-| `RUN_20261114_092055_7BA682` | `benchmark_100000_records.csv` | CSV | `PARTIAL_SUCCESS` | 100,000 | 98,485 | 1,515 | 0 | 100,000 | **SUCCESS** | 17.1s |
+| `RUN_20261114_092113_1B83D3` | `benchmark_100000_records.csv` | CSV | `PARTIAL_SUCCESS` | 100,000 | 0 | 1,515 | 258 | 98,485 | 100,000 | **SUCCESS** | 7.299s |
+| `RUN_20261114_092055_7BA682` | `benchmark_100000_records.csv` | CSV | `PARTIAL_SUCCESS` | 100,000 | 98,485 | 1,515 | 258 | 0 | 100,000 | **SUCCESS** | 17.1s |
 
 ---
 
@@ -22,12 +22,12 @@ $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined
 
 > [!NOTE]
 > **Clarification of Per-Run vs. Cumulative Database Storage Totals:**
-> - **Per Individual Benchmark Run (Run-Level):** Each 100,000-record run independently processed exactly **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`).
-> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the 1,515 invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **3,030 total quarantined records** (1,515 per run $\times$ 2 runs) and **516 cumulative intra-batch duplicate events** (258 per run $\times$ 2 runs). The valid records in `application_logs` remained strictly deduplicated at exactly **98,485 rows** (zero duplicates inserted).
+> - **Per Individual Benchmark Run (Run-Level):** Benchmark Run A processed exactly **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`). Benchmark Run B processed **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions.
+> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **3,030 total quarantined records** (1,515 in Run A + 1,515 in Run B) and **516 cumulative intra-batch duplicate events** (258 + 258). The valid records in `application_logs` remained strictly deduplicated at exactly **98,485 rows** (zero duplicates inserted).
 
 | Metric Category | Target Layer (`application_logs`) | Quarantine Layer (`rejected_logs` Table Total) |
 | :--- | :--- | :--- |
-| **Total Stored Records** | **98,485 (Deduplicated Canonical Records)** | **3,030 (Cumulative across both benchmark runs: 1,515 per run)** |
+| **Total Stored Records** | **98,485 (Deduplicated Canonical Records)** | **3,030 (Cumulative across both benchmark runs: 1,515 in Run A, 1,515 in Run B)** |
 | **INFO Logs** | 73,858 (75.0%) | N/A |
 | **WARNING Logs** | 14,639 (14.9%) | N/A |
 | **ERROR Logs** | 7,984 (8.1%) | N/A |
@@ -53,26 +53,32 @@ $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined
 
 All invalid rows are quarantined in `rejected_logs` with full provenance (source file, run ID, exact unparsed raw line, descriptive rejection reason, and structured `reject_type` classification):
 
+### Per-Run Rejection Breakdown
+| Run ID | MALFORMED | SCHEMA_ERROR | VALIDATION_ERROR | DUPLICATE | Total Rejections |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `RUN_20261114_092113_1B83D3` | 0 | 481 | 776 | 258 | **1,515** |
+| `RUN_20261114_092055_7BA682` | 0 | 481 | 776 | 258 | **1,515** |
+
 ### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)
-| Reject Type | Cumulative Quarantined Count | Per-Run Count | % of Rejections | Business Handling |
-| :--- | :--- | :--- | :--- | :--- |
-| `VALIDATION_ERROR` | **1,552** | **776 / run** | 51.2% | Invalid field values or domain constraints |
-| `SCHEMA_ERROR` | **962** | **481 / run** | 31.7% | Missing required fields or incompatible schema |
-| `DUPLICATE` | **516** | **258 / run** | 17.0% | Intra-batch duplicate event IDs |
+| Reject Type | Total Quarantined Count | % of Rejections | Business Handling |
+| :--- | :--- | :--- | :--- |
+| `VALIDATION_ERROR` | **1,552** | 51.2% | Invalid field values or domain constraints |
+| `SCHEMA_ERROR` | **962** | 31.7% | Missing required fields or incompatible schema |
+| `DUPLICATE` | **516** | 17.0% | Intra-batch duplicate event IDs |
 
 ### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)
-| Rejection Reason | Cumulative Count | Per-Run Count | % of Rejections |
-| :--- | :--- | :--- | :--- |
-| Invalid timestamp format: '2026-99-99 99:99:99' | **542** | **271** | 17.9% |
-| Negative response time: -350.0ms. Latency must be non-negative. | **510** | **255** | 16.8% |
-| Invalid severity: 'UNKNOWN_SEV_LEVEL'. Allowed values: INFO, WARNING, ERROR, CRITICAL. | **500** | **250** | 16.5% |
-| Missing required field: message | **486** | **243** | 16.0% |
-| Missing required field: timestamp | **476** | **238** | 15.7% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_004 | **108** | **54** | 3.6% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_001 | **106** | **53** | 3.5% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_005 | **106** | **53** | 3.5% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_002 | **98** | **49** | 3.2% |
-| Duplicate event_id within batch: EVT_DUPLICATE_KEY_003 | **98** | **49** | 3.2% |
+| Rejection Reason | Cumulative Count | % of Rejections |
+| :--- | :--- | :--- |
+| Invalid timestamp format: '2026-99-99 99:99:99' | **542** | 17.9% |
+| Negative response time: -350.0ms. Latency must be non-negative. | **510** | 16.8% |
+| Invalid severity: 'UNKNOWN_SEV_LEVEL'. Allowed values: INFO, WARNING, ERROR, CRITICAL. | **500** | 16.5% |
+| Missing required field: message | **486** | 16.0% |
+| Missing required field: timestamp | **476** | 15.7% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_004 | **108** | 3.6% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_001 | **106** | 3.5% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_005 | **106** | 3.5% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_002 | **98** | 3.2% |
+| Duplicate event_id within batch: EVT_DUPLICATE_KEY_003 | **98** | 3.2% |
 
 ---
 

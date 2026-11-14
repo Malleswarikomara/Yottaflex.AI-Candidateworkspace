@@ -2,27 +2,33 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Optional, Dict, Any, List
 
 backend_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(backend_dir))
 
 from sqlalchemy import func, desc, case
+from sqlalchemy.orm import Session
 from app.database.connection import SessionLocal, DATABASE_URL
 from app.models.models import PipelineRun, ApplicationLog, RejectedLog, LogMetric
 from app.services.metrics import calculate_percentile
 
 
-def run_reconciliation():
-    db = SessionLocal()
+def run_reconciliation(report_path: Optional[Path] = None, db: Optional[Session] = None) -> List[Dict[str, Any]]:
+    should_close = False
+    if db is None:
+        db = SessionLocal()
+        should_close = True
+
     try:
         print("=" * 70)
         print("PIPELINE AUDIT & DATA RECONCILIATION REPORT")
         print("=" * 70)
 
         # Detect actual database engine
-        if "benchmark_clean.db" in DATABASE_URL:
+        if "benchmark_clean.db" in str(DATABASE_URL):
             db_engine_desc = "SQLite 3 with WAL Mode (`data/benchmark_clean.db`) [Production Target: PostgreSQL 14+]"
-        elif DATABASE_URL.startswith("sqlite"):
+        elif str(DATABASE_URL).startswith("sqlite"):
             db_engine_desc = f"SQLite 3 (`{DATABASE_URL}`) [Production Target: PostgreSQL 14+]"
         else:
             db_engine_desc = f"PostgreSQL (`{DATABASE_URL}`)"
@@ -32,11 +38,38 @@ def run_reconciliation():
         print(f"\nFound {len(runs)} recorded pipeline runs.")
         print(f"Active Storage Engine: {db_engine_desc}")
 
+        # Query actual rejections per run_id
+        rejections_by_run = dict(
+            db.query(RejectedLog.run_id, func.count(RejectedLog.reject_id))
+            .group_by(RejectedLog.run_id)
+            .all()
+        )
+
+        # Query actual intra-batch duplicate rejections per run_id
+        duplicates_by_run = dict(
+            db.query(RejectedLog.run_id, func.count(RejectedLog.reject_id))
+            .filter(RejectedLog.reject_type == "DUPLICATE")
+            .group_by(RejectedLog.run_id)
+            .all()
+        )
+
+        # Query rejection breakdown by (run_id, reject_type)
+        types_by_run_query = (
+            db.query(RejectedLog.run_id, RejectedLog.reject_type, func.count(RejectedLog.reject_id))
+            .group_by(RejectedLog.run_id, RejectedLog.reject_type)
+            .all()
+        )
+        types_by_run: Dict[str, Dict[str, int]] = {}
+        for rid, rtype, cnt in types_by_run_query:
+            types_by_run.setdefault(rid, {})[rtype or "UNKNOWN"] = cnt
+
         run_rows = []
         for r in runs:
             newly_inserted = r.newly_inserted_records if r.newly_inserted_records is not None else r.valid_records
             prev_skipped = r.previously_skipped_records if r.previously_skipped_records is not None else 0
-            rejected = r.rejected_records or 0
+            # Actual rejected-record count from rejected_logs for this run, falling back to recorded r.rejected_records
+            rejected = rejections_by_run.get(r.run_id, r.rejected_records or 0)
+            run_dupes = duplicates_by_run.get(r.run_id, r.duplicate_records or 0)
             accounted = newly_inserted + rejected + prev_skipped
             is_recon = (accounted == r.total_input_records)
 
@@ -49,14 +82,15 @@ def run_reconciliation():
                 "newly_inserted": newly_inserted,
                 "rejected": rejected,
                 "previously_skipped": prev_skipped,
-                "duplicates": r.duplicate_records or 0,
+                "duplicates": run_dupes,
                 "retry_count": r.retry_count or 0,
                 "failure_reason": r.failure_reason or "",
                 "accounted": accounted,
                 "is_reconciled": is_recon,
                 "duration_sec": r.duration_seconds,
+                "type_breakdown": types_by_run.get(r.run_id, {}),
             })
-            print(f"Run {r.run_id} | Input: {r.total_input_records:,} | Inserted: {newly_inserted:,} | Rejects: {rejected:,} | Skipped: {prev_skipped:,} | Match: {is_recon}")
+            print(f"Run {r.run_id} | Input: {r.total_input_records:,} | Inserted: {newly_inserted:,} | Rejects: {rejected:,} | IntraBatchDupes: {run_dupes:,} | Skipped: {prev_skipped:,} | Match: {is_recon}")
 
         # 2. Database Totals
         total_logs = db.query(ApplicationLog).count()
@@ -156,20 +190,35 @@ def run_reconciliation():
             audit_status_header = f"**AUDIT FAILED — Discrepancies detected in {unreconciled_count} of {total_runs_count} run(s)**"
 
         if is_dual_benchmark:
-            quarantine_desc = f"{total_rejected:,} (Cumulative across both benchmark runs: 1,515 per run)"
+            run_a = runs[1] if runs[0].start_time > runs[1].start_time else runs[0]
+            run_b = runs[0] if runs[0].start_time > runs[1].start_time else runs[1]
+            rej_a = rejections_by_run.get(run_a.run_id, run_a.rejected_records or 0)
+            rej_b = rejections_by_run.get(run_b.run_id, run_b.rejected_records or 0)
+            dup_a = duplicates_by_run.get(run_a.run_id, 0)
+            dup_b = duplicates_by_run.get(run_b.run_id, 0)
+            total_benchmark_dupes = dup_a + dup_b
+
+            quarantine_desc = f"{total_rejected:,} (Cumulative across both benchmark runs: {rej_a:,} in Run A, {rej_b:,} in Run B)"
             rejection_types_header = "### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)"
             rejection_reasons_header = "### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)"
-            cumulative_note = """
+            cumulative_note = f"""
 > [!NOTE]
 > **Clarification of Per-Run vs. Cumulative Database Storage Totals:**
-> - **Per Individual Benchmark Run (Run-Level):** Each 100,000-record run independently processed exactly **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`).
-> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the 1,515 invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **3,030 total quarantined records** (1,515 per run $\\times$ 2 runs) and **516 cumulative intra-batch duplicate events** (258 per run $\\times$ 2 runs). The valid records in `application_logs` remained strictly deduplicated at exactly **98,485 rows** (zero duplicates inserted).
+> - **Per Individual Benchmark Run (Run-Level):** Benchmark Run A processed exactly **{rej_a:,} quarantined rejected records**, of which **{dup_a:,}** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`). Benchmark Run B processed **{rej_b:,} quarantined rejected records**, of which **{dup_b:,}** were intra-batch duplicate key collisions.
+> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **{total_rejected:,} total quarantined records** ({rej_a:,} in Run A + {rej_b:,} in Run B) and **{total_benchmark_dupes:,} cumulative intra-batch duplicate events** ({dup_a:,} + {dup_b:,}). The valid records in `application_logs` remained strictly deduplicated at exactly **{total_logs:,} rows** (zero duplicates inserted).
 """
         elif num_runs == 1:
-            quarantine_desc = f"{total_rejected:,} (Total quarantined for single run)"
+            r0 = runs[0]
+            r0_rej = rejections_by_run.get(r0.run_id, r0.rejected_records or 0)
+            r0_dupes = duplicates_by_run.get(r0.run_id, 0)
+            quarantine_desc = f"{total_rejected:,} (Total quarantined for single run: {r0_rej:,})"
             rejection_types_header = "### Rejection Types Breakdown (Single Run)"
             rejection_reasons_header = "### Detailed Rejection Reasons Breakdown (Single Run)"
-            cumulative_note = ""
+            cumulative_note = f"""
+> [!NOTE]
+> **Single Run Summary:**
+> - Processed **{r0_rej:,} quarantined rejected records**, of which **{r0_dupes:,}** were intra-batch duplicates. Total valid records in `application_logs`: **{total_logs:,}**.
+"""
         else:
             quarantine_desc = f"{total_rejected:,} (Cumulative across {num_runs} recorded runs)"
             rejection_types_header = f"### Rejection Types Breakdown (Cumulative across {num_runs} Recorded Runs)"
@@ -177,9 +226,13 @@ def run_reconciliation():
             cumulative_note = ""
 
         # Write markdown report
-        reports_dir = backend_dir.parent / "reports"
-        reports_dir.mkdir(parents=True, exist_ok=True)
-        report_path = reports_dir / "reconciliation_report.md"
+        if report_path is None:
+            reports_dir = backend_dir.parent / "reports"
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            report_path = reports_dir / "reconciliation_report.md"
+        else:
+            report_path = Path(report_path)
+            report_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(f"""# Data Pipeline Reconciliation & Quality Audit Report
@@ -195,14 +248,14 @@ def run_reconciliation():
 Every incoming batch is audited against the source-to-target conservation law:
 $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Quarantined Rejections}} + \\text{{Previously Skipped Records}}$$
 
-| Run ID | Source File | Format | Status | Total Input | Newly Inserted | Quarantined Rejects | Skipped (Rerun) | Accounted Sum | Reconciled? | Duration |
+| Run ID | Source File | Format | Status | Total Input | Newly Inserted | Quarantined Rejects | Intra-Batch Dupes | Skipped (Rerun) | Accounted Sum | Reconciled? | Duration |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 """)
             for r in run_rows:
                 status_icon = "SUCCESS" if r["is_reconciled"] else "FAIL"
                 f.write(
                     f"| `{r['run_id']}` | `{r['source_file']}` | {r['format']} | `{r['status']}` | "
-                    f"{r['total_input']:,} | {r['newly_inserted']:,} | {r['rejected']:,} | "
+                    f"{r['total_input']:,} | {r['newly_inserted']:,} | {r['rejected']:,} | {r['duplicates']:,} | "
                     f"{r['previously_skipped']:,} | {r['accounted']:,} | **{status_icon}** | {r['duration_sec']}s |\n"
                 )
 
@@ -239,30 +292,40 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
 
 All invalid rows are quarantined in `rejected_logs` with full provenance (source file, run ID, exact unparsed raw line, descriptive rejection reason, and structured `reject_type` classification):
 
+### Per-Run Rejection Breakdown
+| Run ID | MALFORMED | SCHEMA_ERROR | VALIDATION_ERROR | DUPLICATE | Total Rejections |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+""")
+            for r in run_rows:
+                tb = r.get("type_breakdown", {})
+                f.write(
+                    f"| `{r['run_id']}` | {tb.get('MALFORMED', 0):,} | {tb.get('SCHEMA_ERROR', 0):,} | "
+                    f"{tb.get('VALIDATION_ERROR', 0):,} | {tb.get('DUPLICATE', 0):,} | **{r['rejected']:,}** |\n"
+                )
+
+            f.write(f"""
 {rejection_types_header}
-| Reject Type | Cumulative Quarantined Count | Per-Run Count | % of Rejections | Business Handling |
-| :--- | :--- | :--- | :--- | :--- |
+| Reject Type | Total Quarantined Count | % of Rejections | Business Handling |
+| :--- | :--- | :--- | :--- |
 """)
             for t_name, cnt in types_grouped:
                 pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
-                per_run = int(cnt / num_runs) if num_runs > 0 else cnt
                 handling = {
                     "MALFORMED": "Syntax or serialization errors",
                     "SCHEMA_ERROR": "Missing required fields or incompatible schema",
                     "VALIDATION_ERROR": "Invalid field values or domain constraints",
                     "DUPLICATE": "Intra-batch duplicate event IDs",
                 }.get(t_name, "Data quality violation")
-                f.write(f"| `{t_name or 'UNKNOWN'}` | **{cnt:,}** | **{per_run:,} / run** | {pct:.1f}% | {handling} |\n")
+                f.write(f"| `{t_name or 'UNKNOWN'}` | **{cnt:,}** | {pct:.1f}% | {handling} |\n")
 
             f.write(f"""
 {rejection_reasons_header}
-| Rejection Reason | Cumulative Count | Per-Run Count | % of Rejections |
-| :--- | :--- | :--- | :--- |
+| Rejection Reason | Cumulative Count | % of Rejections |
+| :--- | :--- | :--- |
 """)
             for reason, cnt in reasons_grouped:
                 pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
-                per_run = int(cnt / num_runs) if num_runs > 0 else cnt
-                f.write(f"| {reason} | **{cnt:,}** | **{per_run:,}** | {pct:.1f}% |\n")
+                f.write(f"| {reason} | **{cnt:,}** | {pct:.1f}% |\n")
 
             f.write(f"""
 ---
@@ -299,6 +362,7 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
 """)
 
         print(f"\nReconciliation report generated successfully at: {report_path}")
+        return run_rows
 
     finally:
         db.close()

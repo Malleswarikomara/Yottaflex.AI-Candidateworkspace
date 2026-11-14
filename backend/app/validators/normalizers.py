@@ -53,10 +53,13 @@ def normalize_timestamp(raw_val: Any) -> datetime:
     dt: Optional[datetime] = None
 
     if isinstance(raw_val, datetime):
-        if raw_val.tzinfo is None:
-            dt = raw_val.replace(tzinfo=timezone.utc)
-        else:
-            dt = raw_val.astimezone(timezone.utc)
+        try:
+            if raw_val.tzinfo is None:
+                dt = raw_val.replace(tzinfo=timezone.utc)
+            else:
+                dt = raw_val.astimezone(timezone.utc)
+        except (OverflowError, ValueError, OSError) as e:
+            raise LogValidationError(f"Invalid timestamp datetime conversion: {e}") from e
     elif isinstance(raw_val, (int, float)):
         try:
             val = float(raw_val)
