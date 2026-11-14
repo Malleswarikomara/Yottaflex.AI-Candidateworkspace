@@ -1,6 +1,6 @@
 # Data Pipeline Reconciliation & Quality Audit Report
 
-**Audit Generated:** 2026-11-14 09:27:24 UTC  
+**Audit Generated:** 2026-11-14 11:23:04 UTC  
 **Target Storage Engine (Actual Benchmark Engine):** **SQLite 3 with WAL Mode (`data/benchmark_clean.db`) [Production Target: PostgreSQL 14+]**  
 **Audit Status:** **VERIFIED — ALL RUNS 100% RECONCILED (0 Silently Discarded Rows)**  
 
@@ -27,7 +27,7 @@ $$\text{Total Input Records} = \text{Newly Inserted Records} + \text{Quarantined
 
 | Metric Category | Target Layer (`application_logs`) | Quarantine Layer (`rejected_logs` Table Total) |
 | :--- | :--- | :--- |
-| **Total Stored Records** | **98,485 (Deduplicated Canonical Records)** | **3,030 (Cumulative across both runs: 1,515 per run)** |
+| **Total Stored Records** | **98,485 (Deduplicated Canonical Records)** | **3,030 (Cumulative across both benchmark runs: 1,515 per run)** |
 | **INFO Logs** | 73,858 (75.0%) | N/A |
 | **WARNING Logs** | 14,639 (14.9%) | N/A |
 | **ERROR Logs** | 7,984 (8.1%) | N/A |
@@ -56,9 +56,9 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
 ### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)
 | Reject Type | Cumulative Quarantined Count | Per-Run Count | % of Rejections | Business Handling |
 | :--- | :--- | :--- | :--- | :--- |
-| `VALIDATION_ERROR` | **1,552** | **776 / run** | 51.2% | Invalid severity string, negative latency value, or invalid timestamp format |
-| `SCHEMA_ERROR` | **962** | **481 / run** | 31.7% | Missing mandatory fields (timestamp, message) or incompatible header structure |
-| `DUPLICATE` | **516** | **258 / run** | 17.0% | Intra-batch duplicate event ID collision |
+| `VALIDATION_ERROR` | **1,552** | **776 / run** | 51.2% | Invalid field values or domain constraints |
+| `SCHEMA_ERROR` | **962** | **481 / run** | 31.7% | Missing required fields or incompatible schema |
+| `DUPLICATE` | **516** | **258 / run** | 17.0% | Intra-batch duplicate event IDs |
 
 ### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)
 | Rejection Reason | Cumulative Count | Per-Run Count | % of Rejections |

@@ -1,8 +1,10 @@
 import re
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from dateutil import parser as date_parser
 from typing import Optional, Tuple, Any, Dict
+
+EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 class LogValidationError(Exception):
@@ -43,51 +45,55 @@ def normalize_timestamp(raw_val: Any) -> datetime:
     """
     Parse and normalize any timestamp into a timezone-aware UTC datetime.
     Supports ISO-8601, Common Log format, RFC 2822, and numeric Unix epochs.
-    Older (late-arriving) timestamps are accepted as valid.
+    Accepts historical and late-arriving timestamps within allowable bounds (1970–2100).
     """
     if raw_val is None:
         raise LogSchemaError("Missing required field: timestamp")
 
+    dt: Optional[datetime] = None
+
     if isinstance(raw_val, datetime):
         if raw_val.tzinfo is None:
-            return raw_val.replace(tzinfo=timezone.utc)
-        return raw_val.astimezone(timezone.utc)
-
-    # Check for numeric epoch (seconds or milliseconds)
-    if isinstance(raw_val, (int, float)):
-        try:
-            if raw_val > 1e11:
-                return datetime.fromtimestamp(raw_val / 1000.0, tz=timezone.utc)
-            return datetime.fromtimestamp(float(raw_val), tz=timezone.utc)
-        except Exception as e:
-            raise LogValidationError(f"Invalid epoch timestamp: {raw_val}") from e
-
-    raw_str = str(raw_val).strip()
-    if not raw_str:
-        raise LogSchemaError("Missing required field: timestamp (empty value)")
-
-    if raw_str.isdigit():
-        val = int(raw_str)
-        if val > 1e11:
-            return datetime.fromtimestamp(val / 1000.0, tz=timezone.utc)
-        return datetime.fromtimestamp(float(val), tz=timezone.utc)
-
-    try:
-        dt = date_parser.parse(raw_str)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = raw_val.replace(tzinfo=timezone.utc)
         else:
-            dt = dt.astimezone(timezone.utc)
+            dt = raw_val.astimezone(timezone.utc)
+    elif isinstance(raw_val, (int, float)):
+        try:
+            val = float(raw_val)
+            if abs(val) > 1e11:
+                val = val / 1000.0
+            dt = EPOCH_START + timedelta(seconds=val)
+        except (ValueError, OverflowError, OSError) as e:
+            raise LogValidationError(f"Invalid epoch timestamp: {raw_val}") from e
+    else:
+        raw_str = str(raw_val).strip()
+        if not raw_str:
+            raise LogSchemaError("Missing required field: timestamp (empty value)")
 
-        # Boundary sanity check: accept historical logs from 1970 to 2100
-        if dt.year < 1970 or dt.year > 2100:
-            raise LogValidationError(f"Timestamp year out of allowable bounds (1970-2100): {dt.year}")
+        # Check for numeric epoch string (positive or negative integer / float)
+        if re.match(r"^-?\d+(?:\.\d+)?$", raw_str):
+            try:
+                val = float(raw_str)
+                if abs(val) > 1e11:
+                    val = val / 1000.0
+                dt = EPOCH_START + timedelta(seconds=val)
+            except (ValueError, OverflowError, OSError) as e:
+                raise LogValidationError(f"Invalid epoch timestamp: '{raw_str}'") from e
+        else:
+            try:
+                parsed_dt = date_parser.parse(raw_str)
+                if parsed_dt.tzinfo is None:
+                    dt = parsed_dt.replace(tzinfo=timezone.utc)
+                else:
+                    dt = parsed_dt.astimezone(timezone.utc)
+            except Exception as e:
+                raise LogValidationError(f"Invalid timestamp format: '{raw_str}'") from e
 
-        return dt
-    except Exception as e:
-        if isinstance(e, LogValidationError):
-            raise
-        raise LogValidationError(f"Invalid timestamp format: '{raw_str}'") from e
+    # Universal boundary sanity check: accept logs from 1970 to 2100
+    if dt.year < 1970 or dt.year > 2100:
+        raise LogValidationError(f"Timestamp year out of allowable bounds (1970-2100): {dt.year}")
+
+    return dt
 
 
 def normalize_severity(raw_val: Any) -> str:

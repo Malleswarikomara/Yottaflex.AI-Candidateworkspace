@@ -175,7 +175,7 @@ When an input record cannot be safely normalized into `application_logs`, it is 
 
 - **Sequential Idempotency:** Reruns are fully idempotent. Re-submitting an identical file checks incoming deterministic `event_id`s against existing keys in `application_logs`. Pre-existing records are counted under `previously_skipped_records` and omitted from insertion, resulting in 0 newly inserted rows and zero duplicate primary keys.
 - **Manual Reruns & Client-Initiated Retries:** Retries are explicit, manual re-submissions or client-driven reruns of batches upon partial success or failure. The platform intentionally does not run background automatic retry loops or dead-letter queue polling workers, keeping operational state deterministic and predictable.
-- **Process Restart & Transaction Integrity:** If the backend process crashes or is restarted mid-ingestion, the database transaction is automatically rolled back via ACID transaction boundaries. The database remains in a consistent state without orphan records, and the batch can simply be resubmitted.
+- **Process Restart & Transaction Integrity:** If the backend process crashes or encounters an unexpected database failure mid-ingestion (verified via automated failure-injection testing in `test_database_failure_injection_rollback_and_retry`), the database transaction is automatically rolled back via ACID boundaries. The run is recorded as `FAILED` with diagnostic failure reason, the database remains completely clean without orphan records, and the batch can simply be resubmitted with full idempotency.
 - **Historical Backfill:** Historical backfill is accomplished by submitting historical batch files. Timestamps from any era within allowable bounds (1970–2100) are accepted, normalized to UTC, and indexed without rejection.
 - **Concurrency Boundary:** Uniqueness is strictly guaranteed by the `event_id` Primary Key constraint. However, the current ingestion pipeline does not implement database-level atomic upsert (`INSERT ... ON CONFLICT DO NOTHING`) or distributed locking. Sequential reruns are safely tracked via `previously_skipped_records`, but simultaneous concurrent ingestion of batches containing identical event IDs relies on PK constraint rollback to prevent duplicate rows.
 
@@ -244,7 +244,7 @@ cd c:\CandidateWorkspace
 $env:PYTHONPATH = "backend"
 pytest -v
 ```
-**Result:** **48/48 automated unit and integration tests passing.**
+**Result:** **51/51 automated unit and integration tests passing.**
 
 ### 4. Running in Visual Studio Code (Pre-configured IDE Integration)
 The workspace includes native `.vscode/` configurations for zero-friction local execution:
@@ -385,6 +385,9 @@ All required negative scenarios are verified by automated tests in `backend/test
 | `test_csv_multiline_raw_record` | Multiline quoted CSV records | Logical record boundaries tracked and preserved in `raw_record` |
 | `test_csv_multiline_crlf_raw_record` | Multiline CSV records with `\r\n` CRLF | Exact Windows line-endings preserved in `raw_record` |
 | `test_json_and_text_parser_raw_record_whitespace_preservation` | Raw indentation/whitespace in JSON/Text | Exact unstripped original line whitespace preserved in `raw_record` |
+| `test_timestamp_boundary_enforcement_all_input_types` | Numeric, digit-string, & datetime bounds (1970–2100) | Strictly enforced across all formats; epoch 0 accepted; out-of-range rejected |
+| `test_json_array_raw_record_preservation` | Raw element preservation in JSON array | Original multiline raw text slice with indentation preserved in `rejected_logs` |
+| `test_database_failure_injection_rollback_and_retry` | Injected database crash and rollback | Transaction cleanly rolled back; run marked `FAILED`; subsequent retry succeeds |
 | `test_http_sample_endpoints_integration` | FastAPI TestClient HTTP integration | Verifies all 4 sample dataset endpoints return HTTP 200 and reconcile |
 
 ---

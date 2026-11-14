@@ -145,6 +145,37 @@ def run_reconciliation():
         num_runs = len(runs)
         is_dual_benchmark = (num_runs == 2 and runs[0].total_input_records == 100000 and runs[1].total_input_records == 100000)
 
+        total_runs_count = len(run_rows)
+        all_reconciled = (total_runs_count > 0) and all(r["is_reconciled"] for r in run_rows)
+        if all_reconciled:
+            audit_status_header = "**VERIFIED — ALL RUNS 100% RECONCILED (0 Silently Discarded Rows)**"
+        elif total_runs_count == 0:
+            audit_status_header = "**NO RUNS RECORDED — Awaiting Pipeline Ingestion**"
+        else:
+            unreconciled_count = sum(1 for r in run_rows if not r["is_reconciled"])
+            audit_status_header = f"**AUDIT FAILED — Discrepancies detected in {unreconciled_count} of {total_runs_count} run(s)**"
+
+        if is_dual_benchmark:
+            quarantine_desc = f"{total_rejected:,} (Cumulative across both benchmark runs: 1,515 per run)"
+            rejection_types_header = "### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)"
+            rejection_reasons_header = "### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)"
+            cumulative_note = """
+> [!NOTE]
+> **Clarification of Per-Run vs. Cumulative Database Storage Totals:**
+> - **Per Individual Benchmark Run (Run-Level):** Each 100,000-record run independently processed exactly **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`).
+> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the 1,515 invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **3,030 total quarantined records** (1,515 per run $\\times$ 2 runs) and **516 cumulative intra-batch duplicate events** (258 per run $\\times$ 2 runs). The valid records in `application_logs` remained strictly deduplicated at exactly **98,485 rows** (zero duplicates inserted).
+"""
+        elif num_runs == 1:
+            quarantine_desc = f"{total_rejected:,} (Total quarantined for single run)"
+            rejection_types_header = "### Rejection Types Breakdown (Single Run)"
+            rejection_reasons_header = "### Detailed Rejection Reasons Breakdown (Single Run)"
+            cumulative_note = ""
+        else:
+            quarantine_desc = f"{total_rejected:,} (Cumulative across {num_runs} recorded runs)"
+            rejection_types_header = f"### Rejection Types Breakdown (Cumulative across {num_runs} Recorded Runs)"
+            rejection_reasons_header = f"### Detailed Rejection Reasons Breakdown (Cumulative across {num_runs} Recorded Runs)"
+            cumulative_note = ""
+
         # Write markdown report
         reports_dir = backend_dir.parent / "reports"
         reports_dir.mkdir(parents=True, exist_ok=True)
@@ -155,7 +186,7 @@ def run_reconciliation():
 
 **Audit Generated:** {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}  
 **Target Storage Engine (Actual Benchmark Engine):** **{db_engine_desc}**  
-**Audit Status:** **VERIFIED — ALL RUNS 100% RECONCILED (0 Silently Discarded Rows)**  
+**Audit Status:** {audit_status_header}  
 
 ---
 
@@ -175,15 +206,6 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
                     f"{r['previously_skipped']:,} | {r['accounted']:,} | **{status_icon}** | {r['duration_sec']}s |\n"
                 )
 
-            cumulative_note = ""
-            if is_dual_benchmark:
-                cumulative_note = """
-> [!NOTE]
-> **Clarification of Per-Run vs. Cumulative Database Storage Totals:**
-> - **Per Individual Benchmark Run (Run-Level):** Each 100,000-record run independently processed exactly **1,515 quarantined rejected records**, of which **258** were intra-batch duplicate key collisions (`reject_type = DUPLICATE`).
-> - **Cumulative Database Totals (Table-Level across both Benchmark A & B runs):** Because Benchmark B executed an idempotent re-ingestion of the identical 100,000-record CSV payload into the same benchmark database, the 1,515 invalid records were quarantined again. Hence, the `rejected_logs` table cumulatively stores **3,030 total quarantined records** (1,515 per run $\\times$ 2 runs) and **516 cumulative intra-batch duplicate events** (258 per run $\\times$ 2 runs). The valid records in `application_logs` remained strictly deduplicated at exactly **98,485 rows** (zero duplicates inserted).
-"""
-
             f.write(f"""
 ---
 
@@ -191,7 +213,7 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
 {cumulative_note}
 | Metric Category | Target Layer (`application_logs`) | Quarantine Layer (`rejected_logs` Table Total) |
 | :--- | :--- | :--- |
-| **Total Stored Records** | **{total_logs:,} (Deduplicated Canonical Records)** | **{total_rejected:,} (Cumulative across both runs: 1,515 per run)** |
+| **Total Stored Records** | **{total_logs:,} (Deduplicated Canonical Records)** | **{quarantine_desc}** |
 | **INFO Logs** | {info_c:,} ({(info_c/total_logs*100):.1f}%) | N/A |
 | **WARNING Logs** | {warn_c:,} ({(warn_c/total_logs*100):.1f}%) | N/A |
 | **ERROR Logs** | {err_c:,} ({(err_c/total_logs*100):.1f}%) | N/A |
@@ -217,7 +239,7 @@ $$\\text{{Total Input Records}} = \\text{{Newly Inserted Records}} + \\text{{Qua
 
 All invalid rows are quarantined in `rejected_logs` with full provenance (source file, run ID, exact unparsed raw line, descriptive rejection reason, and structured `reject_type` classification):
 
-### Rejection Types Breakdown (Cumulative Table Totals across Both Benchmark Runs)
+{rejection_types_header}
 | Reject Type | Cumulative Quarantined Count | Per-Run Count | % of Rejections | Business Handling |
 | :--- | :--- | :--- | :--- | :--- |
 """)
@@ -225,15 +247,15 @@ All invalid rows are quarantined in `rejected_logs` with full provenance (source
                 pct = (cnt / total_rejected * 100.0) if total_rejected > 0 else 0.0
                 per_run = int(cnt / num_runs) if num_runs > 0 else cnt
                 handling = {
-                    "VALIDATION_ERROR": "Invalid severity string, negative latency value, or invalid timestamp format",
-                    "SCHEMA_ERROR": "Missing mandatory fields (timestamp, message) or incompatible header structure",
-                    "DUPLICATE": "Intra-batch duplicate event ID collision",
-                    "MALFORMED": "Unparseable syntax or missing required fields"
+                    "MALFORMED": "Syntax or serialization errors",
+                    "SCHEMA_ERROR": "Missing required fields or incompatible schema",
+                    "VALIDATION_ERROR": "Invalid field values or domain constraints",
+                    "DUPLICATE": "Intra-batch duplicate event IDs",
                 }.get(t_name, "Data quality violation")
                 f.write(f"| `{t_name or 'UNKNOWN'}` | **{cnt:,}** | **{per_run:,} / run** | {pct:.1f}% | {handling} |\n")
 
             f.write(f"""
-### Detailed Rejection Reasons Breakdown (Cumulative across Both Runs)
+{rejection_reasons_header}
 | Rejection Reason | Cumulative Count | Per-Run Count | % of Rejections |
 | :--- | :--- | :--- | :--- |
 """)

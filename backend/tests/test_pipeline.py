@@ -334,6 +334,140 @@ def test_json_and_text_parser_raw_record_whitespace_preservation():
     assert res_text[1].reject_type == "MALFORMED"
 
 
+def test_timestamp_boundary_enforcement_all_input_types():
+    """Verify allowable date bounds (1970–2100) are strictly enforced for all timestamp formats."""
+    # 1. Valid boundary: Epoch 0 (1970-01-01)
+    dt0 = normalize_timestamp(0)
+    assert dt0.year == 1970
+    dt0_str = normalize_timestamp("0")
+    assert dt0_str.year == 1970
+
+    # 2. Numeric epoch before 1970 (e.g. -100 seconds)
+    with pytest.raises(LogValidationError, match="Timestamp year out of allowable bounds"):
+        normalize_timestamp(-100)
+
+    # 3. Numeric epoch after 2100 (e.g. year 2105: 4260000000)
+    with pytest.raises(LogValidationError, match="Timestamp year out of allowable bounds"):
+        normalize_timestamp(4260000000)
+
+    # 4. Digit-string epoch outside allowable range (before 1970 or after 2100)
+    with pytest.raises(LogValidationError, match="Timestamp year out of allowable bounds"):
+        normalize_timestamp("-1000000")
+
+    with pytest.raises(LogValidationError, match="Timestamp year out of allowable bounds"):
+        normalize_timestamp("5000000000")
+
+    # 5. Datetime object outside allowable range
+    with pytest.raises(LogValidationError, match="Timestamp year out of allowable bounds"):
+        normalize_timestamp(datetime(1965, 5, 20))
+
+    with pytest.raises(LogValidationError, match="Timestamp year out of allowable bounds"):
+        normalize_timestamp(datetime(2150, 1, 1))
+
+    # 6. Valid numeric epoch in milliseconds
+    dt_ms = normalize_timestamp(1700000000000)
+    assert dt_ms.year == 2023
+
+
+def test_json_array_raw_record_preservation():
+    """Verify that JSON array elements preserve their exact original raw text slice upon quarantine."""
+    unique_tag = uuid.uuid4().hex[:6]
+    json_array_content = f"""[
+  {{
+    "timestamp": "",
+    "severity": "INFO",
+    "message": "Quarantined record in JSON array {unique_tag}"
+  }},
+  {{
+    "timestamp": "2026-11-14T10:00:00Z",
+    "severity": "INFO",
+    "message": "Valid array record {unique_tag}"
+  }}
+]"""
+    result = PipelineService.process_log_file(json_array_content, "array_quarantine.json")
+    assert result["reconciliation"]["total_input_records"] == 2
+    assert result["reconciliation"]["newly_inserted_records"] == 1
+    assert result["reconciliation"]["rejected_records"] == 1
+    assert result["reconciliation"]["is_reconciled"] is True
+
+    db = SessionLocal()
+    try:
+        rej = db.query(RejectedLog).filter(RejectedLog.run_id == result["run_id"]).first()
+        assert rej is not None
+        assert rej.reject_type == "SCHEMA_ERROR"
+        # Assert that the exact original multiline string formatting with indentation was preserved
+        assert f'"message": "Quarantined record in JSON array {unique_tag}"' in rej.raw_record
+        assert '{\n    "timestamp": ""' in rej.raw_record
+    finally:
+        db.close()
+
+
+def test_database_failure_injection_rollback_and_retry():
+    """
+    Simulate an unexpected database insertion failure during pipeline execution.
+    Verify that:
+    1. The transaction is rolled back and no uncommitted application logs remain.
+    2. The pipeline_runs record is marked FAILED with diagnostic failure_reason.
+    3. Retrying the batch succeeds without duplicate records.
+    4. Subsequent reruns are idempotent.
+    """
+    from unittest.mock import patch
+    from sqlalchemy.orm import Session as SqlASession
+
+    unique_tag = uuid.uuid4().hex[:6]
+    csv_payload = f"""timestamp,severity,service,message,response_ms
+2026-11-14T10:00:00Z,INFO,auth,Retry test record 1 {unique_tag},100
+2026-11-14T10:01:00Z,INFO,auth,Retry test record 2 {unique_tag},200
+2026-11-14T10:02:00Z,INFO,auth,Retry test record 3 {unique_tag},300
+"""
+    fail_run_id = f"RUN_FAIL_{unique_tag}"
+
+    # 1. Inject failure during bulk_insert_mappings
+    with patch.object(SqlASession, "bulk_insert_mappings", side_effect=RuntimeError("Simulated DB connection dropped")):
+        with pytest.raises(RuntimeError, match="Simulated DB connection dropped"):
+            PipelineService.process_log_file(csv_payload, "failure_test.csv", run_id=fail_run_id)
+
+    # 2. Verify rollback: zero ApplicationLog rows with unique_tag exist
+    db = SessionLocal()
+    try:
+        inserted = db.query(ApplicationLog).filter(ApplicationLog.message.contains(unique_tag)).all()
+        assert len(inserted) == 0
+
+        # Verify pipeline_runs recorded FAILED status with failure_reason
+        failed_run = db.query(PipelineRun).filter(PipelineRun.run_id == fail_run_id).first()
+        assert failed_run is not None
+        assert failed_run.status == "FAILED"
+        assert "Simulated DB connection dropped" in (failed_run.failure_reason or "")
+    finally:
+        db.close()
+
+    # 3. Retry the exact same batch without failure injection
+    retry_run_id = f"RUN_RETRY_{unique_tag}"
+    retry_res = PipelineService.process_log_file(
+        csv_payload,
+        "failure_test.csv",
+        run_id=retry_run_id,
+        retry_count=1
+    )
+    assert retry_res["status"] == "SUCCESS"
+    assert retry_res["reconciliation"]["newly_inserted_records"] == 3
+    assert retry_res["reconciliation"]["rejected_records"] == 0
+    assert retry_res["reconciliation"]["previously_skipped_records"] == 0
+    assert retry_res["reconciliation"]["is_reconciled"] is True
+
+    # 4. Subsequent rerun: verify idempotency
+    rerun_run_id = f"RUN_RERUN_{unique_tag}"
+    rerun_res = PipelineService.process_log_file(
+        csv_payload,
+        "failure_test.csv",
+        run_id=rerun_run_id,
+        retry_count=2
+    )
+    assert rerun_res["reconciliation"]["newly_inserted_records"] == 0
+    assert rerun_res["reconciliation"]["previously_skipped_records"] == 3
+    assert rerun_res["reconciliation"]["is_reconciled"] is True
+
+
 def test_late_arriving_logs():
     """Verify older historical event timestamps are accepted and processed correctly."""
     unique_evt = f"LATE_{uuid.uuid4().hex[:8]}"

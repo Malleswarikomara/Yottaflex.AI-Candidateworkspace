@@ -21,26 +21,43 @@ class JsonLogParser(BaseLogParser):
         # Check if entire content is a JSON Array
         if content_stripped.startswith("[") and content_stripped.endswith("]"):
             try:
-                array_data = json.loads(content_stripped)
-                if not isinstance(array_data, list):
-                    return [ParsedRecordResult(
-                        raw_record=content_stripped[:200],
-                        parse_error="Expected JSON array at root level",
-                        reject_type="MALFORMED"
-                    )]
-
-                for item in array_data:
-                    raw_str = json.dumps(item)
-                    if isinstance(item, dict):
-                        results.append(ParsedRecordResult(raw_record=raw_str, data=item))
-                    else:
+                decoder = json.JSONDecoder()
+                idx = content.find("[") + 1
+                while idx < len(content):
+                    while idx < len(content) and content[idx] in " \t\r\n,":
+                        idx += 1
+                    if idx >= len(content) or content[idx] == "]":
+                        break
+                    try:
+                        item, end_idx = decoder.raw_decode(content, idx)
+                        raw_slice = content[idx:end_idx]
+                        if isinstance(item, dict):
+                            results.append(ParsedRecordResult(raw_record=raw_slice, data=item))
+                        else:
+                            results.append(ParsedRecordResult(
+                                raw_record=raw_slice,
+                                parse_error=f"JSON array item is not an object: {type(item).__name__}",
+                                reject_type="MALFORMED",
+                            ))
+                        idx = end_idx
+                    except json.JSONDecodeError as e:
+                        next_comma = content.find(",", idx)
+                        next_bracket = content.find("]", idx)
+                        if next_comma != -1 and (next_bracket == -1 or next_comma < next_bracket):
+                            end_idx = next_comma
+                        elif next_bracket != -1:
+                            end_idx = next_bracket
+                        else:
+                            end_idx = len(content)
+                        raw_slice = content[idx:end_idx].strip()
                         results.append(ParsedRecordResult(
-                            raw_record=raw_str,
-                            parse_error=f"JSON array item is not an object: {type(item).__name__}",
-                            reject_type="MALFORMED"
+                            raw_record=raw_slice,
+                            parse_error=f"Malformed JSON syntax: {e.msg}",
+                            reject_type="MALFORMED",
                         ))
+                        idx = end_idx
                 return results
-            except json.JSONDecodeError:
+            except Exception:
                 # If array parsing fails, fall back to line-by-line parsing
                 pass
 

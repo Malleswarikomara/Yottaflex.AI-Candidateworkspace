@@ -54,9 +54,10 @@ flowchart TD
    - The platform operates on batch file ingestion (supporting small starter samples up to configurable high-volume runs of 100,000+ records) rather than continuous streaming.
    - Files are accepted via multipart upload or batch payload (`.csv`, `.json`, `.jsonl`, `.log`, `.txt`).
    - The `ParserFactory` identifies the syntax via file extension with content sniffing fallback (e.g., JSON array vs JSON Lines vs comma-separated values vs semi-structured syslog text).
+   - Verbatim source provenance is preserved: NDJSON (JSON Lines) and semi-structured text preserve exact unstripped lines, CSV records preserve multiline quoted blocks and line endings, and JSON arrays use streaming decoder slicing to capture the exact raw multiline text slice of each element.
 
 2. **Deterministic Extraction & Normalization:**
-   - **Timestamp Normalization:** Converts multiple incoming formats (ISO-8601 with/without timezone, SQL space-delimited, Apache CLF, and Unix epoch seconds or milliseconds) into UTC-normalized timezone-aware `datetime` objects.
+   - **Timestamp Normalization:** Converts multiple incoming formats (ISO-8601 with/without timezone, SQL space-delimited, Apache CLF, and Unix epoch seconds or milliseconds) into UTC-normalized timezone-aware `datetime` objects. Universal boundary checks strictly enforce allowable years between 1970 and 2100 across all input formats (numeric epochs, digit strings, ISO strings, and datetime objects); out-of-range timestamps are quarantined under `VALIDATION_ERROR`.
    - **Severity Normalization:** Maps varied aliases (`[WARNING]`, `warn`, `W`, `ERR`, `error`, `crit`, `FATAL`) into canonical uppercase categories: `INFO`, `WARNING`, `ERROR`, `CRITICAL`.
    - **Deterministic ID Generation:** If an event lacks an explicit `event_id`, a cryptographic SHA-256 hash is computed over `(timestamp | service | message | user_id | endpoint | http_status | response_ms)` and formatted as `EVT_<16-HEX>`.
 
@@ -71,7 +72,7 @@ flowchart TD
 4. **Idempotent Target Publishing & Operational Semantics:**
    - **Deterministic Identity & Sequential Idempotency:** Valid records are deduplicated intra-batch and screened against existing primary keys (`event_id`) in `application_logs` using chunked queries (chunks of 900). If an input file is sequentially re-ingested, already-inserted records are counted under `previously_skipped_records` and omitted from insertion, guaranteeing sequential rerun idempotency with zero double-counting.
    - **Manual Reruns & Retries:** Retries are explicit, manual re-submissions of batches or files (or client-initiated reruns). The system does not run background automatic retry loops or exponential backoff workers.
-   - **Process Restart & Transaction Integrity:** In the event of an unhandled exception or process termination mid-ingestion, the database transaction is rolled back via standard ACID semantics, leaving the target table clean. The run can be resubmitted manually.
+   - **Process Restart & Transaction Integrity:** In the event of an unhandled exception or database failure mid-ingestion (verified via automated failure injection testing), the database transaction is rolled back via standard ACID semantics, leaving the target table clean. The run is recorded as `FAILED` with detailed diagnostic failure reason, and can be resubmitted manually with zero duplicate rows created.
    - **Historical Backfill:** Backfills are executed by submitting historical batch files. Timestamps from any era (1970–2100) are accepted and normalized.
    - **Concurrency Safeguards & Boundary:** Primary Key constraints on `event_id` physically enforce uniqueness at the database layer. However, the ingestion engine does not perform atomic database-level upserts (`INSERT ... ON CONFLICT DO NOTHING`) or distributed locking. Sequential reruns are fully accounted for, whereas simultaneous concurrent ingestion of batches containing identical event IDs is bounded by database PK constraint enforcement (which triggers an IntegrityError rollback to preserve target integrity).
 
